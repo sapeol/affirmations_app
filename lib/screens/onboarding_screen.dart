@@ -49,7 +49,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Expanded(
               child: PageView(
                 controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(), // Prevents accidental partial swipes
+                physics: const BouncingScrollPhysics(), // Allows both swipe and button navigation
                 onPageChanged: (i) => setState(() => _currentPage = i),
                 children: [
                   _buildWelcomePage(),
