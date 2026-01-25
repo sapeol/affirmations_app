@@ -21,6 +21,7 @@ class UserPreferences {
   final AppColorTheme colorTheme;
   final UserContext userContext;
   final AffirmationTone tone;
+  final String? lastMoodCategory;
   final bool notificationsEnabled;
 
   UserPreferences({
@@ -33,6 +34,7 @@ class UserPreferences {
     this.colorTheme = AppColorTheme.sage,
     this.userContext = UserContext.general,
     this.tone = AffirmationTone.gentle,
+    this.lastMoodCategory,
     this.notificationsEnabled = true,
   });
 
@@ -47,6 +49,7 @@ class UserPreferences {
     await s.setString('colorTheme', prefs.colorTheme.name);
     await s.setString('userContext', prefs.userContext.name);
     await s.setString('tone', prefs.tone.name);
+    if (prefs.lastMoodCategory != null) await s.setString('lastMood', prefs.lastMoodCategory!);
     await s.setBool('notifications', prefs.notificationsEnabled);
   }
 
@@ -70,6 +73,7 @@ class UserPreferences {
       colorTheme: _enumFromString(AppColorTheme.values, s.getString('colorTheme'), AppColorTheme.sage),
       userContext: _enumFromString(UserContext.values, s.getString('userContext'), UserContext.general),
       tone: _enumFromString(AffirmationTone.values, s.getString('tone'), AffirmationTone.gentle),
+      lastMoodCategory: s.getString('lastMood'),
       notificationsEnabled: s.getBool('notifications') ?? true,
     );
   }

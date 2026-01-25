@@ -7,6 +7,7 @@ import '../models/user_preferences.dart';
 import 'settings_screen.dart';
 import 'profile_screen.dart';
 import 'create_affirmation_screen.dart';
+import 'mood_checkin_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,10 +27,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Future<void> _loadInitialAffirmation() async {
-    setState(() {
-      _isLoading = true;
-    });
-    
+    setState(() => _isLoading = true);
     final aff = await AffirmationsService.getDailyAffirmation();
     await Future.delayed(const Duration(milliseconds: 800));
     
@@ -52,10 +50,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   void _refreshAffirmation() async {
-    setState(() {
-      _isLoading = true;
-    });
-    
+    setState(() => _isLoading = true);
     final aff = await AffirmationsService.getRandomAffirmation();
     
     final prefs = await UserPreferences.load();
@@ -96,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 colorTheme: prefs.colorTheme,
                 userContext: prefs.userContext,
                 tone: prefs.tone,
+                lastMoodCategory: prefs.lastMoodCategory,
                 notificationsEnabled: true,
               ));
               if (!context.mounted) return;
@@ -108,6 +104,29 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMoodPrompt() {
+    return FutureBuilder<UserPreferences>(
+      future: UserPreferences.load(),
+      builder: (context, snapshot) {
+        final mood = snapshot.data?.lastMoodCategory;
+        return ActionChip(
+          avatar: Icon(Icons.psychology_outlined, size: 16, color: Theme.of(context).colorScheme.primary),
+          label: Text(mood != null ? "Feeling $mood? Update..." : "How are you truly?"),
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const MoodCheckInScreen()),
+            );
+            if (result == true) _loadInitialAffirmation();
+          },
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+          side: BorderSide.none,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        );
+      },
     );
   }
 
@@ -145,6 +164,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              _buildMoodPrompt(),
+              const SizedBox(height: 32),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 800),
                 switchInCurve: Curves.easeInOutCubic,
