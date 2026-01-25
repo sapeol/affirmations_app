@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:record/record.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import '../models/user_mood.dart';
 import '../models/user_preferences.dart';
 
@@ -12,7 +15,63 @@ class MoodCheckInScreen extends StatefulWidget {
 class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
   EmotionCategory? _selectedCategory;
   final TextEditingController _journalController = TextEditingController();
-  bool _isRecording = false; // Placeholder for actual recording logic
+  
+  // Audio Recording
+  late AudioRecorder _audioRecorder;
+  bool _isRecording = false;
+  String? _audioPath;
+
+  @override
+  void initState() {
+    super.initState();
+    _audioRecorder = AudioRecorder();
+  }
+
+  @override
+  void dispose() {
+    _audioRecorder.dispose();
+    _journalController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _startRecording() async {
+    try {
+      if (await _audioRecorder.hasPermission()) {
+        final directory = await getApplicationDocumentsDirectory();
+        final path = p.join(directory.path, 'mood_note_${DateTime.now().millisecondsSinceEpoch}.m4a');
+        
+        const config = RecordConfig();
+        
+        await _audioRecorder.start(config, path: path);
+        setState(() {
+          _isRecording = true;
+          _audioPath = path;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to start recording: $e")),
+        );
+      }
+    }
+  }
+
+  Future<void> _stopRecording() async {
+    try {
+      final path = await _audioRecorder.stop();
+      setState(() {
+        _isRecording = false;
+        _audioPath = path;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to stop recording: $e")),
+        );
+      }
+    }
+  }
 
   void _saveMood() async {
     if (_selectedCategory == null) return;
@@ -31,6 +90,9 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
       lastMoodCategory: _selectedCategory!.name,
       notificationsEnabled: prefs.notificationsEnabled,
     ));
+
+    // In a real app, you'd save the _audioPath and _journalController.text 
+    // to a database along with the mood entry. For now, we persist the mood state.
 
     if (mounted) Navigator.pop(context, true);
   }
@@ -110,17 +172,31 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => setState(() => _isRecording = !_isRecording),
-                    icon: Icon(_isRecording ? Icons.stop_circle : Icons.mic_rounded),
-                    label: Text(_isRecording ? "Recording..." : "Voice Note"),
+                    onPressed: _isRecording ? _stopRecording : _startRecording,
+                    icon: Icon(_isRecording ? Icons.stop_circle : Icons.mic_rounded, 
+                      color: _isRecording ? Colors.red : null),
+                    label: Text(_isRecording ? "Stop Recording" : "Voice Note"),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      side: _isRecording ? const BorderSide(color: Colors.red, width: 2) : null,
                     ),
                   ),
                 ),
               ],
             ),
+            if (_audioPath != null && !_isRecording)
+              Padding(
+                padding: const EdgeInsets.only(top: 12.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text("Voice note saved locally", 
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.green))),
+                  ],
+                ),
+              ),
             const SizedBox(height: 48),
             SizedBox(
               width: double.infinity,
