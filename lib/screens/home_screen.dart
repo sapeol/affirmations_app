@@ -4,6 +4,7 @@ import '../services/affirmations_service.dart';
 import '../models/affirmation.dart';
 import '../models/user_preferences.dart';
 import 'settings_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -84,6 +85,13 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text("Daily Affirmations"),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.person_outline_rounded),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ProfileScreen()),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
@@ -130,30 +138,29 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
               ),
-              const SizedBox(height: 100), // Spacing for FABs
+              const SizedBox(height: 120), // Spacing for stacked FABs
             ],
           ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            FloatingActionButton(
-              heroTag: 'refresh',
-              onPressed: _refreshAffirmation,
-              child: const Icon(Icons.refresh_rounded),
-            ),
-            FloatingActionButton.extended(
-              heroTag: 'add',
-              onPressed: _showAddDialog,
-              icon: const Icon(Icons.add),
-              label: const Text("Create My Own"),
-            ),
-          ],
-        ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'refresh',
+            mini: true,
+            onPressed: _refreshAffirmation,
+            child: const Icon(Icons.refresh_rounded),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton.extended(
+            heroTag: 'add',
+            onPressed: _showAddDialog,
+            icon: const Icon(Icons.add),
+            label: const Text("Create My Own"),
+          ),
+        ],
       ),
     );
   }
