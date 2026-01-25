@@ -7,6 +7,7 @@ enum SpiritualLeaning { secular, spiritual, religious, stoic, buddhist }
 enum AppFocus { anxiety, motivation, grief, improvement, general }
 enum LifeStage { student, professional, parent, retired, other }
 enum Gender { female, male, nonBinary, preferNotToSay }
+enum AppColorTheme { sage, lavender, sky, rose, peach }
 
 class UserPreferences {
   final SpiritualLeaning leaning;
@@ -15,6 +16,7 @@ class UserPreferences {
   final Gender gender;
   final ThemeMode themeMode;
   final String fontFamily;
+  final AppColorTheme colorTheme;
   final bool notificationsEnabled;
 
   UserPreferences({
@@ -24,6 +26,7 @@ class UserPreferences {
     required this.gender,
     this.themeMode = ThemeMode.system,
     this.fontFamily = 'Lexend',
+    this.colorTheme = AppColorTheme.sage,
     this.notificationsEnabled = true,
   });
 
@@ -35,6 +38,7 @@ class UserPreferences {
     await s.setString('gender', prefs.gender.name);
     await s.setString('themeMode', prefs.themeMode.name);
     await s.setString('fontFamily', prefs.fontFamily);
+    await s.setString('colorTheme', prefs.colorTheme.name);
     await s.setBool('notifications', prefs.notificationsEnabled);
   }
 
@@ -55,6 +59,7 @@ class UserPreferences {
       gender: _enumFromString(Gender.values, s.getString('gender'), Gender.preferNotToSay),
       themeMode: _enumFromString(ThemeMode.values, s.getString('themeMode'), ThemeMode.system),
       fontFamily: s.getString('fontFamily') ?? 'Lexend',
+      colorTheme: _enumFromString(AppColorTheme.values, s.getString('colorTheme'), AppColorTheme.sage),
       notificationsEnabled: s.getBool('notifications') ?? true,
     );
   }
@@ -76,10 +81,5 @@ class UserPreferences {
         return null;
       }
     }).whereType<Affirmation>().toList();
-  }
-
-  static Future<void> reset() async {
-    final s = await SharedPreferences.getInstance();
-    await s.clear();
   }
 }

@@ -15,7 +15,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final Map<String, List<String>> _fontCategories = {
     'Modern': ['Lexend', 'Montserrat', 'Outfit', 'Plus Jakarta Sans'],
     'Elegant': ['Playfair Display', 'Lora', 'Merriweather', 'EB Garamond'],
-    'Playful': ['Caveat', 'Patrick Hand', 'Indie Flower', 'Dancing Script'],
+    'Playful': ['Caveat', 'Patrick Hand', 'Dancing Script'],
     'Clean': ['Fira Code', 'Roboto Mono', 'Space Mono', 'Ubuntu Mono'],
   };
 
@@ -29,6 +29,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await UserPreferences.save(newPrefs);
     themeNotifier.value = newPrefs.themeMode;
     fontNotifier.value = newPrefs.fontFamily;
+    colorThemeNotifier.value = newPrefs.colorTheme;
     setState(() {
       _prefsFuture = Future.value(newPrefs);
     });
@@ -37,7 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Settings & Style")),
+      appBar: AppBar(title: const Text("Settings")),
       body: FutureBuilder<UserPreferences>(
         future: _prefsFuture,
         builder: (context, snapshot) {
@@ -45,47 +46,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
           final prefs = snapshot.data!;
 
           return ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             children: [
-              _buildSectionHeader(Icons.palette_outlined, "Appearance"),
-              _buildModernSelection(ThemeMode.values, prefs.themeMode, (val) => _updatePreference(_copy(prefs, themeMode: val as ThemeMode))),
-              
-              const SizedBox(height: 32),
-              _buildSectionHeader(Icons.font_download_outlined, "Typography"),
-              ..._fontCategories.entries.map((entry) => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16, bottom: 8),
-                    child: Text(entry.key, style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    )),
-                  ),
-                  _buildModernSelection(entry.value, prefs.fontFamily, (val) => _updatePreference(_copy(prefs, fontFamily: val as String))),
-                ],
-              )),
-
-              const SizedBox(height: 32),
-              _buildSectionHeader(Icons.fingerprint_outlined, "Identity"),
-              _buildModernSelection(Gender.values, prefs.gender, (val) => _updatePreference(_copy(prefs, gender: val as Gender))),
-              
-              const SizedBox(height: 16),
-              _buildSectionHeader(Icons.auto_awesome_outlined, "Life Stage"),
-              _buildModernSelection(LifeStage.values, prefs.lifeStage, (val) => _updatePreference(_copy(prefs, lifeStage: val as LifeStage))),
-
-              const SizedBox(height: 16),
-              _buildSectionHeader(Icons.psychology_outlined, "Mindset Focus"),
-              _buildModernSelection(AppFocus.values, prefs.focus, (val) => _updatePreference(_copy(prefs, focus: val as AppFocus))),
-
-              const SizedBox(height: 32),
-              _buildSectionHeader(Icons.notifications_active_outlined, "Daily Reminders"),
+              _buildGroupHeader("Appearance"),
+              _buildSettingTile(
+                icon: Icons.brightness_6_outlined,
+                title: "Dark Mode",
+                subtitle: _formatEnum(prefs.themeMode),
+                onTap: () => _showSelectionDialog(context, "Select Theme Mode", ThemeMode.values, prefs.themeMode, (val) => _updatePreference(_copy(prefs, themeMode: val as ThemeMode))),
+              ),
+              _buildSettingTile(
+                icon: Icons.palette_outlined,
+                title: "Pastel Theme",
+                subtitle: _formatEnum(prefs.colorTheme),
+                onTap: () => _showSelectionDialog(context, "Select Color Palette", AppColorTheme.values, prefs.colorTheme, (val) => _updatePreference(_copy(prefs, colorTheme: val as AppColorTheme))),
+              ),
+              _buildSettingTile(
+                icon: Icons.font_download_outlined,
+                title: "Font Family",
+                subtitle: prefs.fontFamily,
+                onTap: () => _showFontDialog(context, prefs),
+              ),
+              const Divider(height: 32),
+              _buildGroupHeader("Personalization"),
+              _buildSettingTile(
+                icon: Icons.fingerprint_outlined,
+                title: "Gender",
+                subtitle: _formatEnum(prefs.gender),
+                onTap: () => _showSelectionDialog(context, "Identify As", Gender.values, prefs.gender, (val) => _updatePreference(_copy(prefs, gender: val as Gender))),
+              ),
+              _buildSettingTile(
+                icon: Icons.auto_awesome_outlined,
+                title: "Life Stage",
+                subtitle: _formatEnum(prefs.lifeStage),
+                onTap: () => _showSelectionDialog(context, "Life Stage", LifeStage.values, prefs.lifeStage, (val) => _updatePreference(_copy(prefs, lifeStage: val as LifeStage))),
+              ),
+              _buildSettingTile(
+                icon: Icons.psychology_outlined,
+                title: "Focus Area",
+                subtitle: _formatEnum(prefs.focus),
+                onTap: () => _showSelectionDialog(context, "Your Focus", AppFocus.values, prefs.focus, (val) => _updatePreference(_copy(prefs, focus: val as AppFocus))),
+              ),
+              const Divider(height: 32),
+              _buildGroupHeader("Notifications"),
               SwitchListTile(
-                title: const Text("Morning Affirmations"),
-                subtitle: const Text("Receive a gentle notification every day."),
+                secondary: Icon(Icons.notifications_active_outlined, color: Theme.of(context).colorScheme.primary),
+                title: const Text("Morning Reminders"),
                 value: prefs.notificationsEnabled,
                 onChanged: (val) => _updatePreference(_copy(prefs, notificationsEnabled: val)),
               ),
-              const SizedBox(height: 40),
             ],
           );
         },
@@ -93,51 +102,100 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSectionHeader(IconData icon, String title) {
+  Widget _buildGroupHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 12),
-          Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          )),
-        ],
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Text(title, style: Theme.of(context).textTheme.titleSmall?.copyWith(
+        color: Theme.of(context).colorScheme.primary,
+        fontWeight: FontWeight.bold,
+        letterSpacing: 1.1,
+      )),
+    );
+  }
+
+  Widget _buildSettingTile({required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
+    return ListTile(
+      leading: Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant),
+      title: Text(title),
+      subtitle: Text(subtitle, style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+      trailing: const Icon(Icons.chevron_right, size: 20),
+      onTap: onTap,
+    );
+  }
+
+  void _showSelectionDialog(BuildContext context, String title, List options, dynamic current, Function(dynamic) onSelected) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 16),
+            ...options.map((opt) => ListTile(
+              title: Text(_formatEnum(opt)),
+              trailing: current == opt ? Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary) : null,
+              onTap: () {
+                onSelected(opt);
+                Navigator.pop(context);
+              },
+            )),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildModernSelection(List options, dynamic selected, Function(dynamic) onSelected) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: options.map((opt) {
-        final name = opt.toString().split('.').last;
-        final isSelected = selected == opt;
-        return ChoiceChip(
-          label: Text(name[0].toUpperCase() + name.substring(1)),
-          selected: isSelected,
-          onSelected: (val) => onSelected(opt),
-          showCheckmark: false,
-          labelStyle: TextStyle(
-            color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          selectedColor: Theme.of(context).colorScheme.primary,
-        );
-      }).toList(),
+  void _showFontDialog(BuildContext context, UserPreferences prefs) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (context) => SizedBox(
+        height: MediaQuery.of(context).size.height * 0.7,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text("Choose Typography", style: Theme.of(context).textTheme.titleLarge),
+            ),
+            Expanded(
+              child: ListView(
+                children: _fontCategories.entries.map((entry) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                      child: Text(entry.key, style: Theme.of(context).textTheme.labelLarge),
+                    ),
+                    ...entry.value.map((font) => ListTile(
+                      title: Text(font, style: TextStyle(fontFamily: font)),
+                      trailing: prefs.fontFamily == font ? Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary) : null,
+                      onTap: () {
+                        _updatePreference(_copy(prefs, fontFamily: font));
+                        Navigator.pop(context);
+                      },
+                    )),
+                  ],
+                )).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  UserPreferences _copy(UserPreferences p, {SpiritualLeaning? leaning, AppFocus? focus, LifeStage? lifeStage, Gender? gender, ThemeMode? themeMode, String? fontFamily, bool? notificationsEnabled}) {
+  String _formatEnum(dynamic e) {
+    final name = e.toString().split('.').last;
+    return name[0].toUpperCase() + name.substring(1);
+  }
+
+  UserPreferences _copy(UserPreferences p, {SpiritualLeaning? leaning, AppFocus? focus, LifeStage? lifeStage, Gender? gender, ThemeMode? themeMode, String? fontFamily, AppColorTheme? colorTheme, bool? notificationsEnabled}) {
     return UserPreferences(
-      leaning: leaning ?? p.leaning,
-      focus: focus ?? p.focus,
-      lifeStage: lifeStage ?? p.lifeStage,
-      gender: gender ?? p.gender,
-      themeMode: themeMode ?? p.themeMode,
-      fontFamily: fontFamily ?? p.fontFamily,
-      notificationsEnabled: notificationsEnabled ?? p.notificationsEnabled,
+      leaning: leaning ?? p.leaning, focus: focus ?? p.focus, lifeStage: lifeStage ?? p.lifeStage, gender: gender ?? p.gender, themeMode: themeMode ?? p.themeMode, fontFamily: fontFamily ?? p.fontFamily, colorTheme: colorTheme ?? p.colorTheme, notificationsEnabled: notificationsEnabled ?? p.notificationsEnabled,
     );
   }
 }

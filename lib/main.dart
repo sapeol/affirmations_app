@@ -6,6 +6,7 @@ import 'models/user_preferences.dart';
 
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.system);
 final ValueNotifier<String> fontNotifier = ValueNotifier('Lexend');
+final ValueNotifier<AppColorTheme> colorThemeNotifier = ValueNotifier(AppColorTheme.sage);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +14,7 @@ void main() async {
   final prefs = await UserPreferences.load();
   themeNotifier.value = prefs.themeMode;
   fontNotifier.value = prefs.fontFamily;
+  colorThemeNotifier.value = prefs.colorTheme;
   
   final bool onboardingCompleted = await _checkOnboarding();
 
@@ -31,16 +33,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder2<ThemeMode, String>(
-      first: themeNotifier,
-      second: fontNotifier,
-      builder: (_, ThemeMode currentMode, String currentFont, __) {
+    return MultiValueListenableBuilder(
+      notifiers: [themeNotifier, fontNotifier, colorThemeNotifier],
+      builder: (context) {
         return MaterialApp(
           title: 'Daily Affirmations',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.createTheme(Brightness.light, currentFont),
-          darkTheme: AppTheme.createTheme(Brightness.dark, currentFont),
-          themeMode: currentMode,
+          theme: AppTheme.createTheme(Brightness.light, fontNotifier.value, colorThemeNotifier.value),
+          darkTheme: AppTheme.createTheme(Brightness.dark, fontNotifier.value, colorThemeNotifier.value),
+          themeMode: themeNotifier.value,
           home: onboardingCompleted ? const HomeScreen() : const OnboardingScreen(),
         );
       },
@@ -48,31 +49,26 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Simple helper to listen to two notifiers
-class ValueListenableBuilder2<A, B> extends StatelessWidget {
-  final ValueNotifier<A> first;
-  final ValueNotifier<B> second;
-  final Widget Function(BuildContext, A, B, Widget?) builder;
+class MultiValueListenableBuilder extends StatelessWidget {
+  final List<ValueNotifier> notifiers;
+  final WidgetBuilder builder;
 
-  const ValueListenableBuilder2({
+  const MultiValueListenableBuilder({
     super.key,
-    required this.first,
-    required this.second,
+    required this.notifiers,
     required this.builder,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<A>(
-      valueListenable: first,
-      builder: (_, a, __) {
-        return ValueListenableBuilder<B>(
-          valueListenable: second,
-          builder: (context, b, widget) {
-            return builder(context, a, b, widget);
-          },
-        );
-      },
+    return _buildRecursive(0, context);
+  }
+
+  Widget _buildRecursive(int index, BuildContext context) {
+    if (index == notifiers.length) return builder(context);
+    return ValueListenableBuilder(
+      valueListenable: notifiers[index],
+      builder: (_, __, ___) => _buildRecursive(index + 1, context),
     );
   }
 }
