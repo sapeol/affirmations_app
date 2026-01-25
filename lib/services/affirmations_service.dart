@@ -1,8 +1,9 @@
 import 'dart:math';
 import '../models/affirmation.dart';
+import '../models/user_preferences.dart';
 
 class AffirmationsService {
-  static final List<Affirmation> _affirmations = [
+  static final List<Affirmation> _defaultAffirmations = [
     Affirmation(text: "I am capable of achieving my goals."),
     Affirmation(text: "Every day is a fresh start."),
     Affirmation(text: "I am worthy of love and respect."),
@@ -15,14 +16,22 @@ class AffirmationsService {
     Affirmation(text: "I am enough exactly as I am."),
   ];
 
-  static Affirmation getDailyAffirmation() {
-    // In a real app, this could be based on the date
-    final now = DateTime.now();
-    final dayOfYear = now.difference(DateTime(now.year, 1, 1)).inDays;
-    return _affirmations[dayOfYear % _affirmations.length];
+  static Future<List<Affirmation>> getAllAffirmations() async {
+    final custom = await UserPreferences.getCustomAffirmations();
+    return [..._defaultAffirmations, ...custom];
   }
 
-  static Affirmation getRandomAffirmation() {
-    return _affirmations[Random().nextInt(_affirmations.length)];
+  static Future<Affirmation> getDailyAffirmation() async {
+    final all = await getAllAffirmations();
+    if (all.isEmpty) return _defaultAffirmations.first;
+    final now = DateTime.now();
+    final dayOfYear = now.difference(DateTime(now.year, 1, 1)).inDays;
+    return all[dayOfYear % all.length];
+  }
+
+  static Future<Affirmation> getRandomAffirmation() async {
+    final all = await getAllAffirmations();
+    if (all.isEmpty) return _defaultAffirmations.first;
+    return all[Random().nextInt(all.length)];
   }
 }

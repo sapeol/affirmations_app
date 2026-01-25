@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/user_preferences.dart';
+import '../main.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -19,6 +20,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _updatePreference(UserPreferences newPrefs) async {
     await UserPreferences.save(newPrefs);
+    themeNotifier.value = newPrefs.themeMode;
     setState(() {
       _prefsFuture = Future.value(newPrefs);
     });
@@ -37,11 +39,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              _buildSection("Appearance"),
+              _buildChips(ThemeMode.values, prefs.themeMode, (val) => _updatePreference(UserPreferences(
+                leaning: prefs.leaning, focus: prefs.focus, lifeStage: prefs.lifeStage, gender: prefs.gender, themeMode: val as ThemeMode, notificationsEnabled: prefs.notificationsEnabled
+              ))),
+              const SizedBox(height: 16),
+              _buildSection("Identity"),
+              _buildChips(Gender.values, prefs.gender, (val) => _updatePreference(UserPreferences(
+                leaning: prefs.leaning, focus: prefs.focus, lifeStage: prefs.lifeStage, gender: val as Gender, themeMode: prefs.themeMode, notificationsEnabled: prefs.notificationsEnabled
+              ))),
+              const SizedBox(height: 16),
+              _buildSection("Life Stage"),
+              _buildChips(LifeStage.values, prefs.lifeStage, (val) => _updatePreference(UserPreferences(
+                leaning: prefs.leaning, focus: prefs.focus, lifeStage: val as LifeStage, gender: prefs.gender, themeMode: prefs.themeMode, notificationsEnabled: prefs.notificationsEnabled
+              ))),
+              const SizedBox(height: 16),
               _buildSection("Mindset Focus"),
-              _buildFocusChips(prefs),
-              const SizedBox(height: 24),
+              _buildChips(AppFocus.values, prefs.focus, (val) => _updatePreference(UserPreferences(
+                leaning: prefs.leaning, focus: val as AppFocus, lifeStage: prefs.lifeStage, gender: prefs.gender, themeMode: prefs.themeMode, notificationsEnabled: prefs.notificationsEnabled
+              ))),
+              const SizedBox(height: 16),
               _buildSection("Spiritual Path"),
-              _buildLeaningChips(prefs),
+              _buildChips(SpiritualLeaning.values, prefs.leaning, (val) => _updatePreference(UserPreferences(
+                leaning: val as SpiritualLeaning, focus: prefs.focus, lifeStage: prefs.lifeStage, gender: prefs.gender, themeMode: prefs.themeMode, notificationsEnabled: prefs.notificationsEnabled
+              ))),
               const SizedBox(height: 24),
               _buildSection("Notifications"),
               SwitchListTile(
@@ -50,6 +71,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (val) => _updatePreference(UserPreferences(
                   focus: prefs.focus,
                   leaning: prefs.leaning,
+                  lifeStage: prefs.lifeStage,
+                  gender: prefs.gender,
+                  themeMode: prefs.themeMode,
                   notificationsEnabled: val,
                 )),
               ),
@@ -70,33 +94,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildFocusChips(UserPreferences prefs) {
+  Widget _buildChips(List options, dynamic selected, Function(dynamic) onSelected) {
     return Wrap(
       spacing: 8,
-      children: AppFocus.values.map((f) => ChoiceChip(
-        label: Text(f.name),
-        selected: prefs.focus == f,
-        onSelected: (val) => _updatePreference(UserPreferences(
-          focus: f,
-          leaning: prefs.leaning,
-          notificationsEnabled: prefs.notificationsEnabled,
-        )),
-      )).toList(),
-    );
-  }
-
-  Widget _buildLeaningChips(UserPreferences prefs) {
-    return Wrap(
-      spacing: 8,
-      children: SpiritualLeaning.values.map((l) => ChoiceChip(
-        label: Text(l.name),
-        selected: prefs.leaning == l,
-        onSelected: (val) => _updatePreference(UserPreferences(
-          focus: prefs.focus,
-          leaning: l,
-          notificationsEnabled: prefs.notificationsEnabled,
-        )),
-      )).toList(),
+      children: options.map((opt) {
+        final name = opt.toString().split('.').last;
+        return ChoiceChip(
+          label: Text(name[0].toUpperCase() + name.substring(1)),
+          selected: selected == opt,
+          onSelected: (val) => onSelected(opt),
+        );
+      }).toList(),
     );
   }
 }
