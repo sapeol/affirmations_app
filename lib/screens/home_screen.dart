@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 import 'package:home_widget/home_widget.dart';
 import '../services/affirmations_service.dart';
 import '../models/affirmation.dart';
 import '../models/user_preferences.dart';
 import 'settings_screen.dart';
 import 'profile_screen.dart';
+import 'create_affirmation_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,10 +14,10 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   Affirmation? _currentAffirmation;
-  final TextEditingController _customController = TextEditingController();
   bool _isLoading = true;
+  int _loadingStep = 0;
 
   @override
   void initState() {
@@ -26,9 +26,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadInitialAffirmation() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadingStep = 0;
+    });
+    
     final aff = await AffirmationsService.getDailyAffirmation();
-    await Future.delayed(const Duration(milliseconds: 1500));
+    await Future.delayed(const Duration(milliseconds: 800));
+    
     if (mounted) {
       setState(() {
         _currentAffirmation = aff;
@@ -42,22 +47,26 @@ class _HomeScreenState extends State<HomeScreen> {
     HomeWidget.saveWidgetData<String>('affirmation_text', aff.text);
     HomeWidget.updateWidget(
       name: 'AffirmationWidgetProvider',
-      androidName: 'AffirmationWidgetProvider',
+      androidName: 'com.example.affirmations_app.AffirmationWidgetProvider',
       iOSName: 'AffirmationWidget',
     );
   }
 
   void _refreshAffirmation() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadingStep = 0;
+    });
+    
     final aff = await AffirmationsService.getRandomAffirmation();
     
-    // Check for just-in-time notification permission after some engagement
     final prefs = await UserPreferences.load();
     if (!prefs.notificationsEnabled && mounted) {
       _showNotificationPrompt();
     }
 
-    await Future.delayed(const Duration(milliseconds: 1200));
+    await Future.delayed(const Duration(milliseconds: 1000));
+    
     if (mounted) {
       setState(() {
         _currentAffirmation = aff;
@@ -68,7 +77,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showNotificationPrompt() {
-    // Only show once per session or use a flag in SharedPreferences to show only once ever
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -88,6 +96,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 themeMode: prefs.themeMode,
                 fontFamily: prefs.fontFamily,
                 colorTheme: prefs.colorTheme,
+                userContext: prefs.userContext,
+                tone: prefs.tone,
                 notificationsEnabled: true,
               ));
               if (!context.mounted) return;
@@ -97,37 +107,6 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
             child: const Text("Enable"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAddDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Create Affirmation"),
-        content: TextField(
-          controller: _customController,
-          decoration: const InputDecoration(hintText: "I am..."),
-          maxLines: 3,
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
-          FilledButton.tonal(
-            onPressed: () async {
-              if (_customController.text.isNotEmpty) {
-                final newAff = Affirmation(text: _customController.text, isCustom: true);
-                await UserPreferences.addCustomAffirmation(newAff);
-                _customController.clear();
-                if (!context.mounted) return;
-                Navigator.pop(context);
-                _refreshAffirmation();
-              }
-            },
-            child: const Text("Save"),
           ),
         ],
       ),
@@ -218,7 +197,15 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 16),
           FloatingActionButton.extended(
             heroTag: 'add',
-            onPressed: _showAddDialog,
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CreateAffirmationScreen()),
+              );
+              if (result == true) {
+                _refreshAffirmation();
+              }
+            },
             icon: const Icon(Icons.add),
             label: const Text("Create My Own"),
           ),
@@ -312,7 +299,6 @@ class _ExpressivePainter extends CustomPainter {
       
       paint.color = color.withValues(alpha: opacity.clamp(0.0, 1.0));
       
-      // Draw organic petal-like shape
       final path = Path()
         ..moveTo(0, -20 * scale)
         ..quadraticBezierTo(15 * scale, -30 * scale, 20 * scale, 0)
