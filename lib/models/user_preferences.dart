@@ -8,6 +8,8 @@ enum AppFocus { anxiety, motivation, grief, improvement, general }
 enum LifeStage { student, professional, parent, retired, other }
 enum Gender { female, male, nonBinary, preferNotToSay }
 enum AppColorTheme { sage, lavender, sky, rose, peach }
+enum UserContext { career, relationships, selfImage, health, uncertainty, general }
+enum AffirmationTone { gentle, empowering, philosophical }
 
 class UserPreferences {
   final SpiritualLeaning leaning;
@@ -17,6 +19,8 @@ class UserPreferences {
   final ThemeMode themeMode;
   final String fontFamily;
   final AppColorTheme colorTheme;
+  final UserContext userContext;
+  final AffirmationTone tone;
   final bool notificationsEnabled;
 
   UserPreferences({
@@ -27,6 +31,8 @@ class UserPreferences {
     this.themeMode = ThemeMode.system,
     this.fontFamily = 'Lexend',
     this.colorTheme = AppColorTheme.sage,
+    this.userContext = UserContext.general,
+    this.tone = AffirmationTone.gentle,
     this.notificationsEnabled = true,
   });
 
@@ -39,6 +45,8 @@ class UserPreferences {
     await s.setString('themeMode', prefs.themeMode.name);
     await s.setString('fontFamily', prefs.fontFamily);
     await s.setString('colorTheme', prefs.colorTheme.name);
+    await s.setString('userContext', prefs.userContext.name);
+    await s.setString('tone', prefs.tone.name);
     await s.setBool('notifications', prefs.notificationsEnabled);
   }
 
@@ -60,6 +68,8 @@ class UserPreferences {
       themeMode: _enumFromString(ThemeMode.values, s.getString('themeMode'), ThemeMode.system),
       fontFamily: s.getString('fontFamily') ?? 'Lexend',
       colorTheme: _enumFromString(AppColorTheme.values, s.getString('colorTheme'), AppColorTheme.sage),
+      userContext: _enumFromString(UserContext.values, s.getString('userContext'), UserContext.general),
+      tone: _enumFromString(AffirmationTone.values, s.getString('tone'), AffirmationTone.gentle),
       notificationsEnabled: s.getBool('notifications') ?? true,
     );
   }

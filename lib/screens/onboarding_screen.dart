@@ -12,12 +12,14 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  final int _totalPages = 3;
+  final int _totalPages = 4;
 
   AppFocus _selectedFocus = AppFocus.general;
   SpiritualLeaning _selectedLeaning = SpiritualLeaning.secular;
   LifeStage _selectedLifeStage = LifeStage.other;
   Gender _selectedGender = Gender.preferNotToSay;
+  UserContext _selectedContext = UserContext.general;
+  AffirmationTone _selectedTone = AffirmationTone.gentle;
 
   void _finish() async {
     await UserPreferences.save(UserPreferences(
@@ -25,6 +27,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       leaning: _selectedLeaning,
       lifeStage: _selectedLifeStage,
       gender: _selectedGender,
+      userContext: _selectedContext,
+      tone: _selectedTone,
       notificationsEnabled: false,
     ));
     if (mounted) {
@@ -49,12 +53,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Expanded(
               child: PageView(
                 controller: _pageController,
-                physics: const BouncingScrollPhysics(), // Allows both swipe and button navigation
+                physics: const BouncingScrollPhysics(),
                 onPageChanged: (i) => setState(() => _currentPage = i),
                 children: [
                   _buildWelcomePage(),
                   _buildIdentityPage(),
-                  _buildMindsetPage(),
+                  _buildContextPage(),
+                  _buildStylePage(),
                 ],
               ),
             ),
@@ -110,7 +115,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            "Your personalized space for daily light and mindful growth.",
+            "Highly personalized affirmations for your unique journey.",
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5),
             textAlign: TextAlign.center,
           ),
@@ -127,35 +132,50 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 40),
-          Text("Tell us about you", style: Theme.of(context).textTheme.headlineMedium),
+          Text("About You", style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 40),
-          _buildSelectionTitle("I identify as..."),
-          const SizedBox(height: 12),
+          _buildSelectionTitle("Identity"),
           _buildStableSelection(Gender.values, _selectedGender, (v) => setState(() => _selectedGender = v as Gender)),
           const SizedBox(height: 32),
-          _buildSelectionTitle("Life stage"),
-          const SizedBox(height: 12),
+          _buildSelectionTitle("Life Stage"),
           _buildStableSelection(LifeStage.values, _selectedLifeStage, (v) => setState(() => _selectedLifeStage = v as LifeStage)),
         ],
       ),
     );
   }
 
-  Widget _buildMindsetPage() {
+  Widget _buildContextPage() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 40),
-          Text("Customize your path", style: Theme.of(context).textTheme.headlineMedium),
+          Text("Your Situation", style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 40),
-          _buildSelectionTitle("Focus area"),
-          const SizedBox(height: 12),
-          _buildStableSelection(AppFocus.values, _selectedFocus, (v) => setState(() => _selectedFocus = v as AppFocus)),
+          _buildSelectionTitle("What's on your mind?"),
+          _buildStableSelection(UserContext.values, _selectedContext, (v) => setState(() => _selectedContext = v as UserContext)),
           const SizedBox(height: 32),
-          _buildSelectionTitle("Spiritual leaning"),
-          const SizedBox(height: 12),
+          _buildSelectionTitle("Core focus"),
+          _buildStableSelection(AppFocus.values, _selectedFocus, (v) => setState(() => _selectedFocus = v as AppFocus)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStylePage() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 40),
+          Text("Your Preference", style: Theme.of(context).textTheme.headlineMedium),
+          const SizedBox(height: 40),
+          _buildSelectionTitle("Desired tone"),
+          _buildStableSelection(AffirmationTone.values, _selectedTone, (v) => setState(() => _selectedTone = v as AffirmationTone)),
+          const SizedBox(height: 32),
+          _buildSelectionTitle("Spiritual path"),
           _buildStableSelection(SpiritualLeaning.values, _selectedLeaning, (v) => setState(() => _selectedLeaning = v as SpiritualLeaning)),
         ],
       ),
@@ -163,10 +183,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildSelectionTitle(String text) {
-    return Text(text, style: Theme.of(context).textTheme.labelLarge?.copyWith(
-      color: Theme.of(context).colorScheme.primary,
-      fontWeight: FontWeight.bold,
-    ));
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Text(text, style: Theme.of(context).textTheme.labelLarge?.copyWith(
+        color: Theme.of(context).colorScheme.primary,
+        fontWeight: FontWeight.bold,
+      )),
+    );
   }
 
   Widget _buildStableSelection(List options, dynamic selected, Function(dynamic) onSelected) {
@@ -182,7 +205,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,

@@ -90,7 +90,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 colorTheme: prefs.colorTheme,
                 notificationsEnabled: true,
               ));
-              if (mounted) Navigator.pop(context);
+              if (!context.mounted) return;
+              Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Notifications enabled")),
               );

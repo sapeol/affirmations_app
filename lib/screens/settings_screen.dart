@@ -76,29 +76,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () async {
                     await HomeWidget.requestPinWidget(
                       name: 'AffirmationWidgetProvider',
-                      androidName: 'AffirmationWidgetProvider',
+                      androidName: 'com.example.affirmations_app.AffirmationWidgetProvider',
                     );
                   },
                 ),
               const Divider(height: 32),
               _buildGroupHeader("Personalization"),
               _buildSettingTile(
+                icon: Icons.bubble_chart_outlined,
+                title: "Current Context",
+                subtitle: _formatEnum(prefs.userContext),
+                onTap: () => _showSelectionDialog(context, "What's on your mind?", UserContext.values, prefs.userContext, (val) => _updatePreference(_copy(prefs, userContext: val as UserContext))),
+              ),
+              _buildSettingTile(
+                icon: Icons.record_voice_over_outlined,
+                title: "Desired Tone",
+                subtitle: _formatEnum(prefs.tone),
+                onTap: () => _showSelectionDialog(context, "Affirmation Tone", AffirmationTone.values, prefs.tone, (val) => _updatePreference(_copy(prefs, tone: val as AffirmationTone))),
+              ),
+              _buildSettingTile(
+                icon: Icons.psychology_outlined,
+                title: "Core Focus",
+                subtitle: _formatEnum(prefs.focus),
+                onTap: () => _showSelectionDialog(context, "Main Focus", AppFocus.values, prefs.focus, (val) => _updatePreference(_copy(prefs, focus: val as AppFocus))),
+              ),
+              _buildSettingTile(
+                icon: Icons.spa_outlined,
+                title: "Spiritual Path",
+                subtitle: _formatEnum(prefs.leaning),
+                onTap: () => _showSelectionDialog(context, "Spiritual Leaning", SpiritualLeaning.values, prefs.leaning, (val) => _updatePreference(_copy(prefs, leaning: val as SpiritualLeaning))),
+              ),
+              const Divider(height: 32),
+              _buildGroupHeader("Identity"),
+              _buildSettingTile(
                 icon: Icons.fingerprint_outlined,
                 title: "Gender",
                 subtitle: _formatEnum(prefs.gender),
-                onTap: () => _showSelectionDialog(context, "Identify As", Gender.values, prefs.gender, (val) => _updatePreference(_copy(prefs, gender: val as Gender))),
+                onTap: () => _showSelectionDialog(context, "Identity", Gender.values, prefs.gender, (val) => _updatePreference(_copy(prefs, gender: val as Gender))),
               ),
               _buildSettingTile(
                 icon: Icons.auto_awesome_outlined,
                 title: "Life Stage",
                 subtitle: _formatEnum(prefs.lifeStage),
                 onTap: () => _showSelectionDialog(context, "Life Stage", LifeStage.values, prefs.lifeStage, (val) => _updatePreference(_copy(prefs, lifeStage: val as LifeStage))),
-              ),
-              _buildSettingTile(
-                icon: Icons.psychology_outlined,
-                title: "Focus Area",
-                subtitle: _formatEnum(prefs.focus),
-                onTap: () => _showSelectionDialog(context, "Your Focus", AppFocus.values, prefs.focus, (val) => _updatePreference(_copy(prefs, focus: val as AppFocus))),
               ),
               const Divider(height: 32),
               _buildGroupHeader("Notifications"),
@@ -206,9 +226,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return name[0].toUpperCase() + name.substring(1);
   }
 
-  UserPreferences _copy(UserPreferences p, {SpiritualLeaning? leaning, AppFocus? focus, LifeStage? lifeStage, Gender? gender, ThemeMode? themeMode, String? fontFamily, AppColorTheme? colorTheme, bool? notificationsEnabled}) {
+  UserPreferences _copy(UserPreferences p, {SpiritualLeaning? leaning, AppFocus? focus, LifeStage? lifeStage, Gender? gender, ThemeMode? themeMode, String? fontFamily, AppColorTheme? colorTheme, UserContext? userContext, AffirmationTone? tone, bool? notificationsEnabled}) {
     return UserPreferences(
-      leaning: leaning ?? p.leaning, focus: focus ?? p.focus, lifeStage: lifeStage ?? p.lifeStage, gender: gender ?? p.gender, themeMode: themeMode ?? p.themeMode, fontFamily: fontFamily ?? p.fontFamily, colorTheme: colorTheme ?? p.colorTheme, notificationsEnabled: notificationsEnabled ?? p.notificationsEnabled,
+      leaning: leaning ?? p.leaning, focus: focus ?? p.focus, lifeStage: lifeStage ?? p.lifeStage, gender: gender ?? p.gender, themeMode: themeMode ?? p.themeMode, fontFamily: fontFamily ?? p.fontFamily, colorTheme: colorTheme ?? p.colorTheme, userContext: userContext ?? p.userContext, tone: tone ?? p.tone, notificationsEnabled: notificationsEnabled ?? p.notificationsEnabled,
     );
   }
 }
