@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 import 'package:home_widget/home_widget.dart';
 import '../services/affirmations_service.dart';
 import '../models/affirmation.dart';
@@ -29,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Future<void> _loadInitialAffirmation() async {
     setState(() => _isLoading = true);
     final aff = await AffirmationsService.getDailyAffirmation();
-    await Future.delayed(const Duration(milliseconds: 800));
+    await Future.delayed(const Duration(milliseconds: 1200));
     
     if (mounted) {
       setState(() {
@@ -44,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     HomeWidget.saveWidgetData<String>('affirmation_text', aff.text);
     HomeWidget.updateWidget(
       name: 'AffirmationWidgetProvider',
-      androidName: 'com.example.affirmations_app.AffirmationWidgetProvider',
+      androidName: 'AffirmationWidgetProvider',
       iOSName: 'AffirmationWidget',
     );
   }
@@ -52,12 +51,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void _refreshAffirmation() async {
     setState(() => _isLoading = true);
     final aff = await AffirmationsService.getRandomAffirmation();
-    
-    final prefs = await UserPreferences.load();
-    if (!prefs.notificationsEnabled && mounted) {
-      _showNotificationPrompt();
-    }
-
     await Future.delayed(const Duration(milliseconds: 1000));
     
     if (mounted) {
@@ -69,80 +62,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
   }
 
-  void _showNotificationPrompt() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.notifications_active_outlined),
-        title: const Text("Daily Inspiration?"),
-        content: const Text("Would you like to receive a gentle affirmation every morning to start your day with light?"),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Later")),
-          FilledButton.tonal(
-            onPressed: () async {
-              final prefs = await UserPreferences.load();
-              await UserPreferences.save(UserPreferences(
-                leaning: prefs.leaning,
-                focus: prefs.focus,
-                lifeStage: prefs.lifeStage,
-                gender: prefs.gender,
-                themeMode: prefs.themeMode,
-                fontFamily: prefs.fontFamily,
-                colorTheme: prefs.colorTheme,
-                userContext: prefs.userContext,
-                tone: prefs.tone,
-                lastMoodCategory: prefs.lastMoodCategory,
-                notificationsEnabled: true,
-              ));
-              if (!context.mounted) return;
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Notifications enabled")),
-              );
-            },
-            child: const Text("Enable"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMoodPrompt() {
-    return FutureBuilder<UserPreferences>(
-      future: UserPreferences.load(),
-      builder: (context, snapshot) {
-        final mood = snapshot.data?.lastMoodCategory;
-        return ActionChip(
-          avatar: Icon(Icons.psychology_outlined, size: 16, color: Theme.of(context).colorScheme.primary),
-          label: Text(mood != null ? "Feeling $mood? Update..." : "How are you truly?"),
-          onPressed: () async {
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const MoodCheckInScreen()),
-            );
-            if (result == true) _loadInitialAffirmation();
-          },
-          backgroundColor: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
-          side: BorderSide.none,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final aff = _currentAffirmation;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Daily Affirmations"),
+        title: const Text("DOPERMATIONS", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2)),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(
-            Icons.spa_rounded,
-            color: Theme.of(context).colorScheme.primary,
-          ),
+          icon: Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary),
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const ProfileScreen()),
@@ -150,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined),
+            icon: const Icon(Icons.tune_rounded),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const SettingsScreen()),
@@ -165,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildMoodPrompt(),
-              const SizedBox(height: 32),
+              const SizedBox(height: 48),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 800),
                 switchInCurve: Curves.easeInOutCubic,
@@ -175,24 +104,38 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     : Card(
                         key: ValueKey(aff?.text ?? 'none'),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 48.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 64.0),
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                aff?.isCustom == true ? Icons.edit_note_rounded : Icons.spa_rounded,
-                                size: 48,
-                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
-                              ),
-                              const SizedBox(height: 24),
                               Text(
                                 aff?.text ?? "",
-                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                                       color: Theme.of(context).colorScheme.onSurface,
-                                      fontWeight: FontWeight.w400,
-                                      height: 1.5,
+                                      fontWeight: FontWeight.w800,
+                                      height: 1.3,
+                                      letterSpacing: -0.5,
                                     ),
                                 textAlign: TextAlign.center,
                               ),
+                              const SizedBox(height: 24),
+                              if (aff?.persona != null)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    aff!.persona!.name.toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).colorScheme.primary,
+                                      letterSpacing: 1,
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                         ),
@@ -211,6 +154,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             heroTag: 'refresh',
             mini: true,
             onPressed: _isLoading ? null : _refreshAffirmation,
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
             child: const Icon(Icons.refresh_rounded),
           ),
           const SizedBox(height: 16),
@@ -221,15 +165,35 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 context,
                 MaterialPageRoute(builder: (context) => const CreateAffirmationScreen()),
               );
-              if (result == true) {
-                _refreshAffirmation();
-              }
+              if (result == true) _refreshAffirmation();
             },
             icon: const Icon(Icons.add),
-            label: const Text("Create My Own"),
+            label: const Text("OWN PERSPECTIVE"),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMoodPrompt() {
+    return FutureBuilder<UserPreferences>(
+      future: UserPreferences.load(),
+      builder: (context, snapshot) {
+        final mood = snapshot.data?.lastMoodCategory;
+        return ActionChip(
+          label: Text(mood != null ? "VIBE: $mood" : "HOW'S THE BRAIN?"),
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const MoodCheckInScreen()),
+            );
+            if (result == true) _loadInitialAffirmation();
+          },
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+          side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        );
+      },
     );
   }
 }
@@ -249,7 +213,7 @@ class _ExpressiveLoaderState extends State<ExpressiveLoader> with SingleTickerPr
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 3000),
+      duration: const Duration(milliseconds: 1500),
     )..repeat();
   }
 
@@ -265,13 +229,13 @@ class _ExpressiveLoaderState extends State<ExpressiveLoader> with SingleTickerPr
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          width: 100,
-          height: 100,
+          width: 60,
+          height: 60,
           child: AnimatedBuilder(
             animation: _controller,
             builder: (context, child) {
               return CustomPaint(
-                painter: _ExpressivePainter(
+                painter: _TerminalPainter(
                   progress: _controller.value,
                   color: Theme.of(context).colorScheme.primary,
                 ),
@@ -281,11 +245,11 @@ class _ExpressiveLoaderState extends State<ExpressiveLoader> with SingleTickerPr
         ),
         const SizedBox(height: 32),
         Text(
-          "Gathering light...",
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          "GETTING REAL...",
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: Theme.of(context).colorScheme.primary,
-                letterSpacing: 1.5,
-                fontWeight: FontWeight.w500,
+                letterSpacing: 2.0,
+                fontWeight: FontWeight.bold,
               ),
         ),
       ],
@@ -293,44 +257,30 @@ class _ExpressiveLoaderState extends State<ExpressiveLoader> with SingleTickerPr
   }
 }
 
-class _ExpressivePainter extends CustomPainter {
+class _TerminalPainter extends CustomPainter {
   final double progress;
   final Color color;
 
-  _ExpressivePainter({required this.progress, required this.color});
+  _TerminalPainter({required this.progress, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
     final paint = Paint()
-      ..style = PaintingStyle.fill
-      ..strokeCap = StrokeCap.round;
+      ..color = color
+      ..style = PaintingStyle.fill;
 
-    for (int i = 0; i < 3; i++) {
-      final stepProgress = (progress + (i * 0.33)) % 1.0;
-      final rotation = stepProgress * math.pi * 2;
-      final scale = 0.6 + (math.sin(stepProgress * math.pi * 2) * 0.4);
-      final opacity = 0.2 + (math.sin(stepProgress * math.pi) * 0.5);
-
-      canvas.save();
-      canvas.translate(center.dx, center.dy);
-      canvas.rotate(rotation);
-      
-      paint.color = color.withValues(alpha: opacity.clamp(0.0, 1.0));
-      
-      final path = Path()
-        ..moveTo(0, -20 * scale)
-        ..quadraticBezierTo(15 * scale, -30 * scale, 20 * scale, 0)
-        ..quadraticBezierTo(15 * scale, 30 * scale, 0, 20 * scale)
-        ..quadraticBezierTo(-15 * scale, 30 * scale, -20 * scale, 0)
-        ..quadraticBezierTo(-15 * scale, -30 * scale, 0, -20 * scale)
-        ..close();
-
-      canvas.drawPath(path, paint);
-      canvas.restore();
+    // Draw a blinking terminal cursor or similar geometric dope loader
+    final double cursorWidth = size.width * 0.6;
+    final double cursorHeight = 8.0;
+    
+    if (progress < 0.5) {
+      canvas.drawRect(
+        Rect.fromLTWH((size.width - cursorWidth)/2, size.height/2 - 4, cursorWidth, cursorHeight),
+        paint
+      );
     }
   }
 
   @override
-  bool shouldRepaint(_ExpressivePainter oldDelegate) => true;
+  bool shouldRepaint(_TerminalPainter oldDelegate) => true;
 }

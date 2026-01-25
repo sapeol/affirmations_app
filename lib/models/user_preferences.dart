@@ -3,52 +3,36 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'affirmation.dart';
 
-enum SpiritualLeaning { secular, spiritual, religious, stoic, buddhist }
-enum AppFocus { anxiety, motivation, grief, improvement, general }
-enum LifeStage { student, professional, parent, retired, other }
-enum Gender { female, male, nonBinary, preferNotToSay }
-enum AppColorTheme { sage, lavender, sky, rose, peach }
-enum UserContext { career, relationships, selfImage, health, uncertainty, general }
-enum AffirmationTone { gentle, empowering, philosophical }
+enum DopePersona { overthinker, builder, burntOut, striver, adhdBrain }
+enum DopeTone { chill, straight, coach, deadpan }
+enum AppColorTheme { terminal, matrix, cyber, monochrome, dusk }
 
 class UserPreferences {
-  final SpiritualLeaning leaning;
-  final AppFocus focus;
-  final LifeStage lifeStage;
-  final Gender gender;
+  final DopePersona persona;
+  final DopeTone tone;
   final ThemeMode themeMode;
   final String fontFamily;
   final AppColorTheme colorTheme;
-  final UserContext userContext;
-  final AffirmationTone tone;
   final String? lastMoodCategory;
   final bool notificationsEnabled;
 
   UserPreferences({
-    required this.leaning,
-    required this.focus,
-    required this.lifeStage,
-    required this.gender,
-    this.themeMode = ThemeMode.system,
-    this.fontFamily = 'Lexend',
-    this.colorTheme = AppColorTheme.sage,
-    this.userContext = UserContext.general,
-    this.tone = AffirmationTone.gentle,
+    required this.persona,
+    required this.tone,
+    this.themeMode = ThemeMode.dark, // Default to dark for Dopermations
+    this.fontFamily = 'Plus Jakarta Sans',
+    this.colorTheme = AppColorTheme.terminal,
     this.lastMoodCategory,
     this.notificationsEnabled = true,
   });
 
   static Future<void> save(UserPreferences prefs) async {
     final s = await SharedPreferences.getInstance();
-    await s.setString('leaning', prefs.leaning.name);
-    await s.setString('focus', prefs.focus.name);
-    await s.setString('lifeStage', prefs.lifeStage.name);
-    await s.setString('gender', prefs.gender.name);
+    await s.setString('persona', prefs.persona.name);
+    await s.setString('tone', prefs.tone.name);
     await s.setString('themeMode', prefs.themeMode.name);
     await s.setString('fontFamily', prefs.fontFamily);
     await s.setString('colorTheme', prefs.colorTheme.name);
-    await s.setString('userContext', prefs.userContext.name);
-    await s.setString('tone', prefs.tone.name);
     if (prefs.lastMoodCategory != null) await s.setString('lastMood', prefs.lastMoodCategory!);
     await s.setBool('notifications', prefs.notificationsEnabled);
   }
@@ -64,15 +48,11 @@ class UserPreferences {
   static Future<UserPreferences> load() async {
     final s = await SharedPreferences.getInstance();
     return UserPreferences(
-      leaning: _enumFromString(SpiritualLeaning.values, s.getString('leaning'), SpiritualLeaning.secular),
-      focus: _enumFromString(AppFocus.values, s.getString('focus'), AppFocus.general),
-      lifeStage: _enumFromString(LifeStage.values, s.getString('lifeStage'), LifeStage.other),
-      gender: _enumFromString(Gender.values, s.getString('gender'), Gender.preferNotToSay),
-      themeMode: _enumFromString(ThemeMode.values, s.getString('themeMode'), ThemeMode.system),
-      fontFamily: s.getString('fontFamily') ?? 'Lexend',
-      colorTheme: _enumFromString(AppColorTheme.values, s.getString('colorTheme'), AppColorTheme.sage),
-      userContext: _enumFromString(UserContext.values, s.getString('userContext'), UserContext.general),
-      tone: _enumFromString(AffirmationTone.values, s.getString('tone'), AffirmationTone.gentle),
+      persona: _enumFromString(DopePersona.values, s.getString('persona'), DopePersona.overthinker),
+      tone: _enumFromString(DopeTone.values, s.getString('tone'), DopeTone.straight),
+      themeMode: _enumFromString(ThemeMode.values, s.getString('themeMode'), ThemeMode.dark),
+      fontFamily: s.getString('fontFamily') ?? 'Plus Jakarta Sans',
+      colorTheme: _enumFromString(AppColorTheme.values, s.getString('colorTheme'), AppColorTheme.terminal),
       lastMoodCategory: s.getString('lastMood'),
       notificationsEnabled: s.getBool('notifications') ?? true,
     );

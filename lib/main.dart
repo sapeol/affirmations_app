@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'theme.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/home_screen.dart';
 import 'models/user_preferences.dart';
 
-final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.system);
-final ValueNotifier<String> fontNotifier = ValueNotifier('Lexend');
-final ValueNotifier<AppColorTheme> colorThemeNotifier = ValueNotifier(AppColorTheme.sage);
+final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.dark);
+final ValueNotifier<String> fontNotifier = ValueNotifier('Plus Jakarta Sans');
+final ValueNotifier<AppColorTheme> colorThemeNotifier = ValueNotifier(AppColorTheme.terminal);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,8 +23,8 @@ void main() async {
 }
 
 Future<bool> _checkOnboarding() async {
-  final prefs = await UserPreferences.load();
-  return prefs.focus != AppFocus.general || prefs.leaning != SpiritualLeaning.secular;
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.containsKey('persona');
 }
 
 class MyApp extends StatelessWidget {
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
       notifiers: [themeNotifier, fontNotifier, colorThemeNotifier],
       builder: (context) {
         return MaterialApp(
-          title: 'Daily Affirmations',
+          title: 'Dopermations',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.createTheme(Brightness.light, fontNotifier.value, colorThemeNotifier.value),
           darkTheme: AppTheme.createTheme(Brightness.dark, fontNotifier.value, colorThemeNotifier.value),

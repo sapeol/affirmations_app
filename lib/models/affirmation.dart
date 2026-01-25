@@ -4,18 +4,14 @@ class Affirmation {
   final String text;
   final String author;
   final bool isCustom;
-  final AppFocus? focus;
-  final SpiritualLeaning? leaning;
-  final UserContext? context;
-  final AffirmationTone? tone;
+  final DopePersona? persona;
+  final DopeTone? tone;
 
   Affirmation({
     required this.text, 
-    this.author = "Unknown",
+    this.author = "Dopermations",
     this.isCustom = false,
-    this.focus,
-    this.leaning,
-    this.context,
+    this.persona,
     this.tone,
   });
 
@@ -23,21 +19,17 @@ class Affirmation {
     'text': text,
     'author': author,
     'isCustom': isCustom,
-    'focus': focus?.name,
-    'leaning': leaning?.name,
-    'context': context?.name,
+    'persona': persona?.name,
     'tone': tone?.name,
   };
 
   factory Affirmation.fromJson(Map<String, dynamic> json) {
     return Affirmation(
-      text: json['text'] as String? ?? "Unknown",
-      author: json['author'] as String? ?? "Unknown",
+      text: json['text'] as String? ?? "dope content loading",
+      author: json['author'] as String? ?? "Dopermations",
       isCustom: json['isCustom'] is bool ? json['isCustom'] as bool : false,
-      focus: json['focus'] != null ? AppFocus.values.byName(json['focus']) : null,
-      leaning: json['leaning'] != null ? SpiritualLeaning.values.byName(json['leaning']) : null,
-      context: json['context'] != null ? UserContext.values.byName(json['context']) : null,
-      tone: json['tone'] != null ? AffirmationTone.values.byName(json['tone']) : null,
+      persona: json['persona'] != null ? DopePersona.values.byName(json['persona']) : null,
+      tone: json['tone'] != null ? DopeTone.values.byName(json['tone']) : null,
     );
   }
 }

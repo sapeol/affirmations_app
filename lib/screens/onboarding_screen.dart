@@ -12,22 +12,14 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  final int _totalPages = 4;
+  final int _totalPages = 3;
 
-  AppFocus _selectedFocus = AppFocus.general;
-  SpiritualLeaning _selectedLeaning = SpiritualLeaning.secular;
-  LifeStage _selectedLifeStage = LifeStage.other;
-  Gender _selectedGender = Gender.preferNotToSay;
-  UserContext _selectedContext = UserContext.general;
-  AffirmationTone _selectedTone = AffirmationTone.gentle;
+  DopePersona _selectedPersona = DopePersona.overthinker;
+  DopeTone _selectedTone = DopeTone.straight;
 
   void _finish() async {
     await UserPreferences.save(UserPreferences(
-      focus: _selectedFocus,
-      leaning: _selectedLeaning,
-      lifeStage: _selectedLifeStage,
-      gender: _selectedGender,
-      userContext: _selectedContext,
+      persona: _selectedPersona,
       tone: _selectedTone,
       notificationsEnabled: false,
     ));
@@ -57,9 +49,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 onPageChanged: (i) => setState(() => _currentPage = i),
                 children: [
                   _buildWelcomePage(),
-                  _buildIdentityPage(),
-                  _buildContextPage(),
-                  _buildStylePage(),
+                  _buildPersonaPage(),
+                  _buildTonePage(),
                 ],
               ),
             ),
@@ -106,17 +97,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(),
-          Icon(Icons.spa_rounded, size: 100, color: Theme.of(context).colorScheme.primary),
+          Icon(Icons.bolt_rounded, size: 100, color: Theme.of(context).colorScheme.primary),
           const SizedBox(height: 48),
           Text(
-            "Soft & Calm",
-            style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold),
+            "Dopermations",
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -1),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           Text(
-            "Highly personalized affirmations for your unique journey.",
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5),
+            "Affirmations for people who hate affirmations. Grounded. Street-smart. No manifest, just reality.",
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5, color: Theme.of(context).colorScheme.outline),
             textAlign: TextAlign.center,
           ),
           const Spacer(flex: 2),
@@ -125,70 +116,38 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildIdentityPage() {
+  Widget _buildPersonaPage() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 40),
-          Text("About You", style: Theme.of(context).textTheme.headlineMedium),
+          Text("Who are you?", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 40),
-          _buildSelectionTitle("Identity"),
-          _buildStableSelection(Gender.values, _selectedGender, (v) => setState(() => _selectedGender = v as Gender)),
-          const SizedBox(height: 32),
-          _buildSelectionTitle("Life Stage"),
-          _buildStableSelection(LifeStage.values, _selectedLifeStage, (v) => setState(() => _selectedLifeStage = v as LifeStage)),
+          _buildStableSelection(DopePersona.values, _selectedPersona, (v) => setState(() => _selectedPersona = v as DopePersona)),
         ],
       ),
     );
   }
 
-  Widget _buildContextPage() {
+  Widget _buildTonePage() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 40),
-          Text("Your Situation", style: Theme.of(context).textTheme.headlineMedium),
+          Text("Choose your vibe", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 40),
-          _buildSelectionTitle("What's on your mind?"),
-          _buildStableSelection(UserContext.values, _selectedContext, (v) => setState(() => _selectedContext = v as UserContext)),
-          const SizedBox(height: 32),
-          _buildSelectionTitle("Core focus"),
-          _buildStableSelection(AppFocus.values, _selectedFocus, (v) => setState(() => _selectedFocus = v as AppFocus)),
+          _buildStableSelection(DopeTone.values, _selectedTone, (v) => setState(() => _selectedTone = v as DopeTone)),
+          const SizedBox(height: 24),
+          Text(
+            "Note: Deadpan is recommended for maximum brain-hack efficiency.",
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.primary),
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildStylePage() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 40),
-          Text("Your Preference", style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 40),
-          _buildSelectionTitle("Desired tone"),
-          _buildStableSelection(AffirmationTone.values, _selectedTone, (v) => setState(() => _selectedTone = v as AffirmationTone)),
-          const SizedBox(height: 32),
-          _buildSelectionTitle("Spiritual path"),
-          _buildStableSelection(SpiritualLeaning.values, _selectedLeaning, (v) => setState(() => _selectedLeaning = v as SpiritualLeaning)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSelectionTitle(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Text(text, style: Theme.of(context).textTheme.labelLarge?.copyWith(
-        color: Theme.of(context).colorScheme.primary,
-        fontWeight: FontWeight.bold,
-      )),
     );
   }
 
@@ -203,25 +162,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           onTap: () => onSelected(opt),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
-              color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(16),
+              color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,
               ),
             ),
             child: Text(
-              name[0].toUpperCase() + name.substring(1),
+              _formatName(name),
               style: TextStyle(
                 color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                letterSpacing: 0.5,
               ),
             ),
           ),
         );
       }).toList(),
     );
+  }
+
+  String _formatName(String name) {
+    if (name == 'adhdBrain') return 'ADHD Brain';
+    if (name == 'burntOut') return 'Burned Out';
+    return name[0].toUpperCase() + name.substring(1);
   }
 
   Widget _buildBottomNavigation() {
@@ -232,7 +198,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         height: 64,
         child: FilledButton(
           style: FilledButton.styleFrom(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           onPressed: () {
             if (_currentPage < _totalPages - 1) {
@@ -241,13 +209,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               _finish();
             }
           },
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: Text(
-              _currentPage == _totalPages - 1 ? "Start Journey" : "Continue",
-              key: ValueKey(_currentPage),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+          child: Text(
+            _currentPage == _totalPages - 1 ? "ENTER DOPERMATIONS" : "CONTINUE",
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1),
           ),
         ),
       ),

@@ -4,15 +4,15 @@ import 'models/user_preferences.dart';
 
 class AppTheme {
   static final Map<AppColorTheme, Color> themeSeeds = {
-    AppColorTheme.sage: const Color(0xFF98A68B),
-    AppColorTheme.lavender: const Color(0xFFA68BA6),
-    AppColorTheme.sky: const Color(0xFF8BA2A6),
-    AppColorTheme.rose: const Color(0xFFA68B8B),
-    AppColorTheme.peach: const Color(0xFFA6988B),
+    AppColorTheme.terminal: const Color(0xFF00FF41), // Neon Green
+    AppColorTheme.matrix: const Color(0xFF00FF00),
+    AppColorTheme.cyber: const Color(0xFFF0DB4F), // JS Yellow
+    AppColorTheme.monochrome: const Color(0xFFFFFFFF),
+    AppColorTheme.dusk: const Color(0xFFFF7F50), // Coral
   };
 
   static ThemeData createTheme(Brightness brightness, String fontFamily, AppColorTheme colorTheme) {
-    final seedColor = themeSeeds[colorTheme] ?? themeSeeds[AppColorTheme.sage]!;
+    final seedColor = themeSeeds[colorTheme] ?? themeSeeds[AppColorTheme.terminal]!;
     
     final baseTheme = ThemeData(
       useMaterial3: true,
@@ -20,7 +20,7 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: seedColor,
         brightness: brightness,
-        surfaceContainerLowest: brightness == Brightness.light ? Colors.white : null,
+        surface: brightness == Brightness.dark ? const Color(0xFF0D0D0D) : const Color(0xFFF2F2F2),
       ),
     );
 
@@ -28,21 +28,19 @@ class AppTheme {
 
     return baseTheme.copyWith(
       textTheme: textTheme,
+      scaffoldBackgroundColor: brightness == Brightness.dark ? const Color(0xFF0D0D0D) : const Color(0xFFF2F2F2),
       cardTheme: CardThemeData(
         elevation: 0,
         margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-        color: brightness == Brightness.light 
-          ? Color.alphaBlend(seedColor.withValues(alpha: 0.08), Colors.white) 
-          : null,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12), // Sharper, modern corners
+          side: BorderSide(color: seedColor.withValues(alpha: 0.2), width: 1),
+        ),
+        color: brightness == Brightness.dark ? const Color(0xFF1A1A1A) : Colors.white,
       ),
       listTileTheme: ListTileThemeData(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
-
-  static ThemeData get lightTheme => createTheme(Brightness.light, 'Lexend', AppColorTheme.sage);
-  static ThemeData get darkTheme => createTheme(Brightness.dark, 'Lexend', AppColorTheme.sage);
 }
