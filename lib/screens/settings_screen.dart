@@ -12,6 +12,13 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   late Future<UserPreferences> _prefsFuture;
 
+  final Map<String, List<String>> _fontCategories = {
+    'Modern': ['Lexend', 'Montserrat', 'Outfit', 'Plus Jakarta Sans'],
+    'Elegant': ['Playfair Display', 'Lora', 'Merriweather', 'EB Garamond'],
+    'Playful': ['Caveat', 'Patrick Hand', 'Indie Flower', 'Dancing Script'],
+    'Clean': ['Fira Code', 'Roboto Mono', 'Space Mono', 'Ubuntu Mono'],
+  };
+
   @override
   void initState() {
     super.initState();
@@ -21,6 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _updatePreference(UserPreferences newPrefs) async {
     await UserPreferences.save(newPrefs);
     themeNotifier.value = newPrefs.themeMode;
+    fontNotifier.value = newPrefs.fontFamily;
     setState(() {
       _prefsFuture = Future.value(newPrefs);
     });
@@ -29,7 +37,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Preferences")),
+      appBar: AppBar(title: const Text("Settings & Style")),
       body: FutureBuilder<UserPreferences>(
         future: _prefsFuture,
         builder: (context, snapshot) {
@@ -37,46 +45,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
           final prefs = snapshot.data!;
 
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             children: [
-              _buildSection("Appearance"),
-              _buildChips(ThemeMode.values, prefs.themeMode, (val) => _updatePreference(UserPreferences(
-                leaning: prefs.leaning, focus: prefs.focus, lifeStage: prefs.lifeStage, gender: prefs.gender, themeMode: val as ThemeMode, notificationsEnabled: prefs.notificationsEnabled
-              ))),
+              _buildSectionHeader(Icons.palette_outlined, "Appearance"),
+              _buildModernSelection(ThemeMode.values, prefs.themeMode, (val) => _updatePreference(_copy(prefs, themeMode: val as ThemeMode))),
+              
+              const SizedBox(height: 32),
+              _buildSectionHeader(Icons.font_download_outlined, "Typography"),
+              ..._fontCategories.entries.map((entry) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16, bottom: 8),
+                    child: Text(entry.key, style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.outline,
+                    )),
+                  ),
+                  _buildModernSelection(entry.value, prefs.fontFamily, (val) => _updatePreference(_copy(prefs, fontFamily: val as String))),
+                ],
+              )),
+
+              const SizedBox(height: 32),
+              _buildSectionHeader(Icons.fingerprint_outlined, "Identity"),
+              _buildModernSelection(Gender.values, prefs.gender, (val) => _updatePreference(_copy(prefs, gender: val as Gender))),
+              
               const SizedBox(height: 16),
-              _buildSection("Identity"),
-              _buildChips(Gender.values, prefs.gender, (val) => _updatePreference(UserPreferences(
-                leaning: prefs.leaning, focus: prefs.focus, lifeStage: prefs.lifeStage, gender: val as Gender, themeMode: prefs.themeMode, notificationsEnabled: prefs.notificationsEnabled
-              ))),
+              _buildSectionHeader(Icons.auto_awesome_outlined, "Life Stage"),
+              _buildModernSelection(LifeStage.values, prefs.lifeStage, (val) => _updatePreference(_copy(prefs, lifeStage: val as LifeStage))),
+
               const SizedBox(height: 16),
-              _buildSection("Life Stage"),
-              _buildChips(LifeStage.values, prefs.lifeStage, (val) => _updatePreference(UserPreferences(
-                leaning: prefs.leaning, focus: prefs.focus, lifeStage: val as LifeStage, gender: prefs.gender, themeMode: prefs.themeMode, notificationsEnabled: prefs.notificationsEnabled
-              ))),
-              const SizedBox(height: 16),
-              _buildSection("Mindset Focus"),
-              _buildChips(AppFocus.values, prefs.focus, (val) => _updatePreference(UserPreferences(
-                leaning: prefs.leaning, focus: val as AppFocus, lifeStage: prefs.lifeStage, gender: prefs.gender, themeMode: prefs.themeMode, notificationsEnabled: prefs.notificationsEnabled
-              ))),
-              const SizedBox(height: 16),
-              _buildSection("Spiritual Path"),
-              _buildChips(SpiritualLeaning.values, prefs.leaning, (val) => _updatePreference(UserPreferences(
-                leaning: val as SpiritualLeaning, focus: prefs.focus, lifeStage: prefs.lifeStage, gender: prefs.gender, themeMode: prefs.themeMode, notificationsEnabled: prefs.notificationsEnabled
-              ))),
-              const SizedBox(height: 24),
-              _buildSection("Notifications"),
+              _buildSectionHeader(Icons.psychology_outlined, "Mindset Focus"),
+              _buildModernSelection(AppFocus.values, prefs.focus, (val) => _updatePreference(_copy(prefs, focus: val as AppFocus))),
+
+              const SizedBox(height: 32),
+              _buildSectionHeader(Icons.notifications_active_outlined, "Daily Reminders"),
               SwitchListTile(
-                title: const Text("Daily Reminders"),
+                title: const Text("Morning Affirmations"),
+                subtitle: const Text("Receive a gentle notification every day."),
                 value: prefs.notificationsEnabled,
-                onChanged: (val) => _updatePreference(UserPreferences(
-                  focus: prefs.focus,
-                  leaning: prefs.leaning,
-                  lifeStage: prefs.lifeStage,
-                  gender: prefs.gender,
-                  themeMode: prefs.themeMode,
-                  notificationsEnabled: val,
-                )),
+                onChanged: (val) => _updatePreference(_copy(prefs, notificationsEnabled: val)),
               ),
+              const SizedBox(height: 40),
             ],
           );
         },
@@ -84,27 +93,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSection(String title) {
+  Widget _buildSectionHeader(IconData icon, String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(
-        color: Theme.of(context).colorScheme.primary,
-        fontWeight: FontWeight.bold,
-      )),
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 12),
+          Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          )),
+        ],
+      ),
     );
   }
 
-  Widget _buildChips(List options, dynamic selected, Function(dynamic) onSelected) {
+  Widget _buildModernSelection(List options, dynamic selected, Function(dynamic) onSelected) {
     return Wrap(
       spacing: 8,
+      runSpacing: 8,
       children: options.map((opt) {
         final name = opt.toString().split('.').last;
+        final isSelected = selected == opt;
         return ChoiceChip(
           label: Text(name[0].toUpperCase() + name.substring(1)),
-          selected: selected == opt,
+          selected: isSelected,
           onSelected: (val) => onSelected(opt),
+          showCheckmark: false,
+          labelStyle: TextStyle(
+            color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          selectedColor: Theme.of(context).colorScheme.primary,
         );
       }).toList(),
+    );
+  }
+
+  UserPreferences _copy(UserPreferences p, {SpiritualLeaning? leaning, AppFocus? focus, LifeStage? lifeStage, Gender? gender, ThemeMode? themeMode, String? fontFamily, bool? notificationsEnabled}) {
+    return UserPreferences(
+      leaning: leaning ?? p.leaning,
+      focus: focus ?? p.focus,
+      lifeStage: lifeStage ?? p.lifeStage,
+      gender: gender ?? p.gender,
+      themeMode: themeMode ?? p.themeMode,
+      fontFamily: fontFamily ?? p.fontFamily,
+      notificationsEnabled: notificationsEnabled ?? p.notificationsEnabled,
     );
   }
 }

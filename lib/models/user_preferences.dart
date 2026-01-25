@@ -14,6 +14,7 @@ class UserPreferences {
   final LifeStage lifeStage;
   final Gender gender;
   final ThemeMode themeMode;
+  final String fontFamily;
   final bool notificationsEnabled;
 
   UserPreferences({
@@ -22,6 +23,7 @@ class UserPreferences {
     required this.lifeStage,
     required this.gender,
     this.themeMode = ThemeMode.system,
+    this.fontFamily = 'Lexend',
     this.notificationsEnabled = true,
   });
 
@@ -32,6 +34,7 @@ class UserPreferences {
     await s.setString('lifeStage', prefs.lifeStage.name);
     await s.setString('gender', prefs.gender.name);
     await s.setString('themeMode', prefs.themeMode.name);
+    await s.setString('fontFamily', prefs.fontFamily);
     await s.setBool('notifications', prefs.notificationsEnabled);
   }
 
@@ -51,6 +54,7 @@ class UserPreferences {
       lifeStage: _enumFromString(LifeStage.values, s.getString('lifeStage'), LifeStage.other),
       gender: _enumFromString(Gender.values, s.getString('gender'), Gender.preferNotToSay),
       themeMode: _enumFromString(ThemeMode.values, s.getString('themeMode'), ThemeMode.system),
+      fontFamily: s.getString('fontFamily') ?? 'Lexend',
       notificationsEnabled: s.getBool('notifications') ?? true,
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:home_widget/home_widget.dart';
 import '../services/affirmations_service.dart';
 import '../models/affirmation.dart';
@@ -13,11 +14,10 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> {
   Affirmation? _currentAffirmation;
   final TextEditingController _customController = TextEditingController();
   bool _isLoading = true;
-  int _loadingStep = 0;
 
   @override
   void initState() {
@@ -26,18 +26,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Future<void> _loadInitialAffirmation() async {
-    setState(() {
-      _isLoading = true;
-      _loadingStep = 0;
-    });
-    
+    setState(() => _isLoading = true);
     final aff = await AffirmationsService.getDailyAffirmation();
-    
-    // Meditative multi-step loading for emotional resonance
-    await Future.delayed(const Duration(milliseconds: 1200));
-    if (mounted) setState(() => _loadingStep = 1);
-    await Future.delayed(const Duration(milliseconds: 1200));
-    
+    await Future.delayed(const Duration(milliseconds: 1500));
     if (mounted) {
       setState(() {
         _currentAffirmation = aff;
@@ -57,16 +48,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   void _refreshAffirmation() async {
-    setState(() {
-      _isLoading = true;
-      _loadingStep = 0;
-    });
-    
+    setState(() => _isLoading = true);
     final aff = await AffirmationsService.getRandomAffirmation();
-    await Future.delayed(const Duration(milliseconds: 1000));
-    if (mounted) setState(() => _loadingStep = 1);
-    await Future.delayed(const Duration(milliseconds: 1000));
-    
+    await Future.delayed(const Duration(milliseconds: 1200));
     if (mounted) {
       setState(() {
         _currentAffirmation = aff;
@@ -142,17 +126,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               AnimatedSwitcher(
-                duration: const Duration(milliseconds: 1200),
+                duration: const Duration(milliseconds: 800),
                 switchInCurve: Curves.easeInOutCubic,
                 switchOutCurve: Curves.easeInOutCubic,
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  );
-                },
                 child: _isLoading
-                    ? _BreathingLoader(step: _loadingStep)
+                    ? const ExpressiveLoader(key: ValueKey('loading'))
                     : Card(
                         key: ValueKey(aff?.text ?? 'none'),
                         child: Padding(
@@ -170,8 +148,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                       color: Theme.of(context).colorScheme.onSurface,
                                       fontWeight: FontWeight.w400,
-                                      height: 1.6,
-                                      letterSpacing: 0.5,
+                                      height: 1.5,
                                     ),
                                 textAlign: TextAlign.center,
                               ),
@@ -208,28 +185,23 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 }
 
-class _BreathingLoader extends StatefulWidget {
-  final int step;
-  const _BreathingLoader({required this.step});
+class ExpressiveLoader extends StatefulWidget {
+  const ExpressiveLoader({super.key});
 
   @override
-  State<_BreathingLoader> createState() => _BreathingLoaderState();
+  State<ExpressiveLoader> createState() => _ExpressiveLoaderState();
 }
 
-class _BreathingLoaderState extends State<_BreathingLoader> with SingleTickerProviderStateMixin {
+class _ExpressiveLoaderState extends State<ExpressiveLoader> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2500),
-    )..repeat(reverse: true);
-    _animation = Tween<double>(begin: 0.8, end: 1.2).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
-    );
+      duration: const Duration(milliseconds: 3000),
+    )..repeat();
   }
 
   @override
@@ -240,42 +212,77 @@ class _BreathingLoaderState extends State<_BreathingLoader> with SingleTickerPro
 
   @override
   Widget build(BuildContext context) {
-    final messages = ["Inhaling peace...", "Exhaling tension...", "Preparing your light..."];
-    final message = messages[widget.step % messages.length];
-
     return Column(
-      key: const ValueKey('breathing_loader'),
       mainAxisSize: MainAxisSize.min,
       children: [
-        ScaleTransition(
-          scale: _animation,
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
-            ),
-            child: Icon(
-              Icons.spa_rounded,
-              size: 64,
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
-            ),
+        SizedBox(
+          width: 100,
+          height: 100,
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return CustomPaint(
+                painter: _ExpressivePainter(
+                  progress: _controller.value,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              );
+            },
           ),
         ),
-        const SizedBox(height: 48),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 800),
-          child: Text(
-            message,
-            key: ValueKey(message),
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
-                  fontStyle: FontStyle.italic,
-                  letterSpacing: 1.2,
-                ),
-          ),
+        const SizedBox(height: 32),
+        Text(
+          "Gathering light...",
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                letterSpacing: 1.5,
+                fontWeight: FontWeight.w500,
+              ),
         ),
       ],
     );
   }
+}
+
+class _ExpressivePainter extends CustomPainter {
+  final double progress;
+  final Color color;
+
+  _ExpressivePainter({required this.progress, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final paint = Paint()
+      ..style = PaintingStyle.fill
+      ..strokeCap = StrokeCap.round;
+
+    for (int i = 0; i < 3; i++) {
+      final stepProgress = (progress + (i * 0.33)) % 1.0;
+      final rotation = stepProgress * math.pi * 2;
+      final scale = 0.6 + (math.sin(stepProgress * math.pi * 2) * 0.4);
+      final opacity = 0.2 + (math.sin(stepProgress * math.pi) * 0.5);
+
+      canvas.save();
+      canvas.translate(center.dx, center.dy);
+      canvas.rotate(rotation);
+      
+      paint.color = color.withValues(alpha: opacity.clamp(0.0, 1.0));
+      
+      // Draw organic petal-like shape
+      final path = Path()
+        ..moveTo(0, -20 * scale)
+        ..quadraticBezierTo(15 * scale, -30 * scale, 20 * scale, 0)
+        ..quadraticBezierTo(15 * scale, 30 * scale, 0, 20 * scale)
+        ..quadraticBezierTo(-15 * scale, 30 * scale, -20 * scale, 0)
+        ..quadraticBezierTo(-15 * scale, -30 * scale, 0, -20 * scale)
+        ..close();
+
+      canvas.drawPath(path, paint);
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ExpressivePainter oldDelegate) => true;
 }
