@@ -13,9 +13,10 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   Affirmation? _currentAffirmation;
   final TextEditingController _customController = TextEditingController();
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -24,9 +25,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadInitialAffirmation() async {
+    setState(() => _isLoading = true);
     final aff = await AffirmationsService.getDailyAffirmation();
+    // Artificial delay for a smoother "Calm" transition
+    await Future.delayed(const Duration(milliseconds: 800));
     if (mounted) {
-      setState(() => _currentAffirmation = aff);
+      setState(() {
+        _currentAffirmation = aff;
+        _isLoading = false;
+      });
       _updateWidget(aff);
     }
   }
@@ -41,9 +48,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _refreshAffirmation() async {
+    setState(() => _isLoading = true);
     final aff = await AffirmationsService.getRandomAffirmation();
-    setState(() => _currentAffirmation = aff);
-    _updateWidget(aff);
+    await Future.delayed(const Duration(milliseconds: 600));
+    if (mounted) {
+      setState(() {
+        _currentAffirmation = aff;
+        _isLoading = false;
+      });
+      _updateWidget(aff);
+    }
   }
 
   void _showAddDialog() {
@@ -86,7 +100,10 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Daily Affirmations"),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.person_outline_rounded),
+          icon: Icon(
+            Icons.spa_rounded, // Using the 'spa' icon as our brand logo
+            color: Theme.of(context).colorScheme.primary,
+          ),
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const ProfileScreen()),
@@ -109,23 +126,46 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               AnimatedSwitcher(
-                duration: const Duration(milliseconds: 600),
-                child: aff == null
-                    ? const SizedBox.shrink()
+                duration: const Duration(milliseconds: 800),
+                switchInCurve: Curves.easeOutBack,
+                switchOutCurve: Curves.easeIn,
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(scale: animation, child: child),
+                  );
+                },
+                child: _isLoading
+                    ? Column(
+                        key: const ValueKey('loader'),
+                        children: [
+                          CircularProgressIndicator(
+                            strokeWidth: 3,
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "Finding peace...",
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                          )
+                        ],
+                      )
                     : Card(
-                        key: ValueKey(aff.text),
+                        key: ValueKey(aff?.text ?? 'none'),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 48.0),
                           child: Column(
                             children: [
                               Icon(
-                                aff.isCustom ? Icons.edit_note_rounded : Icons.spa_rounded,
+                                aff?.isCustom == true ? Icons.edit_note_rounded : Icons.spa_rounded,
                                 size: 48,
                                 color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
                               ),
                               const SizedBox(height: 24),
                               Text(
-                                aff.text,
+                                aff?.text ?? "",
                                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                       color: Theme.of(context).colorScheme.onSurface,
                                       fontWeight: FontWeight.w400,
@@ -138,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
               ),
-              const SizedBox(height: 120), // Spacing for stacked FABs
+              const SizedBox(height: 120),
             ],
           ),
         ),
@@ -150,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
           FloatingActionButton(
             heroTag: 'refresh',
             mini: true,
-            onPressed: _refreshAffirmation,
+            onPressed: _isLoading ? null : _refreshAffirmation,
             child: const Icon(Icons.refresh_rounded),
           ),
           const SizedBox(height: 16),
