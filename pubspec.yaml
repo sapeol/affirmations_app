@@ -40,6 +40,8 @@ dependencies:
   record: ^6.1.2
   path_provider: ^2.1.5
   path: ^1.9.1
+  share_plus: ^12.0.1
+  screenshot: ^3.0.0
 
 dev_dependencies:
   flutter_test:

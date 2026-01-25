@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/user_preferences.dart';
 import 'home_screen.dart';
 
+import '../main.dart';
+
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -16,11 +18,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   DopePersona _selectedPersona = DopePersona.overthinker;
   DopeTone _selectedTone = DopeTone.straight;
+  AppColorTheme _selectedTheme = AppColorTheme.terminal;
 
   void _finish() async {
     await UserPreferences.save(UserPreferences(
       persona: _selectedPersona,
       tone: _selectedTone,
+      colorTheme: _selectedTheme,
       notificationsEnabled: false,
     ));
     if (mounted) {
@@ -50,7 +54,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 children: [
                   _buildWelcomePage(),
                   _buildPersonaPage(),
-                  _buildTonePage(),
+                  _buildStylePage(),
                 ],
               ),
             ),
@@ -83,7 +87,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           TextButton(
             onPressed: _finish,
-            child: Text("Skip", style: TextStyle(color: Theme.of(context).colorScheme.outline)),
+            child: Text("SKIP", style: TextStyle(color: Theme.of(context).colorScheme.outline, fontWeight: FontWeight.bold, fontSize: 12)),
           ),
         ],
       ),
@@ -100,13 +104,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Icon(Icons.bolt_rounded, size: 100, color: Theme.of(context).colorScheme.primary),
           const SizedBox(height: 48),
           Text(
-            "Dopermations",
+            "DOPERMATIONS",
             style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -1),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           Text(
-            "Affirmations for people who hate affirmations. Grounded. Street-smart. No manifest, just reality.",
+            "Affirmations for people who hate affirmations. No manifest, just system reality.",
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5, color: Theme.of(context).colorScheme.outline),
             textAlign: TextAlign.center,
           ),
@@ -123,7 +127,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 40),
-          Text("Who are you?", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+          Text("USER PERSONA", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900)),
+          const SizedBox(height: 12),
+          Text("HOW DOES YOUR BRAIN TYPICALLY OPERATE?", style: TextStyle(color: Theme.of(context).colorScheme.outline, fontSize: 12, letterSpacing: 1)),
           const SizedBox(height: 40),
           _buildStableSelection(DopePersona.values, _selectedPersona, (v) => setState(() => _selectedPersona = v as DopePersona)),
         ],
@@ -131,23 +137,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildTonePage() {
+  Widget _buildStylePage() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 40),
-          Text("Choose your vibe", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+          Text("SYSTEM VIBE", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900)),
           const SizedBox(height: 40),
+          _buildSelectionTitle("TONE OUTPUT"),
           _buildStableSelection(DopeTone.values, _selectedTone, (v) => setState(() => _selectedTone = v as DopeTone)),
-          const SizedBox(height: 24),
-          Text(
-            "Note: Deadpan is recommended for maximum brain-hack efficiency.",
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.primary),
-          ),
+          const SizedBox(height: 32),
+          _buildSelectionTitle("COLOR PALETTE"),
+          _buildStableSelection(AppColorTheme.values, _selectedTheme, (v) {
+            setState(() => _selectedTheme = v as AppColorTheme);
+            colorThemeNotifier.value = v as AppColorTheme;
+          }),
         ],
       ),
+    );
+  }
+
+  Widget _buildSelectionTitle(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Text(text, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 2)),
     );
   }
 
@@ -165,16 +180,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
               color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,
               ),
             ),
             child: Text(
-              _formatName(name),
+              _formatName(name).toUpperCase(),
               style: TextStyle(
+                fontSize: 12,
                 color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontWeight: FontWeight.w900,
                 letterSpacing: 0.5,
               ),
             ),
@@ -187,7 +203,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   String _formatName(String name) {
     if (name == 'adhdBrain') return 'ADHD Brain';
     if (name == 'burntOut') return 'Burned Out';
-    return name[0].toUpperCase() + name.substring(1);
+    return name;
   }
 
   Widget _buildBottomNavigation() {
@@ -198,9 +214,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         height: 64,
         child: FilledButton(
           style: FilledButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
           onPressed: () {
             if (_currentPage < _totalPages - 1) {
@@ -210,8 +224,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             }
           },
           child: Text(
-            _currentPage == _totalPages - 1 ? "ENTER DOPERMATIONS" : "CONTINUE",
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1),
+            _currentPage == _totalPages - 1 ? "INITIALIZE SYSTEM" : "CONTINUE",
+            style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1),
           ),
         ),
       ),

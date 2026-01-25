@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:record/record.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
-import '../models/user_mood.dart';
 import '../models/user_preferences.dart';
 
 class MoodCheckInScreen extends StatefulWidget {
@@ -13,58 +9,12 @@ class MoodCheckInScreen extends StatefulWidget {
 }
 
 class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
-  EmotionCategory? _selectedCategory;
+  double _systemLoad = 0.5;
+  double _batteryLevel = 0.5;
+  double _bandwidth = 0.5;
   final TextEditingController _journalController = TextEditingController();
-  
-  AudioRecorder? _audioRecorder;
-  bool _isRecording = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _audioRecorder = AudioRecorder();
-  }
-
-  @override
-  void dispose() {
-    _audioRecorder?.dispose();
-    _journalController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _startRecording() async {
-    final recorder = _audioRecorder;
-    if (recorder == null) return;
-    try {
-      if (await recorder.hasPermission()) {
-        final directory = await getApplicationDocumentsDirectory();
-        final path = p.join(directory.path, 'dope_note_${DateTime.now().millisecondsSinceEpoch}.m4a');
-        const config = RecordConfig();
-        await recorder.start(config, path: path);
-        setState(() {
-          _isRecording = true;
-        });
-      }
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("FAIL: $e")));
-    }
-  }
-
-  Future<void> _stopRecording() async {
-    final recorder = _audioRecorder;
-    if (recorder == null) return;
-    try {
-      await recorder.stop();
-      setState(() {
-        _isRecording = false;
-      });
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("FAIL: $e")));
-    }
-  }
-
-  void _saveMood() async {
-    if (_selectedCategory == null) return;
+  void _saveScan() async {
     final prefs = await UserPreferences.load();
     await UserPreferences.save(UserPreferences(
       persona: prefs.persona,
@@ -72,7 +22,9 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
       themeMode: prefs.themeMode,
       fontFamily: prefs.fontFamily,
       colorTheme: prefs.colorTheme,
-      lastMoodCategory: _selectedCategory!.name,
+      systemLoad: _systemLoad,
+      batteryLevel: _batteryLevel,
+      bandwidth: _bandwidth,
       notificationsEnabled: prefs.notificationsEnabled,
     ));
     if (mounted) Navigator.pop(context, true);
@@ -87,83 +39,96 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("CURRENT BRAIN STATE", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 2, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
-            const SizedBox(height: 24),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 1,
-              ),
-              itemCount: emotionWheel.length,
-              itemBuilder: (context, index) {
-                final item = emotionWheel[index];
-                final isSelected = _selectedCategory == item['category'];
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedCategory = item['category'] as EmotionCategory),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(item['icon'] as IconData, color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface),
-                        const SizedBox(height: 8),
-                        Text(item['label'].toString().toUpperCase(), textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: isSelected ? FontWeight.w900 : FontWeight.normal, color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface)),
-                      ],
-                    ),
-                  ),
-                );
-              },
+            _buildDiagnosticSection(
+              title: "PRESSURE (STRESS)",
+              value: _systemLoad,
+              icon: Icons.speed_rounded,
+              onChanged: (v) => setState(() => _systemLoad = v),
+              lowLabel: "COOL",
+              highLabel: "OVERHEATING",
             ),
-            const SizedBox(height: 40),
-            Text("RAW LOG", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 2, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
+            const SizedBox(height: 32),
+            _buildDiagnosticSection(
+              title: "FUEL (ENERGY)",
+              value: _batteryLevel,
+              icon: Icons.battery_charging_full_rounded,
+              onChanged: (v) => setState(() => _batteryLevel = v),
+              lowLabel: "EMPTY",
+              highLabel: "FULL TANK",
+            ),
+            const SizedBox(height: 32),
+            _buildDiagnosticSection(
+              title: "CAPACITY (FOCUS)",
+              value: _bandwidth,
+              icon: Icons.lan_rounded,
+              onChanged: (v) => setState(() => _bandwidth = v),
+              lowLabel: "LIMITED",
+              highLabel: "MAXED OUT",
+            ),
+            const SizedBox(height: 48),
+            Text("RAW THOUGHTS", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 2, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
             const SizedBox(height: 12),
             TextField(
               controller: _journalController,
-              maxLines: 4,
+              maxLines: 3,
               decoration: InputDecoration(
-                hintText: "Dump your thoughts here...",
+                hintText: "Dump what's on your mind...",
                 filled: true,
                 fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
               ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _isRecording ? _stopRecording : _startRecording,
-                    icon: Icon(_isRecording ? Icons.stop_circle : Icons.mic_rounded, color: _isRecording ? Colors.red : null),
-                    label: Text(_isRecording ? "STOPPING..." : "VOICE DUMP"),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                  ),
-                ),
-              ],
             ),
             const SizedBox(height: 48),
             SizedBox(
               width: double.infinity,
               height: 64,
               child: FilledButton(
-                onPressed: _selectedCategory == null ? null : _saveMood,
+                onPressed: _saveScan,
                 style: FilledButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                child: const Text("SAVE THIS VIBE", style: TextStyle(fontWeight: FontWeight.w900)),
+                child: const Text("GET PERSPECTIVE", style: TextStyle(fontWeight: FontWeight.w900)),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDiagnosticSection({
+    required String title,
+    required double value,
+    required IconData icon,
+    required ValueChanged<double> onChanged,
+    required String lowLabel,
+    required String highLabel,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1)),
+            const Spacer(),
+            Text("${(value * 100).toInt()}%", style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Slider(
+          value: value,
+          onChanged: onChanged,
+          activeColor: Theme.of(context).colorScheme.primary,
+          inactiveColor: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(lowLabel, style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 9, color: Theme.of(context).colorScheme.outline)),
+            Text(highLabel, style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 9, color: Theme.of(context).colorScheme.outline)),
+          ],
+        ),
+      ],
     );
   }
 }

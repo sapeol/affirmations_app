@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 import '../services/affirmations_service.dart';
 import '../models/affirmation.dart';
 import '../models/user_preferences.dart';
@@ -18,17 +22,27 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   Affirmation? _currentAffirmation;
   bool _isLoading = true;
+  final ScreenshotController _screenshotController = ScreenshotController();
+  List<String> _likedIds = [];
 
   @override
   void initState() {
     super.initState();
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
+    final prefs = await UserPreferences.load();
+    setState(() {
+      _likedIds = prefs.likedAffirmations;
+    });
     _loadInitialAffirmation();
   }
 
   Future<void> _loadInitialAffirmation() async {
     setState(() => _isLoading = true);
     final aff = await AffirmationsService.getDailyAffirmation();
-    await Future.delayed(const Duration(milliseconds: 1200));
+    await Future.delayed(const Duration(milliseconds: 800));
     
     if (mounted) {
       setState(() {
@@ -40,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   void _updateWidget(Affirmation aff) {
-    HomeWidget.saveWidgetData<String>('affirmation_text', aff.text);
+    HomeWidget.saveWidgetData<String>('affirmation_text', aff.getText(DopeLanguage.en));
     HomeWidget.updateWidget(
       name: 'AffirmationWidgetProvider',
       androidName: 'AffirmationWidgetProvider',
@@ -49,8 +63,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   void _refreshAffirmation() async {
+    final currentText = _currentAffirmation?.getText(DopeLanguage.en);
     setState(() => _isLoading = true);
-    final aff = await AffirmationsService.getRandomAffirmation();
+    final aff = await AffirmationsService.getRandomAffirmation(excludeText: currentText);
+    
+    final prefs = await UserPreferences.load();
+    if (!prefs.notificationsEnabled && mounted) {
+      _showNotificationPrompt();
+    }
+
     await Future.delayed(const Duration(milliseconds: 1000));
     
     if (mounted) {
@@ -62,116 +83,266 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
   }
 
+  void _toggleLike() async {
+    if (_currentAffirmation == null) return;
+    final id = _currentAffirmation!.getText(DopeLanguage.en);
+    
+    setState(() {
+      if (_likedIds.contains(id)) {
+        _likedIds.remove(id);
+      } else {
+        _likedIds.add(id);
+      }
+    });
+
+    final prefs = await UserPreferences.load();
+    await UserPreferences.save(UserPreferences(
+      persona: prefs.persona,
+      tone: prefs.tone,
+      themeMode: prefs.themeMode,
+      fontFamily: prefs.fontFamily,
+      colorTheme: prefs.colorTheme,
+      language: prefs.language,
+      systemLoad: prefs.systemLoad,
+      batteryLevel: prefs.batteryLevel,
+      bandwidth: prefs.bandwidth,
+      likedAffirmations: _likedIds,
+      notificationsEnabled: prefs.notificationsEnabled,
+    ));
+  }
+
+  Future<void> _shareAsImage() async {
+    if (_currentAffirmation == null) return;
+    
+    final image = await _screenshotController.captureFromWidget(
+      _buildShareCard(_currentAffirmation!),
+      delay: const Duration(milliseconds: 10),
+    );
+
+    final directory = await getTemporaryDirectory();
+    final imagePath = await File('${directory.path}/dopermation.png').create();
+    await imagePath.writeAsBytes(image);
+
+    await Share.shareXFiles([XFile(imagePath.path)], text: 'Check this Dopermation.');
+  }
+
+  Widget _buildShareCard(Affirmation aff) {
+    return Container(
+      width: 400,
+      padding: const EdgeInsets.all(40),
+      color: const Color(0xFF0D0D0D),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.bolt_rounded, color: Colors.greenAccent, size: 48),
+          const SizedBox(height: 32),
+          Text(
+            aff.getText(DopeLanguage.en),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              height: 1.3,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            "DOPERMATIONS",
+            style: TextStyle(color: Colors.greenAccent, fontSize: 10, letterSpacing: 4, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showNotificationPrompt() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.notifications_active_outlined),
+        title: const Text("Daily Inspiration?"),
+        content: const Text("Would you like to receive a gentle affirmation every morning to start your day with light?"),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Later")),
+          FilledButton.tonal(
+            onPressed: () async {
+              final prefs = await UserPreferences.load();
+              await UserPreferences.save(UserPreferences(
+                persona: prefs.persona,
+                tone: prefs.tone,
+                themeMode: prefs.themeMode,
+                fontFamily: prefs.fontFamily,
+                colorTheme: prefs.colorTheme,
+                language: prefs.language,
+                systemLoad: prefs.systemLoad,
+                batteryLevel: prefs.batteryLevel,
+                bandwidth: prefs.bandwidth,
+                likedAffirmations: prefs.likedAffirmations,
+                notificationsEnabled: true,
+              ));
+              if (!context.mounted) return;
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Notifications enabled")),
+              );
+            },
+            child: const Text("Enable"),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final aff = _currentAffirmation;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("DOPERMATIONS", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2)),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary),
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ProfileScreen()),
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.tune_rounded),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const SettingsScreen()),
-            ).then((_) => _loadInitialAffirmation()),
-          ),
-        ],
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildMoodPrompt(),
-              const SizedBox(height: 48),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 800),
-                switchInCurve: Curves.easeInOutCubic,
-                switchOutCurve: Curves.easeInOutCubic,
-                child: _isLoading
-                    ? const ExpressiveLoader(key: ValueKey('loading'))
-                    : Card(
-                        key: ValueKey(aff?.text ?? 'none'),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 64.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                aff?.text ?? "",
-                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                      fontWeight: FontWeight.w800,
-                                      height: 1.3,
-                                      letterSpacing: -0.5,
-                                    ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 24),
-                              if (aff?.persona != null)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    aff!.persona!.name.toUpperCase(),
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.primary,
-                                      letterSpacing: 1,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
+    return FutureBuilder<UserPreferences>(
+      future: UserPreferences.load(),
+      builder: (context, prefSnapshot) {
+        final lang = prefSnapshot.data?.language ?? DopeLanguage.en;
+        final displayText = aff?.getText(lang) ?? "";
+        final isLiked = _likedIds.contains(aff?.getText(DopeLanguage.en));
+
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text("DOPERMATIONS", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2)),
+            centerTitle: true,
+            leading: IconButton(
+              icon: Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
               ),
-              const SizedBox(height: 120),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.tune_rounded),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                ).then((_) => _loadInitialAffirmation()),
+              ),
             ],
           ),
-        ),
-      ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            heroTag: 'refresh',
-            mini: true,
-            onPressed: _isLoading ? null : _refreshAffirmation,
-            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: const Icon(Icons.refresh_rounded),
+          body: Stack(
+            children: [
+              Positioned(
+                top: 16,
+                left: 0,
+                right: 0,
+                child: Center(child: _buildMoodPrompt()),
+              ),
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 48),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 800),
+                        child: _isLoading
+                            ? const ExpressiveLoader(key: ValueKey('loading'))
+                            : Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Card(
+                                    key: ValueKey(displayText),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 64.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            displayText,
+                                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                                  color: Theme.of(context).colorScheme.onSurface,
+                                                  fontWeight: FontWeight.w800,
+                                                  height: 1.3,
+                                                  letterSpacing: -0.5,
+                                                ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(height: 24),
+                                          if (aff?.persona != null)
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                              decoration: BoxDecoration(
+                                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                                                borderRadius: BorderRadius.circular(4),
+                                              ),
+                                              child: Text(
+                                                aff!.persona!.name.toUpperCase(),
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(context).colorScheme.primary,
+                                                  letterSpacing: 1,
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      IconButton(
+                                        onPressed: _toggleLike,
+                                        icon: Icon(
+                                          isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                                          color: isLiked ? Colors.redAccent : Theme.of(context).colorScheme.outline,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      IconButton(
+                                        onPressed: _shareAsImage,
+                                        icon: Icon(Icons.share_rounded, color: Theme.of(context).colorScheme.outline),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                      ),
+                      const SizedBox(height: 120),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          FloatingActionButton.extended(
-            heroTag: 'add',
-            onPressed: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const CreateAffirmationScreen()),
-              );
-              if (result == true) _refreshAffirmation();
-            },
-            icon: const Icon(Icons.add),
-            label: const Text("OWN PERSPECTIVE"),
+          floatingActionButton: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              FloatingActionButton(
+                heroTag: 'refresh',
+                mini: true,
+                onPressed: _isLoading ? null : _refreshAffirmation,
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                child: const Icon(Icons.refresh_rounded),
+              ),
+              const SizedBox(height: 16),
+              FloatingActionButton.extended(
+                heroTag: 'add',
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CreateAffirmationScreen()),
+                  );
+                  if (result == true) _refreshAffirmation();
+                },
+                icon: const Icon(Icons.add),
+                label: const Text("OWN PERSPECTIVE"),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -179,9 +350,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return FutureBuilder<UserPreferences>(
       future: UserPreferences.load(),
       builder: (context, snapshot) {
-        final mood = snapshot.data?.lastMoodCategory;
+        final load = snapshot.data?.systemLoad ?? 0.5;
+        final status = load > 0.7 ? "HIGH PRESSURE" : "NOMINAL";
         return ActionChip(
-          label: Text(mood != null ? "VIBE: $mood" : "HOW'S THE BRAIN?"),
+          label: Text("VIBE CHECK: $status"),
           onPressed: () async {
             final result = await Navigator.push(
               context,
@@ -269,7 +441,6 @@ class _TerminalPainter extends CustomPainter {
       ..color = color
       ..style = PaintingStyle.fill;
 
-    // Draw a blinking terminal cursor or similar geometric dope loader
     final double cursorWidth = size.width * 0.6;
     final double cursorHeight = 8.0;
     

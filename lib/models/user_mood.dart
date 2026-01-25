@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 enum EmotionCategory { 
   peaceful, 
-  messyMiddle, // Progress with anxiety
+  messyMiddle, 
   overwhelmed, 
   searching, 
   grounded, 
@@ -10,27 +10,24 @@ enum EmotionCategory {
 }
 
 class UserMood {
-  final EmotionCategory category;
-  final String label;
+  final double systemLoad; // 0.0 to 1.0 (Stress)
+  final double batteryLevel; // 0.0 to 1.0 (Energy)
+  final double bandwidth; // 0.0 to 1.0 (Social/Focus capacity)
   final String? journalEntry;
-  final String? voiceNotePath;
   final DateTime timestamp;
 
   UserMood({
-    required this.category,
-    required this.label,
+    this.systemLoad = 0.5,
+    this.batteryLevel = 0.5,
+    this.bandwidth = 0.5,
     this.journalEntry,
-    this.voiceNotePath,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 }
 
-// Fixed: Removed const from list that uses non-const IconData
-final List<Map<String, dynamic>> emotionWheel = [
-  {'label': 'Calm', 'category': EmotionCategory.peaceful, 'icon': Icons.self_improvement},
-  {'label': 'Anxious-Progress', 'category': EmotionCategory.messyMiddle, 'icon': Icons.trending_up_rounded},
-  {'label': 'Overwhelmed', 'category': EmotionCategory.overwhelmed, 'icon': Icons.waves_rounded},
-  {'label': 'Searching', 'category': EmotionCategory.searching, 'icon': Icons.explore_outlined},
-  {'label': 'Grounded', 'category': EmotionCategory.grounded, 'icon': Icons.park_rounded},
-  {'label': 'Resilient', 'category': EmotionCategory.resilient, 'icon': Icons.shield_moon_outlined},
+final List<Map<String, dynamic>> systemStates = [
+  {'label': 'NOMINAL', 'category': EmotionCategory.peaceful, 'icon': Icons.check_circle_outline},
+  {'label': 'UNSTABLE', 'category': EmotionCategory.messyMiddle, 'icon': Icons.warning_amber_rounded},
+  {'label': 'CRITICAL', 'category': EmotionCategory.overwhelmed, 'icon': Icons.error_outline},
+  {'label': 'REBOOTING', 'category': EmotionCategory.searching, 'icon': Icons.restart_alt_rounded},
 ];

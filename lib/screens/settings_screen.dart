@@ -15,7 +15,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   final Map<String, List<String>> _fontCategories = {
     'Modern': ['Plus Jakarta Sans', 'Montserrat', 'Outfit'],
-    'Terminal': ['Fira Code', 'Roboto Mono', 'Space Mono'],
+    'Clean': ['Fira Code', 'Roboto Mono', 'Space Mono'],
     'Classic': ['Playfair Display', 'Lora'],
   };
 
@@ -38,7 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("TUNE SYSTEM")),
+      appBar: AppBar(title: const Text("VIBE SETTINGS")),
       body: FutureBuilder<UserPreferences>(
         future: _prefsFuture,
         builder: (context, snapshot) {
@@ -48,33 +48,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
           return ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             children: [
-              _buildGroupHeader("DOPE CUSTOMIZATION"),
+              _buildGroupHeader("CUSTOMIZATION"),
               _buildSettingTile(
                 icon: Icons.face_retouching_natural_rounded,
-                title: "Persona",
+                title: "Your Persona",
                 subtitle: _formatEnum(prefs.persona),
                 onTap: () => _showSelectionDialog(context, "Select Persona", DopePersona.values, prefs.persona, (val) => _updatePreference(_copy(prefs, persona: val as DopePersona))),
               ),
               _buildSettingTile(
                 icon: Icons.tune_rounded,
-                title: "Tone Slider",
+                title: "Affirmation Tone",
                 subtitle: _formatEnum(prefs.tone),
                 onTap: () => _showSelectionDialog(context, "Select Tone vibe", DopeTone.values, prefs.tone, (val) => _updatePreference(_copy(prefs, tone: val as DopeTone))),
               ),
               _buildSettingTile(
-                icon: Icons.terminal_rounded,
-                title: "Terminal Theme",
+                icon: Icons.palette_rounded,
+                title: "Color Palette",
                 subtitle: _formatEnum(prefs.colorTheme),
-                onTap: () => _showSelectionDialog(context, "Select Color Palette", AppColorTheme.values, prefs.colorTheme, (val) => _updatePreference(_copy(prefs, colorTheme: val as AppColorTheme))),
+                onTap: () => _showSelectionDialog(context, "Select Theme", AppColorTheme.values, prefs.colorTheme, (val) => _updatePreference(_copy(prefs, colorTheme: val as AppColorTheme))),
               ),
               _buildSettingTile(
                 icon: Icons.font_download_rounded,
-                title: "System Font",
+                title: "Typography",
                 subtitle: prefs.fontFamily,
                 onTap: () => _showFontDialog(context, prefs),
               ),
+              _buildSettingTile(
+                icon: Icons.language_rounded,
+                title: "System Language",
+                subtitle: _formatLang(prefs.language),
+                onTap: () => _showSelectionDialog(context, "Select Language", DopeLanguage.values, prefs.language, (val) => _updatePreference(_copy(prefs, language: val as DopeLanguage))),
+              ),
               const Divider(height: 32),
-              _buildGroupHeader("CORE"),
+              _buildGroupHeader("PREFERENCES"),
               _buildSettingTile(
                 icon: Icons.brightness_6_rounded,
                 title: "Dark Mode",
@@ -85,7 +91,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildSettingTile(
                   icon: Icons.add_to_home_screen_rounded,
                   title: "Pin Widget",
-                  subtitle: "System integration",
+                  subtitle: "Add to home screen",
                   onTap: () async {
                     await HomeWidget.requestPinWidget(
                       name: 'AffirmationWidgetProvider',
@@ -94,7 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
               const Divider(height: 32),
-              _buildGroupHeader("PUSH SYSTEM"),
+              _buildGroupHeader("PUSH NOTIFICATIONS"),
               SwitchListTile(
                 secondary: Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary),
                 title: const Text("Daily Pings"),
@@ -167,7 +173,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             const Padding(
               padding: EdgeInsets.all(20.0),
-              child: Text("TYPOGRAPHY ENGINE", style: TextStyle(fontWeight: FontWeight.w900)),
+              child: Text("TYPOGRAPHY", style: TextStyle(fontWeight: FontWeight.w900)),
             ),
             Expanded(
               child: ListView(
@@ -196,21 +202,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  String _formatLang(DopeLanguage l) {
+    switch (l) {
+      case DopeLanguage.en: return "English";
+      case DopeLanguage.es: return "Español";
+      case DopeLanguage.hi: return "हिन्दी";
+      case DopeLanguage.fr: return "Français";
+      case DopeLanguage.de: return "Deutsch";
+    }
+  }
+
   String _formatEnum(dynamic e) {
+    if (e is DopeLanguage) return _formatLang(e);
     final name = e.toString().split('.').last;
     if (name == 'adhdBrain') return 'ADHD Brain';
     if (name == 'burntOut') return 'Burned Out';
     return name[0].toUpperCase() + name.substring(1);
   }
 
-  UserPreferences _copy(UserPreferences p, {DopePersona? persona, DopeTone? tone, ThemeMode? themeMode, String? fontFamily, AppColorTheme? colorTheme, bool? notificationsEnabled}) {
+  UserPreferences _copy(UserPreferences p, {DopePersona? persona, DopeTone? tone, ThemeMode? themeMode, String? fontFamily, AppColorTheme? colorTheme, DopeLanguage? language, bool? notificationsEnabled}) {
     return UserPreferences(
       persona: persona ?? p.persona,
       tone: tone ?? p.tone,
       themeMode: themeMode ?? p.themeMode,
       fontFamily: fontFamily ?? p.fontFamily,
       colorTheme: colorTheme ?? p.colorTheme,
-      lastMoodCategory: p.lastMoodCategory,
+      language: language ?? p.language,
+      systemLoad: p.systemLoad,
+      batteryLevel: p.batteryLevel,
+      bandwidth: p.bandwidth,
       notificationsEnabled: notificationsEnabled ?? p.notificationsEnabled,
     );
   }
