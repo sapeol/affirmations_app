@@ -30,9 +30,10 @@ class AppTheme {
       textTheme: textTheme,
       cardTheme: CardThemeData(
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
         color: brightness == Brightness.light 
-          ? Color.alphaBlend(seedColor.withValues(alpha: 0.05), Colors.white) 
+          ? Color.alphaBlend(seedColor.withValues(alpha: 0.08), Colors.white) 
           : null,
       ),
       listTileTheme: ListTileThemeData(

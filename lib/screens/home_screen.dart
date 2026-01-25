@@ -50,6 +50,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void _refreshAffirmation() async {
     setState(() => _isLoading = true);
     final aff = await AffirmationsService.getRandomAffirmation();
+    
+    // Check for just-in-time notification permission after some engagement
+    final prefs = await UserPreferences.load();
+    if (!prefs.notificationsEnabled && mounted) {
+      _showNotificationPrompt();
+    }
+
     await Future.delayed(const Duration(milliseconds: 1200));
     if (mounted) {
       setState(() {
@@ -58,6 +65,41 @@ class _HomeScreenState extends State<HomeScreen> {
       });
       _updateWidget(aff);
     }
+  }
+
+  void _showNotificationPrompt() {
+    // Only show once per session or use a flag in SharedPreferences to show only once ever
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.notifications_active_outlined),
+        title: const Text("Daily Inspiration?"),
+        content: const Text("Would you like to receive a gentle affirmation every morning to start your day with light?"),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Later")),
+          FilledButton.tonal(
+            onPressed: () async {
+              final prefs = await UserPreferences.load();
+              await UserPreferences.save(UserPreferences(
+                leaning: prefs.leaning,
+                focus: prefs.focus,
+                lifeStage: prefs.lifeStage,
+                gender: prefs.gender,
+                themeMode: prefs.themeMode,
+                fontFamily: prefs.fontFamily,
+                colorTheme: prefs.colorTheme,
+                notificationsEnabled: true,
+              ));
+              if (mounted) Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Notifications enabled")),
+              );
+            },
+            child: const Text("Enable"),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showAddDialog() {

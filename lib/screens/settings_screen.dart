@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:home_widget/home_widget.dart';
 import '../models/user_preferences.dart';
 import '../main.dart';
 
@@ -67,6 +68,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 subtitle: prefs.fontFamily,
                 onTap: () => _showFontDialog(context, prefs),
               ),
+              if (Theme.of(context).platform == TargetPlatform.android)
+                _buildSettingTile(
+                  icon: Icons.add_to_home_screen_rounded,
+                  title: "Pin Widget",
+                  subtitle: "Add to home screen",
+                  onTap: () async {
+                    await HomeWidget.requestPinWidget(
+                      name: 'AffirmationWidgetProvider',
+                      androidName: 'AffirmationWidgetProvider',
+                    );
+                  },
+                ),
               const Divider(height: 32),
               _buildGroupHeader("Personalization"),
               _buildSettingTile(
