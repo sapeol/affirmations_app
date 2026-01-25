@@ -16,8 +16,8 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
   EmotionCategory? _selectedCategory;
   final TextEditingController _journalController = TextEditingController();
   
-  // Audio Recording
-  late AudioRecorder _audioRecorder;
+  // Audio Recording (Nullable for safer lifecycle management)
+  AudioRecorder? _audioRecorder;
   bool _isRecording = false;
   String? _audioPath;
 
@@ -29,20 +29,23 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
 
   @override
   void dispose() {
-    _audioRecorder.dispose();
+    _audioRecorder?.dispose();
     _journalController.dispose();
     super.dispose();
   }
 
   Future<void> _startRecording() async {
+    final recorder = _audioRecorder;
+    if (recorder == null) return;
+
     try {
-      if (await _audioRecorder.hasPermission()) {
+      if (await recorder.hasPermission()) {
         final directory = await getApplicationDocumentsDirectory();
         final path = p.join(directory.path, 'mood_note_${DateTime.now().millisecondsSinceEpoch}.m4a');
         
         const config = RecordConfig();
         
-        await _audioRecorder.start(config, path: path);
+        await recorder.start(config, path: path);
         setState(() {
           _isRecording = true;
           _audioPath = path;
@@ -58,8 +61,11 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
   }
 
   Future<void> _stopRecording() async {
+    final recorder = _audioRecorder;
+    if (recorder == null) return;
+
     try {
-      final path = await _audioRecorder.stop();
+      final path = await recorder.stop();
       setState(() {
         _isRecording = false;
         _audioPath = path;
@@ -90,9 +96,6 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
       lastMoodCategory: _selectedCategory!.name,
       notificationsEnabled: prefs.notificationsEnabled,
     ));
-
-    // In a real app, you'd save the _audioPath and _journalController.text 
-    // to a database along with the mood entry. For now, we persist the mood state.
 
     if (mounted) Navigator.pop(context, true);
   }
