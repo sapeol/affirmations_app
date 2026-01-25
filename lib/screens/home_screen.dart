@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:home_widget/home_widget.dart';
 import '../services/affirmations_service.dart';
 import '../models/affirmation.dart';
@@ -17,7 +18,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   Affirmation? _currentAffirmation;
   bool _isLoading = true;
-  int _loadingStep = 0;
 
   @override
   void initState() {
@@ -28,7 +28,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Future<void> _loadInitialAffirmation() async {
     setState(() {
       _isLoading = true;
-      _loadingStep = 0;
     });
     
     final aff = await AffirmationsService.getDailyAffirmation();
@@ -55,7 +54,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void _refreshAffirmation() async {
     setState(() {
       _isLoading = true;
-      _loadingStep = 0;
     });
     
     final aff = await AffirmationsService.getRandomAffirmation();
