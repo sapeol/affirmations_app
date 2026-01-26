@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/user_preferences.dart';
 import '../models/affirmation.dart';
@@ -102,37 +103,49 @@ class ProfileScreen extends StatelessWidget {
   }
 
   void _showAffirmationCard(BuildContext context, Affirmation a) {
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Hero(
-            tag: 'aff-${a.getText(DopeLanguage.en)}',
-            child: Material(
-              color: Colors.transparent,
-              child: Stack(
-                children: [
-                  SwipeCard(
-                    affirmation: a,
-                    language: DopeLanguage.en,
-                    onSwipe: (_) async => true,
-                    isEnabled: false,
-                  ),
-                  Positioned(
-                    top: 16,
-                    right: 16,
-                    child: IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: Icon(Icons.close_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
+      barrierDismissible: true,
+      barrierLabel: 'Dismiss',
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (context, anim1, anim2) {
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: FadeTransition(
+            opacity: anim1,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Hero(
+                  tag: 'aff-${a.getText(DopeLanguage.en)}',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Stack(
+                      children: [
+                        SwipeCard(
+                          affirmation: a,
+                          language: DopeLanguage.en,
+                          onSwipe: (_) async => true,
+                          isEnabled: false,
+                        ),
+                        Positioned(
+                          top: 16,
+                          right: 16,
+                          child: IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: Icon(Icons.close_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
