@@ -11,7 +11,7 @@ import 'locator.dart';
 
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.dark);
 final ValueNotifier<String> fontNotifier = ValueNotifier('Plus Jakarta Sans');
-final ValueNotifier<AppColorTheme> colorThemeNotifier = ValueNotifier(AppColorTheme.terminal);
+final colorThemeNotifier = ValueNotifier<AppColorTheme>(AppColorTheme.brutalist);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

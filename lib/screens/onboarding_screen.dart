@@ -17,12 +17,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final int _totalPages = 3;
 
   DopePersona _selectedPersona = DopePersona.overthinker;
-  AppColorTheme _selectedTheme = AppColorTheme.terminal;
+  AppColorTheme _selectedTheme = AppColorTheme.brutalist;
 
   void _finish() async {
     await UserPreferences.save(UserPreferences(
       persona: _selectedPersona,
-      colorTheme: _selectedTheme,
+      colorTheme: AppColorTheme.brutalist,
       notificationsEnabled: false,
       firstRunDate: DateTime.now().toIso8601String(),
     ));

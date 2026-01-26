@@ -2,9 +2,28 @@ import 'dart:math';
 import '../models/affirmation.dart';
 import '../models/user_preferences.dart';
 import 'database_service.dart';
+import 'battery_service.dart';
 import '../locator.dart';
 
 class AffirmationsService {
+  final List<Affirmation> _batteryAbove90 = [
+    Affirmation(text: "Your battery is at 90%+. High energy, zero direction. Classic."),
+    Affirmation(text: "Full battery? Too bad you can't charge your motivation that easily."),
+    Affirmation(text: "Look at you, all charged up with nowhere to go."),
+  ];
+
+  final List<Affirmation> _batteryMidRange = [
+    Affirmation(text: "Battery between 40-80%. Just like your effort: adequately mediocre."),
+    Affirmation(text: "You're at that awkward mid-battery stage. Not full, not dying. Just... there."),
+    Affirmation(text: "Drain it faster. The void is waiting."),
+  ];
+
+  final List<Affirmation> _batteryCritical = [
+    Affirmation(text: "Below 10%. Finally, your phone is as exhausted as your soul."),
+    Affirmation(text: "Critical battery. Go ahead, let it die. Just like that project you started."),
+    Affirmation(text: "Low power mode? You've been in that for years."),
+  ];
+
   final List<Affirmation> _library = [
     // --- OVERTHINKER ---
     Affirmation(
@@ -3136,11 +3155,21 @@ class AffirmationsService {
   Future<List<Affirmation>> getAllAffirmations() async {
     final prefs = await UserPreferences.load();
     final custom = await UserPreferences.getCustomAffirmations();
+    final batteryLevel = await locator<BatteryService>().batteryLevel;
     
     // STRICT FILTERING: Match persona OR universal (null persona)
     final filtered = _library.where((a) {
       return a.persona == prefs.persona || a.persona == null;
     }).toList();
+
+    // Context-aware Battery Injection
+    if (batteryLevel >= 90) {
+      filtered.addAll(_batteryAbove90);
+    } else if (batteryLevel >= 40 && batteryLevel <= 80) {
+      filtered.addAll(_batteryMidRange);
+    } else if (batteryLevel < 10) {
+      filtered.addAll(_batteryCritical);
+    }
 
     // Evolving Affirmations Logic
     final firstRun = DateTime.tryParse(prefs.firstRunDate) ?? DateTime.now();

@@ -403,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               if (prefSnapshot.hasData)
                 Center(
                   child: Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
+                    padding: const EdgeInsets.only(right: 16.0),
                     child: Text(
                       "${prefSnapshot.data!.sanityStreak}D",
                       style: TextStyle(

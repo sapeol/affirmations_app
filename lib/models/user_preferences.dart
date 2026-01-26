@@ -10,7 +10,7 @@ enum DopePersona {
   striver, 
   adhdBrain
 }
-enum AppColorTheme { terminal, matrix, cyber, monochrome, dusk }
+enum AppColorTheme { brutalist, vibrant, softcore, minimalist, cyber }
 enum DopeLanguage { en, es, hi, fr, de }
 
 class UserPreferences {
@@ -33,7 +33,7 @@ class UserPreferences {
     required this.persona,
     this.themeMode = ThemeMode.dark,
     this.fontFamily = 'Plus Jakarta Sans',
-    this.colorTheme = AppColorTheme.terminal,
+    this.colorTheme = AppColorTheme.brutalist,
     this.language = DopeLanguage.en,
     this.likedAffirmations = const [],
     this.notificationsEnabled = true,
@@ -84,7 +84,7 @@ class UserPreferences {
       persona: _enumFromString(DopePersona.values, s.getString('persona'), DopePersona.overthinker),
       themeMode: _enumFromString(ThemeMode.values, s.getString('themeMode'), ThemeMode.dark),
       fontFamily: s.getString('fontFamily') ?? 'Plus Jakarta Sans',
-      colorTheme: _enumFromString(AppColorTheme.values, s.getString('colorTheme'), AppColorTheme.terminal),
+      colorTheme: _enumFromString(AppColorTheme.values, s.getString('colorTheme'), AppColorTheme.brutalist),
       language: _enumFromString(DopeLanguage.values, s.getString('language'), DopeLanguage.en),
       likedAffirmations: s.getStringList('likedAffirmations') ?? [],
       notificationsEnabled: s.getBool('notifications') ?? true,
