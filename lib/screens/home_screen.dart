@@ -24,36 +24,62 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   List<Affirmation> _affirmations = [];
   bool _isLoading = true;
   final ScreenshotController _screenshotController = ScreenshotController();
   List<String> _likedIds = [];
-  final List<Affirmation> _history = [];
+  bool _isPremium = false;
   int _swipeCount = 0;
   int _undoCount = 0;
-  bool _isPremium = false;
+  final int _maxFreeSwipes = 5;
+  final int _maxFreeUndos = 2;
   bool _isActionInProgress = false;
-  final int _maxFreeSwipes = 20;
-  final int _maxFreeUndos = 5;
-  
   final GlobalKey<SwipeCardState> _cardKey = GlobalKey<SwipeCardState>();
+  final List<Affirmation> _history = [];
+
+  late AnimationController _entranceController;
+  late List<Animation<double>> _staggeredAnimations;
 
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+
+    _staggeredAnimations = List.generate(4, (index) {
+      final start = index * 0.15;
+      final end = (start + 0.4).clamp(0.0, 1.0);
+      return CurvedAnimation(
+        parent: _entranceController,
+        curve: Interval(start, end, curve: Curves.easeOutBack),
+      );
+    });
+
+    _init();
   }
 
-  Future<void> _loadInitialData() async {
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    super.dispose();
+  }
+
+  void _init() async {
     final prefs = await UserPreferences.load();
     if (mounted) {
       setState(() {
+        _swipeCount = 0; 
         _likedIds = prefs.likedAffirmations;
         _isPremium = false; 
       });
     }
     await _loadAffirmations();
+    if (mounted) {
+      _entranceController.forward();
+    }
   }
 
   Future<void> _loadAffirmations() async {
@@ -310,12 +336,31 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: AppBar(
             backgroundColor: Colors.transparent, elevation: 0,
-            title: Text("DELUSIONS", style: Theme.of(context).appBarTheme.titleTextStyle),
+            title: AnimatedBuilder(
+              animation: _staggeredAnimations[0],
+              builder: (context, child) => Transform.translate(
+                offset: Offset(0, 20 * (1 - _staggeredAnimations[0].value)),
+                child: Opacity(opacity: _staggeredAnimations[0].value, child: child),
+              ),
+              child: Text("DELUSIONS", style: Theme.of(context).appBarTheme.titleTextStyle),
+            ),
             centerTitle: true,
-            leading: IconButton(icon: Icon(Icons.blur_on_rounded, color: Theme.of(context).iconTheme.color), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()))),
+            leading: AnimatedBuilder(
+              animation: _staggeredAnimations[0],
+              builder: (context, child) => Opacity(opacity: _staggeredAnimations[0].value, child: child),
+              child: IconButton(icon: Icon(Icons.blur_on_rounded, color: Theme.of(context).iconTheme.color), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()))),
+            ),
             actions: [
-              if (prefSnapshot.hasData) Center(child: Padding(padding: const EdgeInsets.only(right: 16.0), child: Text("${prefSnapshot.data!.sanityStreak}D", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 1)))),
-              IconButton(icon: Icon(Icons.tune_rounded, color: Theme.of(context).iconTheme.color), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())).then((_) => _loadAffirmations())),
+              if (prefSnapshot.hasData) AnimatedBuilder(
+                animation: _staggeredAnimations[0],
+                builder: (context, child) => Opacity(opacity: _staggeredAnimations[0].value, child: child),
+                child: Center(child: Padding(padding: const EdgeInsets.only(right: 16.0), child: Text("${prefSnapshot.data!.sanityStreak}D", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 1)))),
+              ),
+              AnimatedBuilder(
+                animation: _staggeredAnimations[0],
+                builder: (context, child) => Opacity(opacity: _staggeredAnimations[0].value, child: child),
+                child: IconButton(icon: Icon(Icons.tune_rounded, color: Theme.of(context).iconTheme.color), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())).then((_) => _loadAffirmations())),
+              ),
             ],
           ),
           body: Stack(
@@ -324,39 +369,74 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               else if (_affirmations.isEmpty) Center(child: FadeIn(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.wb_sunny_outlined, size: 48, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)), const SizedBox(height: 24), Text("The well is dry. Just like your soul.", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w300, fontStyle: FontStyle.italic)), const SizedBox(height: 48), TextButton(onPressed: _loadAffirmations, child: Text("REFETCH THE LIES", style: TextStyle(letterSpacing: 2, fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5))))])))
               else Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                 const SizedBox(height: 24),
-                Expanded(flex: 12, child: Stack(alignment: Alignment.center, clipBehavior: Clip.none, children: _affirmations.take(2).toList().reversed.toList().asMap().entries.map((entry) {
-                  final reversedIndex = entry.key; final aff = entry.value; final totalInStack = min(_affirmations.length, 2); final isTop = reversedIndex == totalInStack - 1;
-                  return Positioned(top: 40.0 - (reversedIndex * 15), child: SwipeCard(key: isTop ? _cardKey : ValueKey(aff.getText(DopeLanguage.en)), affirmation: aff, language: lang, onSwipe: isTop ? _onSwipeAction : (direction) async => false, isEnabled: isTop));
-                }).toList())),
-                const SizedBox(height: 32),
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  _buildActionCircle(
-                    icon: Icons.close_rounded,
-                    color: Colors.redAccent,
-                    onPressed: _undoSwipe,
-                    isDisabled: _history.isEmpty || _isActionInProgress,
+                Expanded(
+                  flex: 12, 
+                  child: AnimatedBuilder(
+                    animation: _staggeredAnimations[1],
+                    builder: (context, child) => Transform.translate(
+                      offset: Offset(0, 100 * (1 - _staggeredAnimations[1].value)),
+                      child: Opacity(opacity: _staggeredAnimations[1].value, child: child),
+                    ),
+                    child: Stack(alignment: Alignment.center, clipBehavior: Clip.none, children: _affirmations.take(2).toList().reversed.toList().asMap().entries.map((entry) {
+                      final reversedIndex = entry.key; final aff = entry.value; final totalInStack = min(_affirmations.length, 2); final isTop = reversedIndex == totalInStack - 1;
+                      return Positioned(top: 40.0 - (reversedIndex * 15), child: SwipeCard(key: isTop ? _cardKey : ValueKey(aff.getText(DopeLanguage.en)), affirmation: aff, language: lang, onSwipe: isTop ? _onSwipeAction : (direction) async => false, isEnabled: isTop));
+                    }).toList()),
                   ),
-                  const SizedBox(width: 40),
-                  _buildActionCircle(
-                    icon: Icons.favorite_rounded,
-                    color: Colors.greenAccent,
-                    onPressed: () {
-                      if (!_isPremium && _swipeCount >= _maxFreeSwipes) {
-                        _showPaywall();
-                      } else {
-                        _cardKey.currentState?.triggerSwipe(SwipeDirection.right);
-                      }
-                    },
-                    isDisabled: _isActionInProgress,
-                  ),
-                ]),
+                ),
                 const SizedBox(height: 32),
-                if (!_isPremium) Padding(padding: const EdgeInsets.only(bottom: 24), child: Text("${_maxFreeSwipes - _swipeCount} MORE EXCUSES LEFT", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 2, fontSize: 14, fontWeight: FontWeight.w900))),
-                Padding(padding: const EdgeInsets.only(bottom: 40), child: _buildSoftButton(icon: Icons.ios_share_rounded, onPressed: _shareAsImage)),
+                AnimatedBuilder(
+                  animation: _staggeredAnimations[2],
+                  builder: (context, child) => Transform.translate(
+                    offset: Offset(0, 50 * (1 - _staggeredAnimations[2].value)),
+                    child: Opacity(opacity: _staggeredAnimations[2].value, child: child),
+                  ),
+                  child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    _buildActionCircle(
+                      icon: Icons.close_rounded,
+                      color: Colors.redAccent,
+                      onPressed: _undoSwipe,
+                      isDisabled: _history.isEmpty || _isActionInProgress,
+                    ),
+                    const SizedBox(width: 40),
+                    _buildActionCircle(
+                      icon: Icons.favorite_rounded,
+                      color: Colors.greenAccent,
+                      onPressed: () {
+                        if (!_isPremium && _swipeCount >= _maxFreeSwipes) {
+                          _showPaywall();
+                        } else {
+                          _cardKey.currentState?.triggerSwipe(SwipeDirection.right);
+                        }
+                      },
+                      isDisabled: _isActionInProgress,
+                    ),
+                  ]),
+                ),
+                const SizedBox(height: 32),
+                if (!_isPremium) AnimatedBuilder(
+                  animation: _staggeredAnimations[3],
+                  builder: (context, child) => Opacity(opacity: _staggeredAnimations[3].value, child: child),
+                  child: Padding(padding: const EdgeInsets.only(bottom: 24), child: Text("${_maxFreeSwipes - _swipeCount} MORE EXCUSES LEFT", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 2, fontSize: 14, fontWeight: FontWeight.w900))),
+                ),
+                AnimatedBuilder(
+                  animation: _staggeredAnimations[3],
+                  builder: (context, child) => Transform.translate(
+                    offset: Offset(0, 30 * (1 - _staggeredAnimations[3].value)),
+                    child: Opacity(opacity: _staggeredAnimations[3].value, child: child),
+                  ),
+                  child: Padding(padding: const EdgeInsets.only(bottom: 40), child: _buildSoftButton(icon: Icons.ios_share_rounded, onPressed: _shareAsImage)),
+                ),
               ]),
             ],
           ),
-          floatingActionButton: FloatingActionButton(heroTag: 'add', elevation: 0, highlightElevation: 0, backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), onPressed: () async { final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateAffirmationScreen())); if (result == true) _loadAffirmations(); }, child: const Icon(Icons.add_rounded, size: 20)),
+          floatingActionButton: AnimatedBuilder(
+            animation: _staggeredAnimations[3],
+            builder: (context, child) => Transform.scale(
+              scale: _staggeredAnimations[3].value,
+              child: Opacity(opacity: _staggeredAnimations[3].value, child: child),
+            ),
+            child: FloatingActionButton(heroTag: 'add', elevation: 0, highlightElevation: 0, backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), onPressed: () async { final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateAffirmationScreen())); if (result == true) _loadAffirmations(); }, child: const Icon(Icons.add_rounded, size: 20)),
+          ),
         );
       },
     );
