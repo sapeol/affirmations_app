@@ -3,6 +3,7 @@ import '../models/user_preferences.dart';
 import '../models/affirmation.dart';
 import '../services/affirmations_service.dart';
 import '../services/receipt_service.dart';
+import 'streak_detail_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -145,7 +146,36 @@ class ProfileScreen extends StatelessWidget {
               _buildStat("FUEL", prefs.batteryLevel),
               _buildStat("CAPACITY", prefs.bandwidth),
             ],
-          )
+          ),
+          const SizedBox(height: 24),
+          GestureDetector(
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const StreakDetailScreen())),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.timer_rounded, size: 16, color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    "SYSTEM UPTIME: ${prefs.sanityStreak} DAYS",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(Icons.chevron_right_rounded, size: 16, color: Theme.of(context).colorScheme.primary),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

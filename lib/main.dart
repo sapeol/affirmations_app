@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'theme.dart';
 import 'screens/onboarding_screen.dart';
@@ -13,6 +14,7 @@ final ValueNotifier<AppColorTheme> colorThemeNotifier = ValueNotifier(AppColorTh
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   
   await NotificationService.init();
   

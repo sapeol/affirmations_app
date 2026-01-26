@@ -179,14 +179,6 @@ class AffirmationsService {
     Affirmation(text: "You don’t need answers tonight. Sleep is allowed.", tone: DopeTone.chill),
     Affirmation(text: "Nothing good happens after 2 AM. Go to bed.", tone: DopeTone.straight),
     Affirmation(text: "Your brain is offline. Stop refreshing.", tone: DopeTone.deadpan),
-
-    // --- ONE-WORD AFFIRMATIONS ---
-    Affirmation(text: "Enough.", tone: DopeTone.straight),
-    Affirmation(text: "Still.", tone: DopeTone.chill),
-    Affirmation(text: "Unfinished.", tone: DopeTone.deadpan),
-    Affirmation(text: "Relax.", tone: DopeTone.coach),
-    Affirmation(text: "Breathe.", tone: DopeTone.chill),
-    Affirmation(text: "Begin.", tone: DopeTone.coach),
   ];
 
   static Future<List<Affirmation>> getAllAffirmations() async {

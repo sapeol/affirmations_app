@@ -356,15 +356,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                           final prefs = await UserPreferences.load();
                                           final rebuttal = AffirmationsService.getRebuttal(prefs.tone);
                                           if (context.mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                title: const Text("SYSTEM REBUTTAL"),
                                                 content: Text(rebuttal),
-                                                behavior: SnackBarBehavior.fixed,
-                                                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                                                showCloseIcon: true,
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(context),
+                                                    child: const Text("WHATEVER"),
+                                                  ),
+                                                ],
                                               ),
                                             );
+                                            _refreshAffirmation();
                                           }
                                         },
                                         child: Text(
@@ -409,6 +414,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                           ],
                                         ),
                                       );
+                                      _refreshAffirmation();
                                     },
                                     child: const Text("I HATE AFFIRMATIONS", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
                                   ),
