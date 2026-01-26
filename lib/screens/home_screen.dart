@@ -11,6 +11,7 @@ import 'settings_screen.dart';
 import 'profile_screen.dart';
 import 'create_affirmation_screen.dart';
 import 'mood_checkin_screen.dart';
+import '../locator.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -41,8 +42,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Future<void> _loadInitialAffirmation() async {
     setState(() => _isLoading = true);
-    final aff = await AffirmationsService.getDailyAffirmation();
-    await AffirmationsService.markAffirmationAsSeen(aff.getText(DopeLanguage.en));
+    final aff = await locator<AffirmationsService>().getDailyAffirmation();
+    await locator<AffirmationsService>().markAffirmationAsSeen(aff.getText(DopeLanguage.en));
     await Future.delayed(const Duration(milliseconds: 800));
     
     if (mounted) {
@@ -66,8 +67,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void _refreshAffirmation() async {
     final currentText = _currentAffirmation?.getText(DopeLanguage.en);
     setState(() => _isLoading = true);
-    final aff = await AffirmationsService.getRandomAffirmation(excludeText: currentText);
-    await AffirmationsService.markAffirmationAsSeen(aff.getText(DopeLanguage.en));
+    final aff = await locator<AffirmationsService>().getRandomAffirmation(excludeText: currentText);
+    await locator<AffirmationsService>().markAffirmationAsSeen(aff.getText(DopeLanguage.en));
     
     final prefs = await UserPreferences.load();
     if (!prefs.notificationsEnabled && mounted) {
@@ -365,7 +366,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                       
                                       if (useSystemRebuttal) {
                                         final prefs = await UserPreferences.load();
-                                        msg = await AffirmationsService.getRebuttal(prefs.tone);
+                                        msg = await locator<AffirmationsService>().getRebuttal(prefs.tone);
                                       } else {
                                         final msgs = [
                                           "Cool. This isn’t one. It’s just a reminder you’re not trash.",

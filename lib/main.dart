@@ -7,6 +7,7 @@ import 'screens/home_screen.dart';
 import 'models/user_preferences.dart';
 
 import 'services/notification_service.dart';
+import 'locator.dart';
 
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.dark);
 final ValueNotifier<String> fontNotifier = ValueNotifier('Plus Jakarta Sans');
@@ -16,7 +17,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   
-  await NotificationService.init();
+  setupLocator();
+  await locator<NotificationService>().init();
   
   final prefs = await UserPreferences.load();
   themeNotifier.value = prefs.themeMode;
@@ -25,7 +27,7 @@ void main() async {
   
   // Schedule if enabled
   if (prefs.notificationsEnabled) {
-    await NotificationService.scheduleDailyPing();
+    await locator<NotificationService>().scheduleDailyPing();
   }
 
   final bool onboardingCompleted = await _checkOnboarding();

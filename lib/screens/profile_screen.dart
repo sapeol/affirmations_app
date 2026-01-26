@@ -4,6 +4,7 @@ import '../models/affirmation.dart';
 import '../services/affirmations_service.dart';
 import '../services/receipt_service.dart';
 import 'streak_detail_screen.dart';
+import '../locator.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -16,7 +17,7 @@ class ProfileScreen extends StatelessWidget {
         future: UserPreferences.load(),
         builder: (context, prefSnapshot) {
           return FutureBuilder<List<Affirmation>>(
-            future: AffirmationsService.getAllAffirmations(),
+            future: locator<AffirmationsService>().getAllAffirmations(),
             builder: (context, affSnapshot) {
               if (!prefSnapshot.hasData || !affSnapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
@@ -41,8 +42,8 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   OutlinedButton.icon(
                     onPressed: () async {
-                      final data = await ReceiptService.generateWeeklyReceipt();
-                      final text = ReceiptService.formatReceipt(data);
+                      final data = await locator<ReceiptService>().generateWeeklyReceipt();
+                      final text = locator<ReceiptService>().formatReceipt(data);
                       if (context.mounted) {
                         showDialog(
                           context: context,

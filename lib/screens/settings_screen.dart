@@ -3,6 +3,7 @@ import 'package:home_widget/home_widget.dart';
 import '../models/user_preferences.dart';
 import '../main.dart';
 import '../services/notification_service.dart';
+import '../locator.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -33,7 +34,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     colorThemeNotifier.value = newPrefs.colorTheme;
     
     // Always reschedule when any relevant preference changes
-    await NotificationService.scheduleDailyPing();
+    await locator<NotificationService>().scheduleDailyPing();
     
     setState(() {
       _prefsFuture = Future.value(newPrefs);

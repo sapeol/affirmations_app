@@ -2,9 +2,10 @@ import 'dart:math';
 import '../models/affirmation.dart';
 import '../models/user_preferences.dart';
 import 'database_service.dart';
+import '../locator.dart';
 
 class AffirmationsService {
-  static final List<Affirmation> _library = [
+  final List<Affirmation> _library = [
     // --- OVERTHINKER ---
     Affirmation(
       text: "Congrats on winning the argument you had with yourself in the shower.",
@@ -182,7 +183,7 @@ class AffirmationsService {
     Affirmation(text: "Your brain is offline. Stop refreshing.", tone: DopeTone.deadpan),
   ];
 
-  static Future<List<Affirmation>> getAllAffirmations() async {
+  Future<List<Affirmation>> getAllAffirmations() async {
     final prefs = await UserPreferences.load();
     final custom = await UserPreferences.getCustomAffirmations();
     
@@ -209,14 +210,14 @@ class AffirmationsService {
     return [...filtered, ...custom];
   }
 
-  static Future<void> markAffirmationAsSeen(String text) async {
-    await DatabaseService().markSeen(text, 'affirmation');
+  Future<void> markAffirmationAsSeen(String text) async {
+    await locator<DatabaseService>().markSeen(text, 'affirmation');
   }
 
-  static Future<Affirmation> getDailyAffirmation() async {
+  Future<Affirmation> getDailyAffirmation() async {
     final all = await getAllAffirmations();
     final prefs = await UserPreferences.load();
-    final seen = await DatabaseService().getSeenContent('affirmation');
+    final seen = await locator<DatabaseService>().getSeenContent('affirmation');
     final liked = prefs.likedAffirmations;
 
     // Daily logic: Prioritize unseen. If no unseen, fallback to liked.
@@ -232,10 +233,10 @@ class AffirmationsService {
     return pool[seed % pool.length];
   }
 
-  static Future<Affirmation> getRandomAffirmation({String? excludeText}) async {
+  Future<Affirmation> getRandomAffirmation({String? excludeText}) async {
     final all = await getAllAffirmations();
     final prefs = await UserPreferences.load();
-    final seen = await DatabaseService().getSeenContent('affirmation');
+    final seen = await locator<DatabaseService>().getSeenContent('affirmation');
     final liked = prefs.likedAffirmations;
 
     // Filter pools
@@ -300,8 +301,8 @@ class AffirmationsService {
     return actualPool[Random().nextInt(actualPool.length)];
   }
 
-  static Future<String> getRebuttal(DopeTone tone) async {
-    final seen = await DatabaseService().getSeenContent('rebuttal');
+  Future<String> getRebuttal(DopeTone tone) async {
+    final seen = await locator<DatabaseService>().getSeenContent('rebuttal');
 
     final rebuttals = {
       DopeTone.chill: [
@@ -383,7 +384,7 @@ class AffirmationsService {
     final selected = available[Random().nextInt(available.length)];
     
     // Mark as seen
-    await DatabaseService().markSeen(selected, 'rebuttal');
+    await locator<DatabaseService>().markSeen(selected, 'rebuttal');
 
     return selected;
   }

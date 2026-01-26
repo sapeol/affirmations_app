@@ -1,7 +1,7 @@
 import '../models/user_preferences.dart';
 
 class ReceiptService {
-  static Future<Map<String, dynamic>> generateWeeklyReceipt() async {
+  Future<Map<String, dynamic>> generateWeeklyReceipt() async {
     final prefs = await UserPreferences.load();
     
     // Simulate data for demo purposes since we don't have full history tracking yet
@@ -18,7 +18,7 @@ class ReceiptService {
     };
   }
 
-  static String formatReceipt(Map<String, dynamic> data) {
+  String formatReceipt(Map<String, dynamic> data) {
     return """
     -------------------------
     ${data['week']} RECEIPT

@@ -1,7 +1,7 @@
 import '../models/user_preferences.dart';
 
 class StreakService {
-  static String getStreakMessage(int streak, bool justBroken) {
+  String getStreakMessage(int streak, bool justBroken) {
     if (justBroken) {
       return "Streak broke. Character didn’t.";
     }
@@ -16,7 +16,7 @@ class StreakService {
     return "Day $streak. Still going.";
   }
 
-  static Future<Map<String, dynamic>> updateStreak() async {
+  Future<Map<String, dynamic>> updateStreak() async {
     final prefs = await UserPreferences.load();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -54,7 +54,7 @@ class StreakService {
     }
   }
 
-  static UserPreferences _copyPrefsWith(UserPreferences p, {
+  UserPreferences _copyPrefsWith(UserPreferences p, {
     int? sanityStreak,
     String? lastInteractionDate,
   }) {

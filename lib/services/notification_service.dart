@@ -6,12 +6,13 @@ import '../models/user_preferences.dart';
 import 'streak_service.dart';
 import 'database_service.dart';
 import 'dart:convert';
+import '../locator.dart';
 
 
 class NotificationService {
-  static final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
 
-  static Future<void> init() async {
+  Future<void> init() async {
     tz.initializeTimeZones();
     
     const AndroidInitializationSettings androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -28,10 +29,10 @@ class NotificationService {
     );
   }
 
-  static void _onNotificationResponse(NotificationResponse response) async {
+  void _onNotificationResponse(NotificationResponse response) async {
     if (response.actionId != null) {
       // Record reality check response
-      await DatabaseService().logHistory(
+      await locator<DatabaseService>().logHistory(
         'reality_check', 
         jsonEncode({
           'action': response.actionId,
@@ -40,7 +41,7 @@ class NotificationService {
       );
       
       // Also update streak on interaction
-      await StreakService.updateStreak();
+      await locator<StreakService>().updateStreak();
 
       final prefs = await UserPreferences.load();
       final updatedPrefs = UserPreferences(
@@ -65,14 +66,14 @@ class NotificationService {
     }
   }
 
-  static Future<void> scheduleDailyPing() async {
+  Future<void> scheduleDailyPing() async {
     final prefs = await UserPreferences.load();
     if (!prefs.notificationsEnabled) {
       await _notifications.cancelAll();
       return;
     }
 
-    final aff = await AffirmationsService.getDailyAffirmation();
+    final aff = await locator<AffirmationsService>().getDailyAffirmation();
     
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(

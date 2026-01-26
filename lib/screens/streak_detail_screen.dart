@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/user_preferences.dart';
 import '../services/streak_service.dart';
+import '../locator.dart';
 
 class StreakDetailScreen extends StatelessWidget {
   const StreakDetailScreen({super.key});
@@ -15,7 +16,7 @@ class StreakDetailScreen extends StatelessWidget {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           final prefs = snapshot.data!;
           final streak = prefs.sanityStreak;
-          final msg = StreakService.getStreakMessage(streak, false);
+          final msg = locator<StreakService>().getStreakMessage(streak, false);
 
           return Padding(
             padding: const EdgeInsets.all(24.0),
