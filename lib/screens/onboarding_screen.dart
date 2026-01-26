@@ -18,11 +18,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   DopePersona _selectedPersona = DopePersona.overthinker;
   AppColorTheme _selectedTheme = AppColorTheme.brutalist;
+  ThemeMode _selectedThemeMode = ThemeMode.dark;
 
   void _finish() async {
     await UserPreferences.save(UserPreferences(
       persona: _selectedPersona,
-      colorTheme: AppColorTheme.brutalist,
+      colorTheme: _selectedTheme,
+      themeMode: _selectedThemeMode,
       notificationsEnabled: false,
       firstRunDate: DateTime.now().toIso8601String(),
     ));
@@ -152,6 +154,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           _buildStableSelection(AppColorTheme.values, _selectedTheme, (v) {
             setState(() => _selectedTheme = v as AppColorTheme);
             colorThemeNotifier.value = v as AppColorTheme;
+          }),
+          const SizedBox(height: 32),
+          _buildSelectionTitle("SYSTEM THEME"),
+          _buildStableSelection([ThemeMode.light, ThemeMode.dark], _selectedThemeMode, (v) {
+            setState(() => _selectedThemeMode = v as ThemeMode);
+            themeNotifier.value = v as ThemeMode;
           }),
         ],
       ),
