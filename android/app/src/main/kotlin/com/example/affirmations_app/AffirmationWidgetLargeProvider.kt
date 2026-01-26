@@ -24,6 +24,11 @@ class AffirmationWidgetLargeProvider : AppWidgetProvider() {
             val views = RemoteViews(context.packageName, R.layout.affirmation_widget_large).apply {
                 val text = widgetData.getString("affirmation_text", "Open app to load affirmation")
                 val persona = widgetData.getString("persona_name", "DELUSIONS")
+                val colorStartStr = widgetData.getString("gradient_start", "#FFD600")
+                val colorEndStr = widgetData.getString("gradient_end", "#FFD600")
+                val textColorStr = widgetData.getString("text_color", "#000000")
+                val themeName = widgetData.getString("theme_name", "vibrant")
+
                 val statusMsg = when(persona?.lowercase()) {
                     "overthinker" -> "ANALYZING VOID..."
                     "adhd brain" -> "SQUIRREL DETECTED."
