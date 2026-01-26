@@ -36,6 +36,7 @@ class SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMixi
   late Animation<Offset> _positionAnimation;
   late Animation<double> _rotationAnimation;
   
+  Offset _dragOffset = Offset.zero;
   bool _isSwiping = false;
 
   @override
@@ -63,6 +64,7 @@ class SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMixi
     if (oldWidget.affirmation != widget.affirmation) {
       // Reset state for the new affirmation
       _isSwiping = false;
+      _dragOffset = Offset.zero;
       _controller.reset();
       _positionAnimation = Tween<Offset>(
         begin: Offset.zero,
@@ -84,11 +86,15 @@ class SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMixi
   Future<void> triggerSwipe(SwipeDirection direction) async {
     if (!widget.isEnabled || _isSwiping) return;
     
-    // 1. Run animation first
-    await _animateOut(direction);
+    // 1. Start animation
+    final animationFuture = _animateOut(direction);
     
-    // 2. Then notify parent to update data and count
-    await widget.onSwipe(direction);
+    // 2. Notify parent slightly before animation ends for snappier feel
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) widget.onSwipe(direction);
+    });
+
+    await animationFuture;
   }
 
   Future<void> _animateOut(SwipeDirection direction) async {
@@ -103,16 +109,33 @@ class SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMixi
     _controller.duration = const Duration(milliseconds: 600); // Snappier exit
 
     _positionAnimation = Tween<Offset>(
-      begin: Offset.zero,
+      begin: _dragOffset,
       end: endOffset,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInCubic));
 
     _rotationAnimation = Tween<double>(
-      begin: 0,
+      begin: (_dragOffset.dx / size.width) * 0.5,
       end: direction == SwipeDirection.right ? 0.4 : -0.4,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInCubic));
 
     await _controller.forward(from: 0);
+  }
+
+  void _runResetAnimation() {
+    _positionAnimation = Tween<Offset>(
+      begin: _dragOffset,
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
+
+    _rotationAnimation = Tween<double>(
+      begin: (_dragOffset.dx / MediaQuery.of(context).size.width) * 0.5,
+      end: 0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
+
+    _controller.forward(from: 0);
+    setState(() {
+      _dragOffset = Offset.zero;
+    });
   }
 
   @override
@@ -128,27 +151,49 @@ class SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMixi
         final palette = AppTheme.palettes[theme] ?? AppTheme.palettes[AppColorTheme.brutalist]!;
         final bool effectiveIsDark = palette.isAlwaysDark || isSystemDark;
         
-        return AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            final offset = _positionAnimation.value;
-            final rotation = _rotationAnimation.value;
-
-            return Transform.translate(
-              offset: offset,
-              child: Transform(
-                transform: Matrix4.identity()
-                  ..setEntry(3, 2, 0.001) // Perspective
-                  ..rotateY(rotation * 0.5)
-                  ..rotateZ(rotation),
-                alignment: Alignment.center,
-                child: child,
-              ),
-            );
+        return GestureDetector(
+          onPanUpdate: (details) {
+            if (!widget.isEnabled || _isSwiping) return;
+            setState(() {
+              _dragOffset += details.delta;
+            });
           },
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.85,
-            height: MediaQuery.of(context).size.height * 0.55,
+          onPanEnd: (details) {
+            if (!widget.isEnabled || _isSwiping) return;
+            final threshold = MediaQuery.of(context).size.width * 0.3;
+            if (_dragOffset.dx > threshold) {
+              triggerSwipe(SwipeDirection.right);
+            } else if (_dragOffset.dx < -threshold) {
+              triggerSwipe(SwipeDirection.left);
+            } else {
+              _runResetAnimation();
+            }
+          },
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              final offset = _isSwiping || _controller.isAnimating 
+                  ? _positionAnimation.value 
+                  : _dragOffset;
+              final rotation = _isSwiping || _controller.isAnimating
+                  ? _rotationAnimation.value
+                  : (offset.dx / MediaQuery.of(context).size.width) * 0.5;
+
+              return Transform.translate(
+                offset: offset,
+                child: Transform(
+                  transform: Matrix4.identity()
+                    ..setEntry(3, 2, 0.001) // Perspective
+                    ..rotateY(rotation * 0.5)
+                    ..rotateZ(rotation),
+                  alignment: Alignment.center,
+                  child: child,
+                ),
+              );
+            },
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.85,
+              height: MediaQuery.of(context).size.height * 0.55,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(40),
               boxShadow: [
@@ -211,8 +256,9 @@ class SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMixi
               ),
             ),
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
 }
