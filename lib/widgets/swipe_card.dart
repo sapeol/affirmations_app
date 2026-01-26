@@ -3,19 +3,35 @@ import 'package:flutter/material.dart';
 import '../models/affirmation.dart';
 import '../models/user_preferences.dart';
 
+enum SwipeDirection { left, right, none }
+
 class SwipeCard extends StatefulWidget {
   final Affirmation affirmation;
   final DopeLanguage language;
-  final Function(bool isLike) onSwipe;
-  final VoidCallback? onUndo;
+  final Future<bool> Function(SwipeDirection direction) onSwipe;
+  final bool isEnabled;
 
   const SwipeCard({
     super.key,
     required this.affirmation,
     required this.language,
     required this.onSwipe,
-    this.onUndo,
+    this.isEnabled = true,
   });
+
+  static List<Color> getGradientForAffirmation(String text) {
+    final List<List<Color>> pastelGradients = [
+      [const Color(0xFFFFE0E0), const Color(0xFFFFF5F5)],
+      [const Color(0xFFE0F0FF), const Color(0xFFF5FAFF)],
+      [const Color(0xFFE0FFE0), const Color(0xFFF5FFF5)],
+      [const Color(0xFFFFF4E0), const Color(0xFFFFFAF5)],
+      [const Color(0xFFF0E0FF), const Color(0xFFF9F5FF)],
+      [const Color(0xFFE0FFF9), const Color(0xFFF5FFFD)],
+    ];
+    // Deterministic selection based on text
+    final index = text.length % pastelGradients.length;
+    return pastelGradients[index];
+  }
 
   @override
   State<SwipeCard> createState() => _SwipeCardState();
@@ -35,18 +51,18 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 500),
     );
 
     _positionAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _rotationAnimation = Tween<double>(
       begin: 0,
       end: 0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
   }
 
   @override
@@ -56,42 +72,55 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
-    if (_isSwiping) return;
+    if (!widget.isEnabled || _isSwiping) return;
     setState(() {
       _dragOffset += details.delta;
-      _dragRotation = (_dragOffset.dx / 20) * (pi / 180);
+      _dragRotation = (_dragOffset.dx / 60) * (pi / 180);
     });
   }
 
-  void _onPanEnd(DragEndDetails details) {
-    if (_isSwiping) return;
+  void _onPanEnd(DragEndDetails details) async {
+    if (!widget.isEnabled || _isSwiping) return;
 
-    final threshold = MediaQuery.of(context).size.width * 0.35;
-    if (_dragOffset.dx.abs() > threshold || details.velocity.pixelsPerSecond.dx.abs() > 800) {
-      _swipe(_dragOffset.dx > 0);
+    final thresholdX = MediaQuery.of(context).size.width * 0.3;
+
+    if (_dragOffset.dx > thresholdX || details.velocity.pixelsPerSecond.dx > 700) {
+      _handleSwipe(SwipeDirection.right);
+    } else if (_dragOffset.dx < -thresholdX || details.velocity.pixelsPerSecond.dx < -700) {
+      _handleSwipe(SwipeDirection.left);
     } else {
       _reset();
     }
   }
 
-  void _swipe(bool isLike) {
+  Future<void> _handleSwipe(SwipeDirection direction) async {
+    final accepted = await widget.onSwipe(direction);
+    if (accepted) {
+      _swipe(direction);
+    } else {
+      _reset();
+    }
+  }
+
+  void _swipe(SwipeDirection direction) {
     setState(() => _isSwiping = true);
-    final screenWidth = MediaQuery.of(context).size.width;
-    final endOffset = Offset(isLike ? screenWidth * 1.5 : -screenWidth * 1.5, _dragOffset.dy);
+    final size = MediaQuery.of(context).size;
+    
+    Offset endOffset = direction == SwipeDirection.right 
+        ? Offset(size.width * 1.5, _dragOffset.dy) 
+        : Offset(-size.width * 1.5, _dragOffset.dy);
     
     _positionAnimation = Tween<Offset>(
       begin: _dragOffset,
       end: endOffset,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInCubic));
 
     _rotationAnimation = Tween<double>(
       begin: _dragRotation,
       end: _dragRotation * 2,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInCubic));
 
-    _controller.forward().then((_) {
-      widget.onSwipe(isLike);
-    });
+    _controller.forward();
   }
 
   void _reset() {
@@ -109,6 +138,7 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
       setState(() {
         _dragOffset = Offset.zero;
         _dragRotation = 0;
+        _isSwiping = false;
       });
     });
   }
@@ -116,7 +146,14 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final displayText = widget.affirmation.getText(widget.language);
+    final gradient = SwipeCard.getGradientForAffirmation(displayText);
     
+    final thresholdX = MediaQuery.of(context).size.width * 0.35;
+    double feedbackOpacity = (_dragOffset.dx.abs() / thresholdX).clamp(0.0, 1.0);
+    Color feedbackColor = _dragOffset.dx > 0 ? Colors.pinkAccent : Colors.blueGrey;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -125,71 +162,98 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
 
         return Transform.translate(
           offset: offset,
-          child: Transform.rotate(
-            angle: rotation,
+          child: Transform(
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.001) // Perspective
+              ..rotateY(rotation * 0.5)
+              ..rotateZ(rotation),
+            alignment: Alignment.center,
             child: child,
           ),
         );
       },
-      child: GestureDetector(
-        onPanUpdate: _onPanUpdate,
-        onPanEnd: _onPanEnd,
-        child: Container(
-          width: MediaQuery.of(context).size.width * 0.85,
-          height: MediaQuery.of(context).size.height * 0.5,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Card(
-            elevation: 0,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            color: Theme.of(context).colorScheme.surface,
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      child: IgnorePointer(
+        ignoring: !widget.isEnabled,
+        child: GestureDetector(
+          onPanUpdate: _onPanUpdate,
+          onPanEnd: _onPanEnd,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.85,
+            height: MediaQuery.of(context).size.height * 0.55,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(40),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                  blurRadius: 30,
+                  offset: const Offset(0, 15),
+                ),
+                if (widget.isEnabled)
+                  BoxShadow(
+                    color: feedbackColor.withValues(alpha: feedbackOpacity * 0.1),
+                    blurRadius: 40,
+                    spreadRadius: 5,
+                  ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(40),
+              child: Stack(
                 children: [
-                  const Icon(Icons.bolt_rounded, color: Colors.greenAccent, size: 40),
-                  const SizedBox(height: 32),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        displayText,
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              height: 1.2,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                        textAlign: TextAlign.center,
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: isDark 
+                          ? gradient.map((c) => Color.lerp(c, Colors.black, 0.6)!).toList()
+                          : gradient,
                       ),
                     ),
                   ),
-                  if (widget.affirmation.persona != null) ...[
-                    const SizedBox(height: 24),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        widget.affirmation.persona!.name.toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                          letterSpacing: 2,
+                  Padding(
+                    padding: const EdgeInsets.all(40.0),
+                    child: Column(
+                      children: [
+                        Icon(Icons.spa_rounded, color: isDark ? Colors.white10 : Colors.black12, size: 32),
+                        const Spacer(),
+                        Text(
+                          displayText,
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                height: 1.5,
+                                color: isDark ? Colors.white70 : Colors.black.withValues(alpha: 0.7),
+                              ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const Spacer(),
+                        if (widget.affirmation.persona != null)
+                          Text(
+                            "FROM ${widget.affirmation.persona!.name.toUpperCase()}",
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
+                              color: isDark ? Colors.white24 : Colors.black26,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  if (widget.isEnabled)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: feedbackColor.withValues(alpha: feedbackOpacity * 0.4),
+                              width: 8, // Thicker border
+                            ),
+                            borderRadius: BorderRadius.circular(40),
+                          ),
                         ),
                       ),
                     ),
-                  ],
                 ],
               ),
             ),

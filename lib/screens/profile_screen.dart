@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import '../models/user_preferences.dart';
 import '../models/affirmation.dart';
 import '../services/affirmations_service.dart';
-import '../services/receipt_service.dart';
 import 'streak_detail_screen.dart';
+import 'weekly_report_screen.dart';
 import '../locator.dart';
+import '../widgets/swipe_card.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -40,33 +41,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   _buildHeader(context, prefs),
                   const SizedBox(height: 24),
-                  OutlinedButton.icon(
-                    onPressed: () async {
-                      final data = await locator<ReceiptService>().generateWeeklyReceipt();
-                      final text = locator<ReceiptService>().formatReceipt(data);
-                      if (context.mounted) {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: Colors.white,
-                            content: Text(
-                              text, 
-                              style: const TextStyle(
-                                fontFamily: 'Courier', 
-                                color: Colors.black, 
-                                fontWeight: FontWeight.bold
-                              )
-                            ),
-                            actions: [
-                              TextButton(onPressed: () => Navigator.pop(context), child: const Text("CLOSE")),
-                            ],
-                          ),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.receipt_long_rounded),
-                    label: const Text("VIEW WEEKLY RECEIPT"),
-                  ),
+                  _buildReportTile(context),
                   const SizedBox(height: 40),
                   Text("SAVED PERSPECTIVES", style: _sectionStyle(context)),
                   const SizedBox(height: 16),
@@ -92,6 +67,29 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildReportTile(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Card(
+      color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.02),
+      child: ListTile(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const WeeklyReportScreen()),
+        ),
+        leading: Icon(Icons.auto_awesome_mosaic_rounded, color: isDark ? Colors.white24 : Colors.black12),
+        title: const Text(
+          "WEEKLY REFLECTION",
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2),
+        ),
+        subtitle: Text(
+          "View your progress this week",
+          style: TextStyle(fontSize: 10, color: isDark ? Colors.white38 : Colors.black38),
+        ),
+        trailing: const Icon(Icons.chevron_right_rounded, size: 16),
+      ),
+    );
+  }
+
   TextStyle _sectionStyle(BuildContext context) {
     return Theme.of(context).textTheme.labelSmall!.copyWith(
       letterSpacing: 2, 
@@ -101,19 +99,64 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildAffirmationTile(BuildContext context, Affirmation a) {
+    final displayText = a.getText(DopeLanguage.en);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8), 
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2)),
-      ),
+      color: Theme.of(context).cardTheme.color,
       child: ListTile(
+        onTap: () => _showAffirmationCard(context, a),
         leading: Icon(
-          a.isCustom ? Icons.edit_note_rounded : Icons.bolt_rounded,
-          color: Theme.of(context).colorScheme.primary,
+          a.isCustom ? Icons.edit_note_rounded : Icons.spa_rounded,
+          color: isDark ? Colors.white24 : Colors.black12,
         ),
-        title: Text(a.getText(DopeLanguage.en), style: const TextStyle(fontSize: 14)),
-        subtitle: Text(a.persona?.name.toUpperCase() ?? "GENERAL", style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.outline)),
+        title: Text(
+          displayText, 
+          maxLines: 1, 
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 14, 
+            color: isDark ? Colors.white70 : Colors.black87,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+        trailing: const Icon(Icons.chevron_right_rounded, size: 16),
+      ),
+    );
+  }
+
+  void _showAffirmationCard(BuildContext context, Affirmation a) {
+    showDialog(
+      context: context,
+      builder: (context) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Hero(
+            tag: 'aff-${a.getText(DopeLanguage.en)}',
+            child: Material(
+              color: Colors.transparent,
+              child: Stack(
+                children: [
+                  SwipeCard(
+                    affirmation: a,
+                    language: DopeLanguage.en,
+                    onSwipe: (_) async => true,
+                    isEnabled: false, // Static view
+                  ),
+                  Positioned(
+                    top: 16,
+                    right: 16,
+                    child: IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close_rounded, color: Colors.black26),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

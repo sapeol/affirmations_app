@@ -4,15 +4,16 @@ import 'models/user_preferences.dart';
 
 class AppTheme {
   static final Map<AppColorTheme, Color> themeSeeds = {
-    AppColorTheme.terminal: const Color(0xFF00FF41), // Neon Green
-    AppColorTheme.matrix: const Color(0xFF00FF00),
-    AppColorTheme.cyber: const Color(0xFFF0DB4F), // JS Yellow
-    AppColorTheme.monochrome: const Color(0xFFFFFFFF),
-    AppColorTheme.dusk: const Color(0xFFFF7F50), // Coral
+    AppColorTheme.terminal: const Color(0xFFE0F2F1), // Pastel Mint
+    AppColorTheme.matrix: const Color(0xFFF1F8E9),   // Pastel Green
+    AppColorTheme.cyber: const Color(0xFFFFFDE7),    // Pastel Yellow
+    AppColorTheme.monochrome: const Color(0xFFF5F5F5), // Soft Grey
+    AppColorTheme.dusk: const Color(0xFFFBE9E7),     // Pastel Coral
   };
 
   static ThemeData createTheme(Brightness brightness, String fontFamily, AppColorTheme colorTheme) {
     final seedColor = themeSeeds[colorTheme] ?? themeSeeds[AppColorTheme.terminal]!;
+    final isDark = brightness == Brightness.dark;
     
     final baseTheme = ThemeData(
       useMaterial3: true,
@@ -20,7 +21,8 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: seedColor,
         brightness: brightness,
-        surface: brightness == Brightness.dark ? const Color(0xFF0D0D0D) : const Color(0xFFF2F2F2),
+        surface: isDark ? const Color(0xFF1A1A1E) : const Color(0xFFFBFBFF),
+        primary: seedColor.withValues(alpha: 0.8),
       ),
     );
 
@@ -28,18 +30,26 @@ class AppTheme {
 
     return baseTheme.copyWith(
       textTheme: textTheme,
-      scaffoldBackgroundColor: brightness == Brightness.dark ? const Color(0xFF0D0D0D) : const Color(0xFFF2F2F2),
+      scaffoldBackgroundColor: isDark ? const Color(0xFF121216) : const Color(0xFFFDFDFF),
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: isDark ? Colors.white38 : Colors.black26),
+        titleTextStyle: textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.w300,
+          letterSpacing: 4,
+          color: isDark ? Colors.white54 : Colors.black45,
+          fontSize: 14,
+        ),
+      ),
       cardTheme: CardThemeData(
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12), // Sharper, modern corners
-          side: BorderSide(color: seedColor.withValues(alpha: 0.2), width: 1),
+          borderRadius: BorderRadius.circular(32),
         ),
-        color: brightness == Brightness.dark ? const Color(0xFF1A1A1A) : Colors.white,
-      ),
-      listTileTheme: ListTileThemeData(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: isDark ? const Color(0xFF25252A) : Colors.white,
       ),
     );
   }

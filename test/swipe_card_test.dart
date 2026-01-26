@@ -5,8 +5,8 @@ import 'package:affirmations_app/models/affirmation.dart';
 import 'package:affirmations_app/models/user_preferences.dart';
 
 void main() {
-  testWidgets('SwipeCard triggers onSwipe when swiped right', (WidgetTester tester) async {
-    bool? swipedRight;
+  testWidgets('SwipeCard triggers onSwipe with right direction when swiped right', (WidgetTester tester) async {
+    SwipeDirection? swipedDirection;
     
     final affirmation = Affirmation(text: 'Test Affirmation');
     
@@ -15,22 +15,22 @@ void main() {
         body: SwipeCard(
           affirmation: affirmation,
           language: DopeLanguage.en,
-          onSwipe: (isLike) {
-            swipedRight = isLike;
+          onSwipe: (direction) async {
+            swipedDirection = direction;
+            return true;
           },
         ),
       ),
     ));
 
-    // Drag the card to the right
     await tester.drag(find.byType(SwipeCard), const Offset(500, 0));
     await tester.pumpAndSettle();
 
-    expect(swipedRight, isTrue);
+    expect(swipedDirection, SwipeDirection.right);
   });
 
-  testWidgets('SwipeCard triggers onSwipe when swiped left', (WidgetTester tester) async {
-    bool? swipedRight;
+  testWidgets('SwipeCard triggers onSwipe with left direction when swiped left', (WidgetTester tester) async {
+    SwipeDirection? swipedDirection;
     
     final affirmation = Affirmation(text: 'Test Affirmation');
     
@@ -39,17 +39,17 @@ void main() {
         body: SwipeCard(
           affirmation: affirmation,
           language: DopeLanguage.en,
-          onSwipe: (isLike) {
-            swipedRight = isLike;
+          onSwipe: (direction) async {
+            swipedDirection = direction;
+            return true;
           },
         ),
       ),
     ));
 
-    // Drag the card to the left
     await tester.drag(find.byType(SwipeCard), const Offset(-500, 0));
     await tester.pumpAndSettle();
 
-    expect(swipedRight, isFalse);
+    expect(swipedDirection, SwipeDirection.left);
   });
 }
