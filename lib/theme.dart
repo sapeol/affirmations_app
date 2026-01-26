@@ -21,25 +21,32 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: seedColor,
         brightness: brightness,
-        surface: isDark ? const Color(0xFF1A1A1E) : const Color(0xFFFBFBFF),
+        surface: isDark ? const Color(0xFF1A1A1E) : const Color(0xFFFBFCFF),
+        onSurface: isDark ? const Color(0xFFE1E1E6) : const Color(0xFF1A1A1E),
         primary: seedColor.withValues(alpha: 0.8),
+        onPrimary: isDark ? Colors.white70 : Colors.black87,
+        outline: isDark ? Colors.white38 : Colors.black45,
+        outlineVariant: isDark ? Colors.white10 : Colors.black12,
       ),
     );
 
     final textTheme = GoogleFonts.getTextTheme(fontFamily, baseTheme.textTheme);
 
     return baseTheme.copyWith(
-      textTheme: textTheme,
+      textTheme: textTheme.apply(
+        bodyColor: isDark ? const Color(0xFFE1E1E6) : const Color(0xFF1A1A1E),
+        displayColor: isDark ? const Color(0xFFE1E1E6) : const Color(0xFF1A1A1E),
+      ),
       scaffoldBackgroundColor: isDark ? const Color(0xFF121216) : const Color(0xFFFDFDFF),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: isDark ? Colors.white38 : Colors.black26),
+        iconTheme: IconThemeData(color: isDark ? Colors.white54 : Colors.black54),
         titleTextStyle: textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.w300,
           letterSpacing: 4,
-          color: isDark ? Colors.white54 : Colors.black45,
+          color: isDark ? Colors.white54 : Colors.black54,
           fontSize: 14,
         ),
       ),

@@ -150,7 +150,7 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
     
     final thresholdX = MediaQuery.of(context).size.width * 0.35;
     double feedbackOpacity = (_dragOffset.dx.abs() / thresholdX).clamp(0.0, 1.0);
-    Color feedbackColor = _dragOffset.dx > 0 ? Colors.pinkAccent : Colors.blueGrey;
+    Color feedbackColor = _dragOffset.dx > 0 ? Colors.greenAccent : Colors.redAccent;
     IconData? feedbackIcon = _dragOffset.dx > 0 ? Icons.favorite_rounded : Icons.close_rounded;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -216,14 +216,14 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
                     padding: const EdgeInsets.all(40.0),
                     child: Column(
                       children: [
-                        Icon(Icons.spa_rounded, color: isDark ? Colors.white10 : Colors.black12, size: 32),
+                        Icon(Icons.spa_rounded, color: isDark ? Colors.white10 : Colors.black26, size: 32),
                         const Spacer(),
                         Text(
                           displayText,
                           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                                 fontWeight: FontWeight.w600,
                                 height: 1.5,
-                                color: isDark ? Colors.white70 : Colors.black.withValues(alpha: 0.7),
+                                color: isDark ? Colors.white70 : Colors.black87,
                               ),
                           textAlign: TextAlign.center,
                         ),
@@ -234,7 +234,7 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
                             style: TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w900,
-                              color: isDark ? Colors.white24 : Colors.black26,
+                              color: isDark ? Colors.white24 : Colors.black38,
                               letterSpacing: 2,
                             ),
                           ),

@@ -111,67 +111,127 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildPaywall() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      height: MediaQuery.of(context).size.height * 0.8,
+      height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: isDark ? const Color(0xFF1A1A1E) : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 40,
+            offset: const Offset(0, -10),
+          )
+        ],
       ),
-      padding: const EdgeInsets.all(40),
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
       child: Column(
         children: [
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(2))),
+          Container(
+            width: 40, 
+            height: 4, 
+            decoration: BoxDecoration(
+              color: isDark ? Colors.white10 : Colors.black12, 
+              borderRadius: BorderRadius.circular(2)
+            )
+          ),
           const SizedBox(height: 48),
-          const Icon(Icons.auto_awesome_rounded, color: Colors.pinkAccent, size: 64),
-          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.pinkAccent.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.auto_awesome_rounded, color: Colors.pinkAccent, size: 48),
+          ),
+          const SizedBox(height: 32),
           Text(
             "PAY UP, OPTIMIST",
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w300, letterSpacing: 4),
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w800, 
+              letterSpacing: 2,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             "You've run out of delusions for today. Give us \$3 or go face reality. Your choice.",
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black45, height: 1.6, fontWeight: FontWeight.w300),
+            style: TextStyle(
+              color: isDark ? Colors.white60 : Colors.black54, 
+              height: 1.6, 
+              fontWeight: FontWeight.w400,
+              fontSize: 15,
+            ),
           ),
           const SizedBox(height: 48),
-          _buildPaywallFeature(Icons.all_inclusive_rounded, "Endless Delusions"),
-          _buildPaywallFeature(Icons.palette_outlined, "Slightly Different Pastels"),
-          _buildPaywallFeature(Icons.history_rounded, "A List of Your Failures"),
+          _buildPaywallFeature(Icons.all_inclusive_rounded, "Endless Delusions", isDark),
+          _buildPaywallFeature(Icons.palette_outlined, "Slightly Different Pastels", isDark),
+          _buildPaywallFeature(Icons.history_rounded, "A List of Your Failures", isDark),
           const Spacer(),
           SizedBox(
             width: double.infinity,
-            height: 60,
-            child: TextButton(
+            height: 64,
+            child: ElevatedButton(
               onPressed: () {
                 setState(() => _isPremium = true);
                 Navigator.pop(context);
               },
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.black.withValues(alpha: 0.05),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isDark ? Colors.white : Colors.black,
+                foregroundColor: isDark ? Colors.black : Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               ),
-              child: const Text("BUY HAPPINESS - \$3/MONTH", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, letterSpacing: 2)),
+              child: const Text(
+                "BUY HAPPINESS - \$3/MONTH", 
+                style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1, fontSize: 14)
+              ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("I'D RATHER BE MISERABLE", style: TextStyle(color: Colors.black26, fontSize: 12)),
+            child: Text(
+              "I'D RATHER BE MISERABLE", 
+              style: TextStyle(
+                color: isDark ? Colors.white38 : Colors.black54, 
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1,
+              )
+            ),
           ),
+          const SizedBox(height: 8),
         ],
       ),
     );
   }
 
-  Widget _buildPaywallFeature(IconData icon, String text) {
+  Widget _buildPaywallFeature(IconData icon, String text, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 14),
       child: Row(
         children: [
-          Icon(icon, color: Colors.black12, size: 20),
-          const SizedBox(width: 16),
-          Text(text, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: Colors.black54)),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: isDark ? Colors.white38 : Colors.black45, size: 20),
+          ),
+          const SizedBox(width: 20),
+          Text(
+            text, 
+            style: TextStyle(
+              fontSize: 15, 
+              fontWeight: FontWeight.w500, 
+              color: isDark ? Colors.white70 : Colors.black87
+            )
+          ),
         ],
       ),
     );
@@ -219,9 +279,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Future<void> _shareAsImage() async {
     if (_affirmations.isEmpty) return;
     final current = _affirmations.first;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     
     final image = await _screenshotController.captureFromWidget(
-      _buildShareCard(current),
+      _buildShareCard(current, isDark),
       delay: const Duration(milliseconds: 10),
     );
 
@@ -237,9 +298,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildShareCard(Affirmation aff) {
+  Widget _buildShareCard(Affirmation aff, bool isDark) {
     final displayText = aff.getText(DopeLanguage.en);
-    final gradient = SwipeCard.getGradientForAffirmation(displayText);
+    var gradient = SwipeCard.getGradientForAffirmation(displayText);
+    
+    if (isDark) {
+      gradient = gradient.map((c) => Color.lerp(c, Colors.black, 0.6)!).toList();
+    }
     
     return Container(
       width: 400,
@@ -252,33 +317,54 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           colors: gradient,
         ),
       ),
-      padding: const EdgeInsets.all(60),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
         children: [
-          const Icon(Icons.spa_rounded, color: Colors.black12, size: 48),
-          const Spacer(),
-          Text(
-            displayText,
-            style: const TextStyle(
-              color: Colors.black87,
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
-              height: 1.5,
-              fontStyle: FontStyle.italic,
-              decoration: TextDecoration.none,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const Spacer(),
-          const Text(
-            "DELUSIONS",
-            style: TextStyle(
-              color: Colors.black26, 
-              fontSize: 10, 
-              letterSpacing: 8, 
-              fontWeight: FontWeight.w300,
-              decoration: TextDecoration.none,
+          Padding(
+            padding: const EdgeInsets.all(60.0),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.spa_rounded, 
+                  color: isDark ? Colors.white10 : Colors.black12, 
+                  size: 48
+                ),
+                const Spacer(),
+                Text(
+                  displayText,
+                  style: TextStyle(
+                    color: isDark ? Colors.white70 : Colors.black.withValues(alpha: 0.7),
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                    height: 1.5,
+                    decoration: TextDecoration.none,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const Spacer(),
+                if (aff.persona != null)
+                  Text(
+                    "FROM ${aff.persona!.name.toUpperCase()}",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white24 : Colors.black45,
+                      letterSpacing: 4,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                const SizedBox(height: 24),
+                Text(
+                  "DELUSIONS",
+                  style: TextStyle(
+                    color: isDark ? Colors.white10 : Colors.black12, 
+                    fontSize: 10, 
+                    letterSpacing: 12, 
+                    fontWeight: FontWeight.w300,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -292,6 +378,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       future: UserPreferences.load(),
       builder: (context, prefSnapshot) {
         final lang = prefSnapshot.data?.language ?? DopeLanguage.en;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
 
         return Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -314,13 +401,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               if (prefSnapshot.hasData)
                 Center(
                   child: Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
+                    padding: const EdgeInsets.only(right: 16.0),
                     child: Text(
                       "${prefSnapshot.data!.sanityStreak}D",
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w200,
-                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white38 : Colors.black26,
+                        color: isDark ? Colors.white38 : Colors.black45,
                       ),
                     ),
                   ),
@@ -344,12 +431,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.wb_sunny_outlined, size: 48, color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.black12),
+                        Icon(Icons.wb_sunny_outlined, size: 48, color: isDark ? Colors.white10 : Colors.black12),
                         const SizedBox(height: 24),
                         Text(
                           "The well is dry. Just like your soul.",
                           style: TextStyle(
-                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white38 : Colors.black.withValues(alpha: 0.3),
+                            color: isDark ? Colors.white38 : Colors.black.withValues(alpha: 0.5),
                             fontWeight: FontWeight.w300,
                             fontStyle: FontStyle.italic,
                           ),
@@ -362,7 +449,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             style: TextStyle(
                               letterSpacing: 2,
                               fontSize: 10,
-                              color: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black38,
+                              color: isDark ? Colors.white54 : Colors.black54,
                             ),
                           ),
                         ),
@@ -418,7 +505,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w400,
-                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white38 : Colors.black.withValues(alpha: 0.2),
+                            color: isDark ? Colors.white38 : Colors.black45,
                             letterSpacing: 3,
                           ),
                         ),
@@ -448,8 +535,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             heroTag: 'add',
             elevation: 0,
             highlightElevation: 0,
-            backgroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
-            foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white38 : Colors.black26,
+            backgroundColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
+            foregroundColor: isDark ? Colors.white38 : Colors.black45,
             onPressed: () async {
               final result = await Navigator.push(
                 context,
@@ -470,7 +557,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       onPressed: onPressed,
       icon: Icon(icon),
       iconSize: 20,
-      color: (isDark ? Colors.white : Colors.black).withValues(alpha: onPressed == null ? 0.05 : 0.2),
+      color: (isDark ? Colors.white : Colors.black).withValues(alpha: onPressed == null ? 0.05 : 0.4),
     );
   }
 }
@@ -517,6 +604,7 @@ class _ExpressiveLoaderState extends State<ExpressiveLoader> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -529,7 +617,7 @@ class _ExpressiveLoaderState extends State<ExpressiveLoader> with SingleTickerPr
               return CustomPaint(
                 painter: _TerminalPainter(
                   progress: _controller.value,
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.black12,
+                  color: isDark ? Colors.white10 : Colors.black12,
                 ),
               );
             },
@@ -539,7 +627,7 @@ class _ExpressiveLoaderState extends State<ExpressiveLoader> with SingleTickerPr
         Text(
           "BREATHING...",
           style: TextStyle(
-                color: Theme.of(context).brightness == Brightness.dark ? Colors.white24 : Colors.black26,
+                color: isDark ? Colors.white24 : Colors.black45,
                 letterSpacing: 4.0,
                 fontSize: 10,
                 fontWeight: FontWeight.w300,

@@ -7,6 +7,8 @@ class WeeklyReportScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -76,7 +78,7 @@ class WeeklyReportScreen extends StatelessWidget {
             fontSize: 10,
             letterSpacing: 6,
             fontWeight: FontWeight.w200,
-            color: isDark ? Colors.white24 : Colors.black26,
+            color: isDark ? Colors.white24 : Colors.black38,
           ),
         ),
         const SizedBox(height: 12),
@@ -98,13 +100,13 @@ class WeeklyReportScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: displayPastel.withValues(alpha: 0.3),
+        color: displayPastel.withValues(alpha: isDark ? 0.3 : 0.5),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: displayPastel.withValues(alpha: 0.5)),
+        border: Border.all(color: displayPastel.withValues(alpha: isDark ? 0.5 : 0.8)),
       ),
       child: Row(
         children: [
-          Icon(icon, color: isDark ? Colors.white24 : Colors.black12, size: 32),
+          Icon(icon, color: isDark ? Colors.white24 : Colors.black26, size: 32),
           const SizedBox(width: 32),
           Expanded(
             child: Column(
@@ -116,7 +118,7 @@ class WeeklyReportScreen extends StatelessWidget {
                     fontSize: 9,
                     letterSpacing: 2,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white38 : Colors.black38,
+                    color: isDark ? Colors.white38 : Colors.black54,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -147,7 +149,7 @@ class WeeklyReportScreen extends StatelessWidget {
             "Another week of pretending.\nGood job, I guess.",
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isDark ? Colors.white24 : Colors.black26,
+              color: isDark ? Colors.white24 : Colors.black45,
               fontWeight: FontWeight.w300,
               fontStyle: FontStyle.italic,
               height: 1.6,
