@@ -30,28 +30,21 @@ class AffirmationsService {
       tone: DopeTone.straight,
     ),
     Affirmation(
-      text: "Your worries are just fan fiction about your life. Stop reading it.",
+      text: "Your mind is a haunted house. Maybe stop giving yourself a guided tour.",
       localizedText: {
-        DopeLanguage.en: "Your worries are just fan fiction about your life. Stop reading it.",
-        DopeLanguage.es: "Tus preocupaciones son solo fan fiction sobre tu vida. Deja de leerlo.",
-        DopeLanguage.hi: "आपकी चिंताएं आपके जीवन के बारे में सिर्फ काल्पनिक कहानियाँ हैं। उन्हें पढ़ना बंद करें।",
-        DopeLanguage.fr: "Tes inquiétudes ne sont que de la fan fiction sur ta vie. Arrête de les lire.",
-        DopeLanguage.de: "Deine Sorgen sind nur Fan-Fiction über dein Leben. Hör auf sie zu lesen.",
-      },
-      persona: DopePersona.overthinker,
-      tone: DopeTone.chill,
-    ),
-    Affirmation(
-      text: "Your brain is an unreliable narrator. Fact-check it.",
-      localizedText: {
-        DopeLanguage.en: "Your brain is an unreliable narrator. Fact-check it.",
-        DopeLanguage.es: "Tu cerebro es un narrador poco fiable. Verifícalo.",
-        DopeLanguage.hi: "आपका दिमाग एक अविश्वसनीय कथावाचक है। इसकी जांच करें।",
-        DopeLanguage.fr: "Ton cerveau est un narrateur peu fiable. Vérifie les faits.",
-        DopeLanguage.de: "Dein Gehirn ist ein unzuverlässiger Erzähler. Mach mal einen Faktencheck.",
+        DopeLanguage.en: "Your mind is a haunted house. Maybe stop giving yourself a guided tour.",
+        DopeLanguage.es: "Tu mente es una casa embrujada. Quizás deja de darte un tour guiado.",
+        DopeLanguage.hi: "आपका मन एक भूतिया घर है। शायद खुद को वहां की सैर कराना बंद करें।",
+        DopeLanguage.fr: "Ton esprit est une maison hantée. Arrête peut-être de te faire visiter.",
+        DopeLanguage.de: "Dein Verstand ist ein Geisterhaus. Hör vielleicht auf, dir selbst eine Führung zu geben.",
       },
       persona: DopePersona.overthinker,
       tone: DopeTone.deadpan,
+    ),
+    Affirmation(
+      text: "Doubt is just your brain trying to be helpful and failing.",
+      persona: DopePersona.overthinker,
+      tone: DopeTone.chill,
     ),
 
     // --- BUILDER ---
@@ -80,16 +73,14 @@ class AffirmationsService {
       tone: DopeTone.straight,
     ),
     Affirmation(
-      text: "Consistency is just being average for a long time. Try being average today.",
-      localizedText: {
-        DopeLanguage.en: "Consistency is just being average for a long time. Try being average today.",
-        DopeLanguage.es: "La consistencia es solo ser promedio durante mucho tiempo. Intenta ser promedio hoy.",
-        DopeLanguage.hi: "निरंतरता का मतलब लंबे समय तक औसत बने रहना है। आज औसत रहने की कोशिश करें।",
-        DopeLanguage.fr: "La régularité, c'est juste être moyen pendant longtemps. Essaie d'être moyen aujourd'hui.",
-        DopeLanguage.de: "Beständigkeit bedeutet nur, über einen langen Zeitraum durchschnittlich zu sein. Versuche es heute mal damit.",
-      },
+      text: "Action creates clarity. Sitting there creates dust.",
       persona: DopePersona.builder,
-      tone: DopeTone.chill,
+      tone: DopeTone.coach,
+    ),
+    Affirmation(
+      text: "Your unfinished project isn't a failure, it's an expensive lesson.",
+      persona: DopePersona.builder,
+      tone: DopeTone.deadpan,
     ),
 
     // --- BURNT OUT ---
@@ -107,25 +98,16 @@ class AffirmationsService {
     ),
     Affirmation(
       text: "The world won't end if you take a nap. I checked.",
-      localizedText: {
-        DopeLanguage.en: "The world won't end if you take a nap. I checked.",
-        DopeLanguage.es: "El mundo no se acabará si tomas una siesta. Lo comprobé.",
-        DopeLanguage.hi: "अगर आप झपकी लेते हैं तो दुनिया खत्म नहीं होगी। मैंने चेक किया है।",
-        DopeLanguage.fr: "Le monde ne s'arrêtera pas si tu fais une sieste. J'ai vérifié.",
-        DopeLanguage.de: "Die Welt wird nicht untergehen, wenn du ein Schläfchen machst. Ich hab's geprüft.",
-      },
       persona: DopePersona.burntOut,
       tone: DopeTone.chill,
     ),
     Affirmation(
       text: "Your value is not your productivity. You're not a forklift.",
-      localizedText: {
-        DopeLanguage.en: "Your value is not your productivity. You're not a forklift.",
-        DopeLanguage.es: "Tu valor no es tu productividad. No eres un montacargas.",
-        DopeLanguage.hi: "आपका मूल्य आपकी उत्पादकता नहीं है। आप फोर्कलिफ्ट नहीं हैं।",
-        DopeLanguage.fr: "Ta valeur n'est pas ta productivität. Tu n'es pas un chariot élévateur.",
-        DopeLanguage.de: "Dein Wert ist nicht deine Produktivität. Du bist kein Gabelstapler.",
-      },
+      persona: DopePersona.burntOut,
+      tone: DopeTone.deadpan,
+    ),
+    Affirmation(
+      text: "That 'urgent' email can wait until you're a person again.",
       persona: DopePersona.burntOut,
       tone: DopeTone.deadpan,
     ),
@@ -145,176 +127,92 @@ class AffirmationsService {
     ),
     Affirmation(
       text: "Momentum beats motivation. Just move one inch.",
-      localizedText: {
-        DopeLanguage.en: "Momentum beats motivation. Just move one inch.",
-        DopeLanguage.es: "El impulso vence a la motivación. Solo muévete un poco.",
-        DopeLanguage.hi: "रफ्तार मोटिवेशन से बेहतर है। बस एक कदम आगे बढ़ें।",
-        DopeLanguage.fr: "L'élan bat la motivation. Fais juste un petit pas.",
-        DopeLanguage.de: "Schwung schlägt Motivation. Beweg dich einfach einen Zentimeter.",
-      },
       persona: DopePersona.adhdBrain,
       tone: DopeTone.coach,
     ),
     Affirmation(
-      text: "It's not a block. It's a lack of snacks or sleep.",
-      localizedText: {
-        DopeLanguage.en: "It's not a block. It's a lack of snacks or sleep.",
-        DopeLanguage.es: "No es un bloqueo. Es falta de snacks o sueño.",
-        DopeLanguage.hi: "यह कोई ब्लॉक नहीं है। यह बस भूख या नींद की कमी है।",
-        DopeLanguage.fr: "Ce n'est pas un blocage. C'est un manque de snacks ou de sommeil.",
-        DopeLanguage.de: "Es ist keine Blockade. Dir fehlen nur Snacks oder Schlaf.",
-      },
+      text: "Hyperfocus is a superpower until it's 3 am and you're learning about plumbing.",
       persona: DopePersona.adhdBrain,
-      tone: DopeTone.chill,
+      tone: DopeTone.deadpan,
+    ),
+    Affirmation(
+      text: "Five minutes of focus is better than zero minutes of perfection.",
+      persona: DopePersona.adhdBrain,
+      tone: DopeTone.coach,
     ),
 
     // --- STRIVER ---
     Affirmation(
       text: "Ambition is just hunger with a better wardrobe.",
-      localizedText: {
-        DopeLanguage.en: "Ambition is just hunger with a better wardrobe.",
-        DopeLanguage.es: "La ambición es solo hambre con un mejor vestuario.",
-        DopeLanguage.hi: "महत्वाकांक्षा सिर्फ बेहतर कपड़ों के साथ भूख है।",
-        DopeLanguage.fr: "L'ambition n'est que de la faim avec une meilleure garde-robe.",
-        DopeLanguage.de: "Ehrgeiz ist nur Hunger mit einer besseren Garderobe.",
-      },
       persona: DopePersona.striver,
       tone: DopeTone.deadpan,
     ),
     Affirmation(
       text: "You aren't behind. You're just on a different lap.",
-      localizedText: {
-        DopeLanguage.en: "You aren't behind. You're just on a different lap.",
-        DopeLanguage.es: "No estás atrasado. Solo estás en una vuelta diferente.",
-        DopeLanguage.hi: "आप पीछे नहीं हैं। आप बस एक अलग लैप पर हैं।",
-        DopeLanguage.fr: "Tu n'es pas en retard. Tu es juste sur un tour différent.",
-        DopeLanguage.de: "Du bist nicht hintendran. Du bist nur in einer anderen Runde.",
-      },
       persona: DopePersona.striver,
       tone: DopeTone.chill,
     ),
     Affirmation(
-      text: "Your 'grind' looks a lot like doom-scrolling. Put the phone down.",
-      localizedText: {
-        DopeLanguage.en: "Your 'grind' looks a lot like doom-scrolling. Put the phone down.",
-        DopeLanguage.es: "Tu 'esfuerzo' se parece mucho a doom-scrolling. Deja el teléfono.",
-        DopeLanguage.hi: "आपका 'काम' काफी हद तक डूम-स्क्रॉलिंग जैसा लग रहा है। फोन रख दें।",
-        DopeLanguage.fr: "Ton 'travail acharné' ressemble beaucoup à du doom-scrolling. Pose ton téléphone.",
-        DopeLanguage.de: "Dein 'Grind' sieht verdammt nach Doomscrolling aus. Leg das Handy weg.",
-      },
+      text: "The goalpost will always move. Enjoy the grass for a second.",
       persona: DopePersona.striver,
-      tone: DopeTone.deadpan,
+      tone: DopeTone.coach,
+    ),
+    Affirmation(
+      text: "High standards are fine. Self-sabotage is just extra work.",
+      persona: DopePersona.striver,
+      tone: DopeTone.straight,
     ),
 
-    // --- UNIVERSAL DEADPAN ---
-    Affirmation(
-      text: "It's fine. Everything is fine. Mostly.",
-      localizedText: {
-        DopeLanguage.en: "It's fine. Everything is fine. Mostly.",
-        DopeLanguage.es: "Está bien. Todo está bien. Mayormente.",
-        DopeLanguage.hi: "ठीक है। सब कुछ ठीक है। ज्यादातर।",
-        DopeLanguage.fr: "Ça va. Tout va bien. Surtout.",
-        DopeLanguage.de: "Passt schon. Alles ist gut. Meistens.",
-      },
-      tone: DopeTone.deadpan,
-    ),
-    Affirmation(
-      text: "Reality called. It wants you to stop scrolling.",
-      localizedText: {
-        DopeLanguage.en: "Reality called. It wants you to stop scrolling.",
-        DopeLanguage.es: "Llamó la realidad. Quiere que dejes de hacer scroll.",
-        DopeLanguage.hi: "हकीकत का फोन आया था। वह चाहता है कि आप स्क्रॉल करना बंद करें।",
-        DopeLanguage.fr: "La réalité a appelé. Elle veut que tu arrêtes de scroller.",
-        DopeLanguage.de: "Die Realität hat angerufen. Sie will, dass du aufhörst zu scrollen.",
-      },
-      tone: DopeTone.deadpan,
-    ),
-    Affirmation(
-      text: "Cringe is the price of admission for growth.",
-      localizedText: {
-        DopeLanguage.en: "Cringe is the price of admission for growth.",
-        DopeLanguage.es: "La vergüenza ajena es el precio de la entrada para el crecimiento.",
-        DopeLanguage.hi: "शर्मिंदगी विकास के लिए प्रवेश की कीमत है।",
-        DopeLanguage.fr: "Le malaise est le prix d'entrée de la croissance.",
-        DopeLanguage.de: "Fremdscham ist der Eintrittspreis für Wachstum.",
-      },
-      tone: DopeTone.straight,
-    ),
-    Affirmation(
-      text: "Drink water. You're basically a plant with complicated emotions.",
-      localizedText: {
-        DopeLanguage.en: "Drink water. You're basically a plant with complicated emotions.",
-        DopeLanguage.es: "Bebe agua. Eres básicamente una planta con emociones complicadas.",
-        DopeLanguage.hi: "पानी पिएं। आप मूल रूप से जटिल भावनाओं वाले पौधे हैं।",
-        DopeLanguage.fr: "Bois de l'eau. Tu es essentiellement une plante avec des émotions complexes.",
-        DopeLanguage.de: "Trink Wasser. Du bist im Grunde eine Pflanze mit komplizierten Emotionen.",
-      },
-      tone: DopeTone.chill,
-    ),
-    Affirmation(
-      text: "Nobody actually knows what they're doing. Some are just better at pretending.",
-      localizedText: {
-        DopeLanguage.en: "Nobody actually knows what they're doing. Some are just better at pretending.",
-        DopeLanguage.es: "Nadie sabe realmente lo que está haciendo. Algunos solo fingen mejor.",
-        DopeLanguage.hi: "वास्तव में किसी को नहीं पता कि वे क्या कर रहे हैं। कुछ लोग बस बेहतर नाटक करते हैं।",
-        DopeLanguage.fr: "Personne ne sait vraiment ce qu'il fait. Certains font juste semblant mieux.",
-        DopeLanguage.de: "Niemand weiß wirklich, was er tut. Manche können nur besser so tun als ob.",
-      },
-      tone: DopeTone.deadpan,
-    ),
-    Affirmation(
-      text: "Yesterday is gone. Tomorrow is a problem for future-you.",
-      localizedText: {
-        DopeLanguage.en: "Yesterday is gone. Tomorrow is a problem for future-you.",
-        DopeLanguage.es: "El ayer se fue. El mañana es un problema para tu yo del futuro.",
-        DopeLanguage.hi: "बीता हुआ कल चला गया। कल की चिंता भविष्य वाले आप पर छोड़ दें।",
-        DopeLanguage.fr: "Hier est parti. Demain est un problème pour ton futur toi.",
-        DopeLanguage.de: "Gestern ist vorbei. Morgen ist ein Problem für dein Zukunfts-Ich.",
-      },
-      tone: DopeTone.chill,
-    ),
-    Affirmation(
-      text: "Procrastination is just a credit card. Have fun when the bill comes.",
-      localizedText: {
-        DopeLanguage.en: "Procrastination is just a credit card. Have fun when the bill comes.",
-        DopeLanguage.es: "La procrastinación es solo una tarjeta de crédito. Diviértete cuando llegue la cuenta.",
-        DopeLanguage.hi: "टालमटोल सिर्फ एक क्रेडिट कार्ड है। जब बिल आएगा तब मज़ा आएगा।",
-        DopeLanguage.fr: "La procrastination n'est qu'une carte de crédit. Amuse-toi quand la facture arrivera.",
-        DopeLanguage.de: "Aufschieberitis ist wie eine Kreditkarte. Viel Spaß, wenn die Rechnung kommt.",
-      },
-      tone: DopeTone.deadpan,
-    ),
-    Affirmation(
-      text: "Validation is a drug. Get sober.",
-      localizedText: {
-        DopeLanguage.en: "Validation is a drug. Get sober.",
-        DopeLanguage.es: "La validación es una droga. Sobria.",
-        DopeLanguage.hi: "वाहवाही पाना एक नशा है। होश में आएं।",
-        DopeLanguage.fr: "La validation est une drogue. Désintoxique-toi.",
-        DopeLanguage.de: "Bestätigung ist eine Droge. Werde clean.",
-      },
-      tone: DopeTone.straight,
-    ),
+    // --- UNIVERSAL (Accessible to all personas) ---
+    Affirmation(text: "Reality called. It wants you to stop scrolling.", tone: DopeTone.deadpan),
+    Affirmation(text: "Drink water. You're basically a plant with complicated emotions.", tone: DopeTone.chill),
+    Affirmation(text: "Validation is a drug. Get sober.", tone: DopeTone.straight),
+    Affirmation(text: "Nobody actually knows what they're doing.", tone: DopeTone.deadpan),
+    Affirmation(text: "Cringe is the price of admission for growth.", tone: DopeTone.straight),
+    
+    // --- TIME-BASED (Morning 7-10) ---
+    Affirmation(text: "You woke up. That’s discipline.", tone: DopeTone.coach),
+    Affirmation(text: "Sun's up. Unfortunately, so are you.", tone: DopeTone.deadpan),
+    Affirmation(text: "Coffee first. Existential dread second.", tone: DopeTone.chill),
+
+    // --- TIME-BASED (Late Night 0-2) ---
+    Affirmation(text: "You don’t need answers tonight. Sleep is allowed.", tone: DopeTone.chill),
+    Affirmation(text: "Nothing good happens after 2 AM. Go to bed.", tone: DopeTone.straight),
+    Affirmation(text: "Your brain is offline. Stop refreshing.", tone: DopeTone.deadpan),
+
+    // --- ONE-WORD AFFIRMATIONS ---
+    Affirmation(text: "Enough.", tone: DopeTone.straight),
+    Affirmation(text: "Still.", tone: DopeTone.chill),
+    Affirmation(text: "Unfinished.", tone: DopeTone.deadpan),
+    Affirmation(text: "Relax.", tone: DopeTone.coach),
+    Affirmation(text: "Breathe.", tone: DopeTone.chill),
+    Affirmation(text: "Begin.", tone: DopeTone.coach),
   ];
 
   static Future<List<Affirmation>> getAllAffirmations() async {
     final prefs = await UserPreferences.load();
     final custom = await UserPreferences.getCustomAffirmations();
     
-    List<MapEntry<Affirmation, int>> scored = _library.map((a) {
-      int score = 0;
-      if (a.persona == prefs.persona) score += 5;
-      if (a.tone == prefs.tone) score += 3;
-      if (prefs.systemLoad > 0.7 && a.persona == DopePersona.burntOut) score += 4;
-      if (prefs.batteryLevel < 0.3 && a.persona == DopePersona.burntOut) score += 3;
-      if (prefs.bandwidth < 0.3 && a.persona == DopePersona.adhdBrain) score += 4;
-      return MapEntry(a, score);
+    // STRICT FILTERING: Match persona OR universal (null persona)
+    // Users will NEVER see an affirmation belonging to another specific persona.
+    final filtered = _library.where((a) {
+      return a.persona == prefs.persona || a.persona == null;
     }).toList();
 
-    scored.sort((a, b) => b.value.compareTo(a.value));
-    List<Affirmation> filtered = scored.where((e) => e.value > 0).map((e) => e.key).toList();
+    // Evolving Affirmations Logic
+    final firstRun = DateTime.parse(prefs.firstRunDate);
+    final daysSinceStart = DateTime.now().difference(firstRun).inDays;
     
-    if (filtered.isEmpty) filtered = _library;
+    String evolvingText;
+    if (daysSinceStart < 14) {
+      evolvingText = "You’re not behind.";
+    } else if (daysSinceStart < 60) {
+      evolvingText = "You’re not behind. You just stopped comparing.";
+    } else {
+      evolvingText = "You were never behind. You were building quietly.";
+    }
+    
+    filtered.add(Affirmation(text: evolvingText, tone: DopeTone.coach));
 
     return [...filtered, ...custom];
   }
@@ -324,6 +222,7 @@ class AffirmationsService {
     if (all.isEmpty) return _library.first;
     final now = DateTime.now();
     final prefs = await UserPreferences.load();
+    // Unique seed ensuring consistency for the day within the filtered pool
     final seed = now.year + now.month + now.day + (prefs.systemLoad * 100).toInt() + prefs.persona.index;
     return all[seed % all.length];
   }
@@ -332,11 +231,80 @@ class AffirmationsService {
     final all = await getAllAffirmations();
     if (all.isEmpty) return _library.first;
     
+    final now = DateTime.now();
+    final hour = now.hour;
+    List<Affirmation> priorityPool = [];
+
+    // Morning Window: 7 AM - 10 AM
+    if (hour >= 7 && hour < 10) {
+      final morningTexts = [
+        "You woke up. That’s discipline.",
+        "Sun's up. Unfortunately, so are you.",
+        "Coffee first. Existential dread second.",
+      ];
+      priorityPool = all.where((a) => morningTexts.contains(a.getText(DopeLanguage.en))).toList();
+    }
+    // Late Night Window: 12 AM - 2 AM
+    else if (hour >= 0 && hour < 2) {
+      final nightTexts = [
+        "You don’t need answers tonight. Sleep is allowed.",
+        "Nothing good happens after 2 AM. Go to bed.",
+        "Your brain is offline. Stop refreshing.",
+      ];
+      priorityPool = all.where((a) => nightTexts.contains(a.getText(DopeLanguage.en))).toList();
+    }
+
+    // 60% chance to pick a time-relevant message if available
+    if (priorityPool.isNotEmpty && Random().nextDouble() < 0.6) {
+      final pool = excludeText != null 
+        ? priorityPool.where((a) => a.getText(DopeLanguage.en) != excludeText).toList()
+        : priorityPool;
+      if (pool.isNotEmpty) {
+        return pool[Random().nextInt(pool.length)];
+      }
+    }
+    
     final pool = excludeText != null 
       ? all.where((a) => a.getText(DopeLanguage.en) != excludeText).toList()
       : all;
       
     final finalPool = pool.isEmpty ? all : pool;
     return finalPool[Random().nextInt(finalPool.length)];
+  }
+
+  static String getRebuttal(DopeTone tone) {
+    final rebuttals = {
+      DopeTone.chill: [
+        "Cool. Still doesn't make you a failure though.",
+        "Fair enough. Just checking.",
+        "Okay. But the point stands.",
+        "Whatever you say. You're the boss.",
+        "Heard. We'll try again tomorrow.",
+      ],
+      DopeTone.straight: [
+        "Noted. But facts don't care about your denial.",
+        "Denial is a river in Egypt.",
+        "You can say no, but the logic holds.",
+        "Your disagreement has been logged.",
+        "Objectively speaking, I'm still right.",
+      ],
+      DopeTone.coach: [
+        "Is that a real 'no' or just fear talking?",
+        "Pushing back? Good. Use that energy.",
+        "I expected resistance. Keep moving.",
+        "Don't let the doubt win.",
+        "Prove me wrong then. I'll wait.",
+      ],
+      DopeTone.deadpan: [
+        "Wow. Such rebellion.",
+        "Riveting counter-argument.",
+        "Okay. Do you feel better now?",
+        "Your opinion is noted and ignored.",
+        "Sarcasm won't save you from the truth.",
+      ],
+    };
+
+    final list = rebuttals[tone] ?? rebuttals[DopeTone.chill]!;
+    return list[Random().nextInt(list.length)];
   }
 }

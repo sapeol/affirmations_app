@@ -108,6 +108,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       bandwidth: prefs.bandwidth,
       likedAffirmations: _likedIds,
       notificationsEnabled: prefs.notificationsEnabled,
+      notificationHour: prefs.notificationHour,
+      notificationMinute: prefs.notificationMinute,
+      sanityStreak: prefs.sanityStreak,
+      lastInteractionDate: prefs.lastInteractionDate,
+      realityCheckHistory: prefs.realityCheckHistory,
+      firstRunDate: prefs.firstRunDate,
     ));
   }
 
@@ -123,7 +129,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final imagePath = await File('${directory.path}/dopermation.png').create();
     await imagePath.writeAsBytes(image);
 
-    await Share.shareXFiles([XFile(imagePath.path)], text: 'Check this Dopermation.');
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(imagePath.path)],
+        text: 'Check this Dopermation.',
+      ),
+    );
   }
 
   Widget _buildShareCard(Affirmation aff) {
@@ -180,6 +191,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 bandwidth: prefs.bandwidth,
                 likedAffirmations: prefs.likedAffirmations,
                 notificationsEnabled: true,
+                notificationHour: prefs.notificationHour,
+                notificationMinute: prefs.notificationMinute,
+                sanityStreak: prefs.sanityStreak,
+                lastInteractionDate: prefs.lastInteractionDate,
+                realityCheckHistory: prefs.realityCheckHistory,
+                firstRunDate: prefs.firstRunDate,
               ));
               if (!context.mounted) return;
               Navigator.pop(context);
@@ -217,6 +234,33 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ),
             ),
             actions: [
+              if (prefSnapshot.hasData)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "STREAK",
+                          style: TextStyle(
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                        ),
+                        Text(
+                          "${prefSnapshot.data!.sanityStreak}D",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               IconButton(
                 icon: const Icon(Icons.tune_rounded),
                 onPressed: () => Navigator.push(
@@ -303,12 +347,72 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                         onPressed: _shareAsImage,
                                         icon: Icon(Icons.share_rounded, color: Theme.of(context).colorScheme.outline),
                                       ),
+                                      const SizedBox(width: 16),
+                                      TextButton(
+                                        onPressed: () async {
+                                          final prefs = await UserPreferences.load();
+                                          final rebuttal = AffirmationsService.getRebuttal(prefs.tone);
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text(rebuttal),
+                                                behavior: SnackBarBehavior.floating,
+                                                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                                showCloseIcon: true,
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        child: Text(
+                                          "NAH",
+                                          style: TextStyle(
+                                            color: Theme.of(context).colorScheme.outline,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
                                     ],
+                                  ),
+                                  const SizedBox(height: 32),
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Colors.redAccent,
+                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                      side: BorderSide(color: Colors.redAccent.withValues(alpha: 0.5)),
+                                    ),
+                                    onPressed: () {
+                                      final msgs = [
+                                        "Cool. This isn’t one. It’s just a reminder you’re not trash.",
+                                        "You don’t have to believe this. Just don’t spiral.",
+                                        "Skepticism noted. You're still doing fine.",
+                                        "Hate away. The system doesn't mind.",
+                                        "It's just text on a screen. Breathe.",
+                                      ];
+                                      final msg = msgs[DateTime.now().second % msgs.length];
+                                      
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          backgroundColor: const Color(0xFF1A0505),
+                                          title: const Text("RECEIVED", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                                          content: Text(msg, style: const TextStyle(color: Colors.white70)),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context),
+                                              child: const Text("FINE"),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                    child: const Text("I HATE AFFIRMATIONS", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
                                   ),
                                 ],
                               ),
                       ),
-                      const SizedBox(height: 120),
+                      const SizedBox(height: 80),
                     ],
                   ),
                 ),

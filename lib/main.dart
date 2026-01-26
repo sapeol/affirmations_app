@@ -5,6 +5,8 @@ import 'screens/onboarding_screen.dart';
 import 'screens/home_screen.dart';
 import 'models/user_preferences.dart';
 
+import 'services/notification_service.dart';
+
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.dark);
 final ValueNotifier<String> fontNotifier = ValueNotifier('Plus Jakarta Sans');
 final ValueNotifier<AppColorTheme> colorThemeNotifier = ValueNotifier(AppColorTheme.terminal);
@@ -12,11 +14,18 @@ final ValueNotifier<AppColorTheme> colorThemeNotifier = ValueNotifier(AppColorTh
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  await NotificationService.init();
+  
   final prefs = await UserPreferences.load();
   themeNotifier.value = prefs.themeMode;
   fontNotifier.value = prefs.fontFamily;
   colorThemeNotifier.value = prefs.colorTheme;
   
+  // Schedule if enabled
+  if (prefs.notificationsEnabled) {
+    await NotificationService.scheduleDailyPing();
+  }
+
   final bool onboardingCompleted = await _checkOnboarding();
 
   runApp(MyApp(onboardingCompleted: onboardingCompleted));
@@ -69,7 +78,7 @@ class MultiValueListenableBuilder extends StatelessWidget {
     if (index == notifiers.length) return builder(context);
     return ValueListenableBuilder(
       valueListenable: notifiers[index],
-      builder: (_, __, ___) => _buildRecursive(index + 1, context),
+      builder: (_, _, _) => _buildRecursive(index + 1, context),
     );
   }
 }

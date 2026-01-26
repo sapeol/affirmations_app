@@ -22,10 +22,18 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
       themeMode: prefs.themeMode,
       fontFamily: prefs.fontFamily,
       colorTheme: prefs.colorTheme,
+      language: prefs.language,
       systemLoad: _systemLoad,
       batteryLevel: _batteryLevel,
       bandwidth: _bandwidth,
+      likedAffirmations: prefs.likedAffirmations,
       notificationsEnabled: prefs.notificationsEnabled,
+      notificationHour: prefs.notificationHour,
+      notificationMinute: prefs.notificationMinute,
+      sanityStreak: prefs.sanityStreak,
+      lastInteractionDate: prefs.lastInteractionDate,
+      realityCheckHistory: prefs.realityCheckHistory,
+      firstRunDate: prefs.firstRunDate,
     ));
     if (mounted) Navigator.pop(context, true);
   }

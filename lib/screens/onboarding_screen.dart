@@ -26,6 +26,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       tone: _selectedTone,
       colorTheme: _selectedTheme,
       notificationsEnabled: false,
+      firstRunDate: DateTime.now().toIso8601String(),
     ));
     if (mounted) {
       Navigator.of(context).pushReplacement(
@@ -203,6 +204,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   String _formatName(String name) {
     if (name == 'adhdBrain') return 'ADHD Brain';
     if (name == 'burntOut') return 'Burned Out';
+    if (name == 'deadpanTherapist') return 'Deadpan Therapist';
+    if (name == 'softBullyFriend') return 'Soft Bully Friend';
+    if (name == 'tiredMonk') return 'Tired Monk';
+    if (name == 'overqualifiedHater') return 'Overqualified Hater';
+    if (name == 'corporateBurnoutSurvivor') return 'Corp. Burnout Survivor';
     return name;
   }
 

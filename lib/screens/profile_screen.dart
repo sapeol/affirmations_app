@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/user_preferences.dart';
 import '../models/affirmation.dart';
 import '../services/affirmations_service.dart';
+import '../services/receipt_service.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -36,16 +37,50 @@ class ProfileScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(24),
                 children: [
                   _buildHeader(context, prefs),
+                  const SizedBox(height: 24),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final data = await ReceiptService.generateWeeklyReceipt();
+                      final text = ReceiptService.formatReceipt(data);
+                      if (context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Colors.white,
+                            content: Text(
+                              text, 
+                              style: const TextStyle(
+                                fontFamily: 'Courier', 
+                                color: Colors.black, 
+                                fontWeight: FontWeight.bold
+                              )
+                            ),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.pop(context), child: const Text("CLOSE")),
+                            ],
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.receipt_long_rounded),
+                    label: const Text("VIEW WEEKLY RECEIPT"),
+                  ),
                   const SizedBox(height: 40),
-                  if (likedAffs.isNotEmpty) ...[
-                    Text("LIKED PERSPECTIVES", style: _sectionStyle(context)),
-                    const SizedBox(height: 16),
-                    ...likedAffs.map((a) => _buildAffirmationTile(context, a)),
-                    const SizedBox(height: 32),
-                  ],
-                  Text("ALL AVAILABLE", style: _sectionStyle(context)),
+                  Text("SAVED PERSPECTIVES", style: _sectionStyle(context)),
                   const SizedBox(height: 16),
-                  ...affirmations.map((a) => _buildAffirmationTile(context, a)),
+                  if (likedAffs.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32.0),
+                      child: Center(
+                        child: Text(
+                          "NO SAVED DATA. START LIKING TO BUILD YOUR SYSTEM.",
+                          style: TextStyle(color: Theme.of(context).colorScheme.outline, fontSize: 10, letterSpacing: 1),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  else
+                    ...likedAffs.map((a) => _buildAffirmationTile(context, a)),
                 ],
               );
             },
@@ -94,7 +129,7 @@ class ProfileScreen extends StatelessWidget {
           Icon(Icons.bolt_rounded, size: 48, color: Theme.of(context).colorScheme.primary),
           const SizedBox(height: 16),
           Text(
-            prefs.persona.name.toUpperCase(),
+            _formatName(prefs.persona.name).toUpperCase(),
             style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 1),
           ),
           const SizedBox(height: 4),
@@ -114,6 +149,17 @@ class ProfileScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatName(String name) {
+    if (name == 'adhdBrain') return 'ADHD Brain';
+    if (name == 'burntOut') return 'Burned Out';
+    if (name == 'deadpanTherapist') return 'Deadpan Therapist';
+    if (name == 'softBullyFriend') return 'Soft Bully Friend';
+    if (name == 'tiredMonk') return 'Tired Monk';
+    if (name == 'overqualifiedHater') return 'Overqualified Hater';
+    if (name == 'corporateBurnoutSurvivor') return 'Corp. Burnout Survivor';
+    return name;
   }
 
   Widget _buildStat(String label, double value) {

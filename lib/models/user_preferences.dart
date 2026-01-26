@@ -3,7 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'affirmation.dart';
 
-enum DopePersona { overthinker, builder, burntOut, striver, adhdBrain }
+enum DopePersona { 
+  overthinker, 
+  builder, 
+  burntOut, 
+  striver, 
+  adhdBrain,
+  deadpanTherapist,
+  softBullyFriend,
+  tiredMonk,
+  overqualifiedHater,
+  corporateBurnoutSurvivor
+}
 enum DopeTone { chill, straight, coach, deadpan }
 enum AppColorTheme { terminal, matrix, cyber, monochrome, dusk }
 enum DopeLanguage { en, es, hi, fr, de }
@@ -16,13 +27,19 @@ class UserPreferences {
   final AppColorTheme colorTheme;
   final DopeLanguage language;
   
-  // System Metrics
   final double systemLoad;
   final double batteryLevel;
   final double bandwidth;
   
   final List<String> likedAffirmations;
   final bool notificationsEnabled;
+  final int notificationHour;
+  final int notificationMinute;
+
+  final int sanityStreak;
+  final String? lastInteractionDate; // ISO format
+  final String realityCheckHistory; // JSON list of responses
+  final String firstRunDate; // ISO format
 
   UserPreferences({
     required this.persona,
@@ -36,6 +53,12 @@ class UserPreferences {
     this.bandwidth = 0.5,
     this.likedAffirmations = const [],
     this.notificationsEnabled = true,
+    this.notificationHour = 8,
+    this.notificationMinute = 0,
+    this.sanityStreak = 0,
+    this.lastInteractionDate,
+    this.realityCheckHistory = '[]',
+    required this.firstRunDate,
   });
 
   static Future<void> save(UserPreferences prefs) async {
@@ -51,6 +74,14 @@ class UserPreferences {
     await s.setDouble('bandwidth', prefs.bandwidth);
     await s.setStringList('likedAffirmations', prefs.likedAffirmations);
     await s.setBool('notifications', prefs.notificationsEnabled);
+    await s.setInt('notificationHour', prefs.notificationHour);
+    await s.setInt('notificationMinute', prefs.notificationMinute);
+    await s.setInt('sanityStreak', prefs.sanityStreak);
+    if (prefs.lastInteractionDate != null) {
+      await s.setString('lastInteractionDate', prefs.lastInteractionDate!);
+    }
+    await s.setString('realityCheckHistory', prefs.realityCheckHistory);
+    await s.setString('firstRunDate', prefs.firstRunDate);
   }
 
   static T _enumFromString<T>(List<T> values, String? value, T defaultValue) {
@@ -63,6 +94,14 @@ class UserPreferences {
 
   static Future<UserPreferences> load() async {
     final s = await SharedPreferences.getInstance();
+    
+    // Set first run date if not present
+    String? firstRun = s.getString('firstRunDate');
+    if (firstRun == null) {
+      firstRun = DateTime.now().toIso8601String();
+      await s.setString('firstRunDate', firstRun);
+    }
+
     return UserPreferences(
       persona: _enumFromString(DopePersona.values, s.getString('persona'), DopePersona.overthinker),
       tone: _enumFromString(DopeTone.values, s.getString('tone'), DopeTone.straight),
@@ -75,6 +114,12 @@ class UserPreferences {
       bandwidth: s.getDouble('bandwidth') ?? 0.5,
       likedAffirmations: s.getStringList('likedAffirmations') ?? [],
       notificationsEnabled: s.getBool('notifications') ?? true,
+      notificationHour: s.getInt('notificationHour') ?? 8,
+      notificationMinute: s.getInt('notificationMinute') ?? 0,
+      sanityStreak: s.getInt('sanityStreak') ?? 0,
+      lastInteractionDate: s.getString('lastInteractionDate'),
+      realityCheckHistory: s.getString('realityCheckHistory') ?? '[]',
+      firstRunDate: firstRun,
     );
   }
 

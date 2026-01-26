@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import '../models/user_preferences.dart';
 import '../main.dart';
+import '../services/notification_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -30,6 +31,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     themeNotifier.value = newPrefs.themeMode;
     fontNotifier.value = newPrefs.fontFamily;
     colorThemeNotifier.value = newPrefs.colorTheme;
+    
+    // Always reschedule when any relevant preference changes
+    await NotificationService.scheduleDailyPing();
+    
     setState(() {
       _prefsFuture = Future.value(newPrefs);
     });
@@ -100,12 +105,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
               const Divider(height: 32),
-              _buildGroupHeader("PUSH NOTIFICATIONS"),
+              _buildGroupHeader("DAILY PING"),
               SwitchListTile(
                 secondary: Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary),
-                title: const Text("Daily Pings"),
+                title: const Text("Enable Pings"),
                 value: prefs.notificationsEnabled,
                 onChanged: (val) => _updatePreference(_copy(prefs, notificationsEnabled: val)),
+              ),
+              _buildSettingTile(
+                icon: Icons.schedule_rounded,
+                title: "Ping Window",
+                subtitle: "${prefs.notificationHour.toString().padLeft(2, '0')}:${prefs.notificationMinute.toString().padLeft(2, '0')}",
+                onTap: () async {
+                  final time = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay(hour: prefs.notificationHour, minute: prefs.notificationMinute),
+                  );
+                  if (time != null) {
+                    _updatePreference(_copy(prefs, notificationHour: time.hour, notificationMinute: time.minute));
+                  }
+                },
               ),
             ],
           );
@@ -220,7 +239,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return name[0].toUpperCase() + name.substring(1);
   }
 
-  UserPreferences _copy(UserPreferences p, {DopePersona? persona, DopeTone? tone, ThemeMode? themeMode, String? fontFamily, AppColorTheme? colorTheme, DopeLanguage? language, bool? notificationsEnabled}) {
+  UserPreferences _copy(UserPreferences p, {DopePersona? persona, DopeTone? tone, ThemeMode? themeMode, String? fontFamily, AppColorTheme? colorTheme, DopeLanguage? language, int? notificationHour, int? notificationMinute, bool? notificationsEnabled}) {
     return UserPreferences(
       persona: persona ?? p.persona,
       tone: tone ?? p.tone,
@@ -231,7 +250,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       systemLoad: p.systemLoad,
       batteryLevel: p.batteryLevel,
       bandwidth: p.bandwidth,
+      likedAffirmations: p.likedAffirmations,
       notificationsEnabled: notificationsEnabled ?? p.notificationsEnabled,
+      notificationHour: notificationHour ?? p.notificationHour,
+      notificationMinute: notificationMinute ?? p.notificationMinute,
+      sanityStreak: p.sanityStreak,
+      lastInteractionDate: p.lastInteractionDate,
+      realityCheckHistory: p.realityCheckHistory,
+      firstRunDate: p.firstRunDate,
     );
   }
 }
