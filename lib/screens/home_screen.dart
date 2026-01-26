@@ -280,9 +280,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     if (_affirmations.isEmpty) return;
     final current = _affirmations.first;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final prefs = await UserPreferences.load();
     
     final image = await _screenshotController.captureFromWidget(
-      _buildShareCard(current, isDark),
+      _buildShareCard(current, isDark, prefs.fontFamily),
       delay: const Duration(milliseconds: 10),
     );
 
@@ -298,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildShareCard(Affirmation aff, bool isDark) {
+  Widget _buildShareCard(Affirmation aff, bool isDark, String fontFamily) {
     final displayText = aff.getText(DopeLanguage.en);
     var gradient = SwipeCard.getGradientForAffirmation(displayText);
     
@@ -337,6 +338,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     fontSize: 28,
                     fontWeight: FontWeight.w600,
                     height: 1.5,
+                    fontFamily: fontFamily,
                     decoration: TextDecoration.none,
                   ),
                   textAlign: TextAlign.center,
@@ -350,6 +352,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       fontWeight: FontWeight.w900,
                       color: isDark ? Colors.white24 : Colors.black45,
                       letterSpacing: 4,
+                      fontFamily: fontFamily,
                       decoration: TextDecoration.none,
                     ),
                   ),
@@ -361,6 +364,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     fontSize: 10, 
                     letterSpacing: 12, 
                     fontWeight: FontWeight.w300,
+                    fontFamily: fontFamily,
                     decoration: TextDecoration.none,
                   ),
                 ),
@@ -401,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               if (prefSnapshot.hasData)
                 Center(
                   child: Padding(
-                    padding: const EdgeInsets.only(right: 16.0),
+                    padding: const EdgeInsets.only(right: 8.0),
                     child: Text(
                       "${prefSnapshot.data!.sanityStreak}D",
                       style: TextStyle(
