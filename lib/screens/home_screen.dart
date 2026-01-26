@@ -29,8 +29,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   List<String> _likedIds = [];
   final List<Affirmation> _history = [];
   int _swipeCount = 0;
+  int _undoCount = 0;
   bool _isPremium = false;
   final int _maxFreeSwipes = 20;
+  final int _maxFreeUndos = 5;
   
   // Key to control the top card
   final GlobalKey<SwipeCardState> _cardKey = GlobalKey<SwipeCardState>();
@@ -267,10 +269,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void _undoSwipe() {
     if (_history.isEmpty) return;
     
+    if (!_isPremium && _undoCount >= _maxFreeUndos) {
+      _showPaywall();
+      return;
+    }
+    
     setState(() {
       final last = _history.removeLast();
       _affirmations.insert(0, last);
       _swipeCount = max(0, _swipeCount - 1);
+      _undoCount++;
     });
     _updateWidget(_affirmations.first);
   }
