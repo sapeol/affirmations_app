@@ -246,8 +246,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     try {
       Offerings offerings = await Purchases.getOfferings();
       if (offerings.current != null && offerings.current!.availablePackages.isNotEmpty) {
-        CustomerInfo customerInfo = await Purchases.purchasePackage(offerings.current!.availablePackages.first);
-        if (customerInfo.entitlements.active.isNotEmpty) {
+        final package = offerings.current!.availablePackages.first;
+        PurchaseResult result = await Purchases.purchase(PurchaseParams.package(package));
+        if (result.customerInfo.entitlements.active.isNotEmpty) {
           if (mounted) {
             setState(() => _isPremium = true);
             Navigator.pop(context);
