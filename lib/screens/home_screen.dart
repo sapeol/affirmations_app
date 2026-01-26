@@ -201,7 +201,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               if (!context.mounted) return;
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Notifications enabled")),
+                const SnackBar(
+                  content: Text("Notifications enabled"),
+                  behavior: SnackBarBehavior.fixed,
+                ),
               );
             },
             child: const Text("Enable"),
@@ -356,7 +359,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                             ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(
                                                 content: Text(rebuttal),
-                                                behavior: SnackBarBehavior.floating,
+                                                behavior: SnackBarBehavior.fixed,
                                                 backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                                                 showCloseIcon: true,
                                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
