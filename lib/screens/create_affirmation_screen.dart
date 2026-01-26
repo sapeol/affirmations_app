@@ -25,15 +25,17 @@ class _CreateAffirmationScreenState extends State<CreateAffirmationScreen> {
     await UserPreferences.addCustomAffirmation(newAff);
     
     if (mounted) {
-      Navigator.pop(context, true); // Return true to indicate success
+      Navigator.pop(context, true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Create Affirmation"),
+        title: const Text("CREATE DELUSION"),
         actions: [
           if (_isSaving)
             const Padding(
@@ -43,57 +45,90 @@ class _CreateAffirmationScreenState extends State<CreateAffirmationScreen> {
           else
             TextButton(
               onPressed: _save,
-              child: const Text("Save", style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text(
+                "SAVE", 
+                style: TextStyle(
+                  fontWeight: FontWeight.w900, 
+                  letterSpacing: 1,
+                  color: Theme.of(context).colorScheme.primary,
+                )
+              ),
             ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(32.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "What do you need to hear today?",
-              style: Theme.of(context).textTheme.headlineSmall,
+              "What lie do you need to tell yourself today?",
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w300,
+                color: isDark ? Colors.white70 : Colors.black87,
+              ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
-              "Write an affirmation that resonates with your current journey.",
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
+              "Write an excuse that resonates with your current spiral.",
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: isDark ? Colors.white38 : Colors.black45,
+                fontWeight: FontWeight.w400,
+              ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 48),
             TextField(
               controller: _controller,
               maxLines: 5,
               maxLength: 200,
               autofocus: true,
-              style: Theme.of(context).textTheme.titleLarge,
+              style: TextStyle(
+                fontSize: 18, 
+                fontWeight: FontWeight.w400,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
               decoration: InputDecoration(
-                hintText: "I am...",
+                hintText: "I am probably going to be fine...",
+                hintStyle: TextStyle(color: isDark ? Colors.white10 : Colors.black12),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                contentPadding: const EdgeInsets.all(24),
+                fillColor: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.black.withValues(alpha: 0.03),
+                contentPadding: const EdgeInsets.all(32),
               ),
               onChanged: (_) => setState(() {}),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 48),
             if (_controller.text.isNotEmpty) ...[
               Text(
-                "Preview",
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Theme.of(context).colorScheme.primary),
+                "PREVIEW",
+                style: TextStyle(
+                  fontSize: 10, 
+                  fontWeight: FontWeight.w900, 
+                  letterSpacing: 4,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Card(
+                color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(32),
+                  side: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+                ),
                 child: Padding(
-                  padding: const EdgeInsets.all(32.0),
+                  padding: const EdgeInsets.all(40.0),
                   child: Center(
                     child: Text(
                       _controller.text,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(height: 1.5),
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        height: 1.5,
+                        fontWeight: FontWeight.w400,
+                        fontStyle: FontStyle.italic,
+                        color: isDark ? Colors.white70 : Colors.black87,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),

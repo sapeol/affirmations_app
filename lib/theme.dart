@@ -23,32 +23,44 @@ class AppTheme {
         brightness: brightness,
         surface: isDark ? const Color(0xFF1A1A1E) : const Color(0xFFFBFCFF),
         onSurface: isDark ? const Color(0xFFE1E1E6) : const Color(0xFF1A1A1E),
-        primary: seedColor.withValues(alpha: 0.8),
-        onPrimary: isDark ? Colors.white70 : Colors.black87,
-        outline: isDark ? Colors.white38 : Colors.black45,
+        primary: isDark ? seedColor.withValues(alpha: 0.8) : Color.lerp(seedColor, Colors.black, 0.4)!,
+        onPrimary: isDark ? Colors.black : Colors.white,
+        secondary: isDark ? seedColor.withValues(alpha: 0.6) : Color.lerp(seedColor, Colors.black, 0.6)!,
+        outline: isDark ? Colors.white38 : Colors.black54,
         outlineVariant: isDark ? Colors.white10 : Colors.black12,
       ),
     );
 
     final textTheme = GoogleFonts.getTextTheme(fontFamily, baseTheme.textTheme);
 
+    // High contrast text colors
+    final mainTextColor = isDark ? const Color(0xFFE1E1E6) : const Color(0xFF1A1A1E);
+    final secondaryTextColor = isDark ? const Color(0xFFA0A0A5) : const Color(0xFF4A4A4F);
+
     return baseTheme.copyWith(
       textTheme: textTheme.apply(
-        bodyColor: isDark ? const Color(0xFFE1E1E6) : const Color(0xFF1A1A1E),
-        displayColor: isDark ? const Color(0xFFE1E1E6) : const Color(0xFF1A1A1E),
+        bodyColor: mainTextColor,
+        displayColor: mainTextColor,
+      ).copyWith(
+        labelSmall: textTheme.labelSmall?.copyWith(color: secondaryTextColor),
+        bodySmall: textTheme.bodySmall?.copyWith(color: secondaryTextColor),
       ),
       scaffoldBackgroundColor: isDark ? const Color(0xFF121216) : const Color(0xFFFDFDFF),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: isDark ? Colors.white54 : Colors.black54),
+        iconTheme: IconThemeData(color: mainTextColor),
         titleTextStyle: textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.w300,
           letterSpacing: 4,
-          color: isDark ? Colors.white54 : Colors.black54,
+          color: mainTextColor,
           fontSize: 14,
         ),
+      ),
+      dividerTheme: DividerThemeData(
+        color: isDark ? Colors.white10 : Colors.black12,
+        thickness: 1,
       ),
       cardTheme: CardThemeData(
         elevation: 0,
@@ -57,6 +69,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(32),
         ),
         color: isDark ? const Color(0xFF25252A) : Colors.white,
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: mainTextColor,
+        textColor: mainTextColor,
       ),
     );
   }

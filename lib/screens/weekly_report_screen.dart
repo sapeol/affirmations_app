@@ -75,8 +75,8 @@ class WeeklyReportScreen extends StatelessWidget {
           style: TextStyle(
             fontSize: 10,
             letterSpacing: 6,
-            fontWeight: FontWeight.w200,
-            color: isDark ? Colors.white24 : Colors.black38,
+            fontWeight: FontWeight.w900,
+            color: isDark ? Colors.white38 : Colors.black45,
           ),
         ),
         const SizedBox(height: 12),
@@ -98,13 +98,13 @@ class WeeklyReportScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: displayPastel.withValues(alpha: isDark ? 0.3 : 0.5),
+        color: displayPastel.withValues(alpha: isDark ? 0.3 : 0.6),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: displayPastel.withValues(alpha: isDark ? 0.5 : 0.8)),
+        border: Border.all(color: displayPastel.withValues(alpha: isDark ? 0.5 : 1.0), width: 2),
       ),
       child: Row(
         children: [
-          Icon(icon, color: isDark ? Colors.white24 : Colors.black26, size: 32),
+          Icon(icon, color: isDark ? Colors.white38 : Colors.black54, size: 32),
           const SizedBox(width: 32),
           Expanded(
             child: Column(
@@ -115,7 +115,7 @@ class WeeklyReportScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 9,
                     letterSpacing: 2,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w900,
                     color: isDark ? Colors.white38 : Colors.black54,
                   ),
                 ),
@@ -124,7 +124,7 @@ class WeeklyReportScreen extends StatelessWidget {
                   value,
                   style: TextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.w300,
+                    fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white70 : Colors.black87,
                   ),
                 ),
@@ -141,14 +141,14 @@ class WeeklyReportScreen extends StatelessWidget {
     return Center(
       child: Column(
         children: [
-          Icon(Icons.wb_sunny_outlined, size: 32, color: isDark ? Colors.white10 : Colors.black12),
+          Icon(Icons.wb_sunny_outlined, size: 32, color: isDark ? Colors.white24 : Colors.black26),
           const SizedBox(height: 24),
           Text(
             "Another week of pretending.\nGood job, I guess.",
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isDark ? Colors.white24 : Colors.black45,
-              fontWeight: FontWeight.w300,
+              color: isDark ? Colors.white38 : Colors.black54,
+              fontWeight: FontWeight.w400,
               fontStyle: FontStyle.italic,
               height: 1.6,
             ),

@@ -33,7 +33,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     fontNotifier.value = newPrefs.fontFamily;
     colorThemeNotifier.value = newPrefs.colorTheme;
     
-    // Always reschedule when any relevant preference changes
     await locator<NotificationService>().scheduleDailyPing();
     
     setState(() {
@@ -103,7 +102,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildGroupHeader("DAILY PING"),
               SwitchListTile(
                 secondary: Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary),
-                title: const Text("Enable Pings"),
+                title: Text("Enable Pings", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                activeThumbColor: Theme.of(context).colorScheme.primary,
                 value: prefs.notificationsEnabled,
                 onChanged: (val) => _updatePreference(_copy(prefs, notificationsEnabled: val)),
               ),
@@ -119,7 +119,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Text(title, style: Theme.of(context).textTheme.labelSmall?.copyWith(
         color: Theme.of(context).colorScheme.primary,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w900,
         letterSpacing: 2,
       )),
     );
@@ -127,10 +127,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildSettingTile({required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
     return ListTile(
-      leading: Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant),
+      leading: Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text(subtitle.toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 12, letterSpacing: 1)),
-      trailing: const Icon(Icons.chevron_right, size: 20),
+      subtitle: Text(subtitle.toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 12, letterSpacing: 1, fontWeight: FontWeight.w600)),
+      trailing: Icon(Icons.chevron_right, size: 20, color: Theme.of(context).colorScheme.outline),
       onTap: onTap,
     );
   }
@@ -140,7 +140,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.6,
         minChildSize: 0.4,
@@ -149,8 +149,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         builder: (context, scrollController) => Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Text(title.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: Text(title.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2)),
             ),
             Expanded(
               child: ListView.builder(
@@ -159,7 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 itemBuilder: (context, index) {
                   final opt = options[index];
                   return ListTile(
-                    title: Text(_formatEnum(opt).toUpperCase(), style: const TextStyle(fontSize: 14)),
+                    title: Text(_formatEnum(opt).toUpperCase(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
                     trailing: current == opt ? Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary) : null,
                     onTap: () {
                       onSelected(opt);
@@ -180,14 +180,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
       builder: (context) => SizedBox(
         height: MediaQuery.of(context).size.height * 0.7,
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Text("TYPOGRAPHY", style: TextStyle(fontWeight: FontWeight.w900)),
+              padding: EdgeInsets.all(32.0),
+              child: Text("TYPOGRAPHY", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2)),
             ),
             Expanded(
               child: ListView(
@@ -196,10 +196,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                      child: Text(entry.key.toUpperCase(), style: Theme.of(context).textTheme.labelSmall),
+                      child: Text(entry.key.toUpperCase(), style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900)),
                     ),
                     ...entry.value.map((font) => ListTile(
-                      title: Text(font, style: TextStyle(fontFamily: font)),
+                      title: Text(font, style: TextStyle(fontFamily: font, fontWeight: FontWeight.w500)),
                       trailing: prefs.fontFamily == font ? Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary) : null,
                       onTap: () {
                         _updatePreference(_copy(prefs, fontFamily: font));
