@@ -58,6 +58,24 @@ class SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMixi
   }
 
   @override
+  void didUpdateWidget(SwipeCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.affirmation != widget.affirmation) {
+      // Reset state for the new affirmation
+      _isSwiping = false;
+      _controller.reset();
+      _positionAnimation = Tween<Offset>(
+        begin: Offset.zero,
+        end: Offset.zero,
+      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutQuart));
+      _rotationAnimation = Tween<double>(
+        begin: 0,
+        end: 0,
+      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutQuart));
+    }
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
