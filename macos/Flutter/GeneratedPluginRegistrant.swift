@@ -5,6 +5,7 @@
 import FlutterMacOS
 import Foundation
 
+import battery_plus
 import flutter_local_notifications
 import record_macos
 import share_plus
@@ -12,6 +13,7 @@ import shared_preferences_foundation
 import sqflite_darwin
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
+  BatteryPlusMacosPlugin.register(with: registry.registrar(forPlugin: "BatteryPlusMacosPlugin"))
   FlutterLocalNotificationsPlugin.register(with: registry.registrar(forPlugin: "FlutterLocalNotificationsPlugin"))
   RecordMacOsPlugin.register(with: registry.registrar(forPlugin: "RecordMacOsPlugin"))
   SharePlusMacosPlugin.register(with: registry.registrar(forPlugin: "SharePlusMacosPlugin"))
