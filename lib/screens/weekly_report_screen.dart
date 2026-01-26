@@ -113,9 +113,10 @@ class WeeklyReportScreen extends StatelessWidget {
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.w900,
                     color: Theme.of(context).colorScheme.onSurface,
+                    height: 1.2,
                   ),
                 ),
               ],
@@ -136,10 +137,11 @@ class WeeklyReportScreen extends StatelessWidget {
             "Another week of pretending.\nGood job, I guess.",
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               fontWeight: FontWeight.w400,
               fontStyle: FontStyle.italic,
               height: 1.6,
+              fontSize: 16,
             ),
           ),
         ],

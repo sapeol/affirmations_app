@@ -87,12 +87,13 @@ class ProfileScreen extends StatelessWidget {
         ),
         title: Text(
           displayText, 
-          maxLines: 1, 
+          maxLines: 2, 
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: 14, 
+            fontSize: 16, // Minimum 16px for body
             color: Theme.of(context).colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
+            height: 1.4,
           ),
         ),
         trailing: Icon(Icons.chevron_right_rounded, size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),

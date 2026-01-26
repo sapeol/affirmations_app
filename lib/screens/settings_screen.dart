@@ -16,9 +16,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late Future<UserPreferences> _prefsFuture;
 
   final Map<String, List<String>> _fontCategories = {
-    'Modern': ['Plus Jakarta Sans', 'Montserrat', 'Outfit'],
-    'Clean': ['Fira Code', 'Roboto Mono', 'Space Mono'],
-    'Classic': ['Playfair Display', 'Lora'],
+    'Highly Legible': ['Open Sans', 'Roboto', 'Inter', 'Ubuntu'],
+    'Modern Sans': ['Plus Jakarta Sans', 'Montserrat', 'Outfit'],
+    'Clean Mono': ['Fira Code', 'Roboto Mono', 'Space Mono'],
   };
 
   @override

@@ -188,11 +188,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           Text(
             "You've run out of delusions for today. Give us \$3 or go face reality. Your choice.",
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               height: 1.6, 
               fontWeight: FontWeight.w500,
-              fontSize: 15,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
             ),
           ),
           const SizedBox(height: 48),
@@ -551,7 +550,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         padding: const EdgeInsets.only(bottom: 24),
                         child: Text(
                           "${_maxFreeSwipes - _swipeCount} MORE EXCUSES LEFT",
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 3),
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            letterSpacing: 2,
+                            fontSize: 13, // Slightly larger for legibility
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
                       ),
                     Padding(

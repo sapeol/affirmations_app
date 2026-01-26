@@ -10,7 +10,7 @@ import 'services/notification_service.dart';
 import 'locator.dart';
 
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.dark);
-final ValueNotifier<String> fontNotifier = ValueNotifier('Plus Jakarta Sans');
+final ValueNotifier<String> fontNotifier = ValueNotifier('Roboto');
 final colorThemeNotifier = ValueNotifier<AppColorTheme>(AppColorTheme.brutalist);
 
 void main() async {
