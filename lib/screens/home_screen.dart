@@ -117,7 +117,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   bool _onSwipeAction(int previousIndex, int? currentIndex, CardSwiperDirection direction) {
-    if (_affirmations.isEmpty || _isActionInProgress) return false;
+    if (_isLoading || _affirmations.isEmpty || _isActionInProgress) return false;
     final isPremium = ref.read(premiumProvider);
 
     if (!isPremium && _swipeCount >= _maxFreeSwipes) {
@@ -387,20 +387,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const SizedBox(height: 24),
               Expanded(
                 flex: 12, 
-                child: _affirmations.isEmpty && !_isLoading 
+                child: (_affirmations.isEmpty && !_isLoading)
                   ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.wb_sunny_outlined, size: 48, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)), const SizedBox(height: 24), Text("The well is dry. Just like your soul.", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w300, fontStyle: FontStyle.italic)), const SizedBox(height: 48), TextButton(onPressed: _loadAffirmations, child: Text("REFETCH THE LIES", style: TextStyle(letterSpacing: 2, fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5))))]))
                   : CardSwiper(
                       controller: _swiperController,
-                      cardsCount: _affirmations.length,
+                      cardsCount: _isLoading ? 1 : _affirmations.length,
                       onSwipe: _onSwipeAction,
-                      numberOfCardsDisplayed: 2,
+                      numberOfCardsDisplayed: _isLoading ? 1 : min(_affirmations.length, 2),
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
                       cardBuilder: (context, index, horizontalThresholdPercentage, verticalThresholdPercentage) {
+                        final aff = _isLoading 
+                          ? Affirmation.create(text: "Loading your delusions...") 
+                          : _affirmations[index];
                         return SwipeCard(
-                          affirmation: _affirmations[index],
+                          affirmation: aff,
                           language: lang,
                           onSwipe: (dir) async => true,
-                          isEnabled: true,
+                          isEnabled: !_isLoading,
                         );
                       },
                     ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.1, end: 0),
