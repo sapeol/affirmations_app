@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../models/user_preferences.dart';
 import 'home_screen.dart';
 import '../main.dart';
@@ -175,32 +177,61 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Widget _buildStableSelection(List options, dynamic selected, Function(dynamic) onSelected) {
     return Wrap(
-      spacing: 10,
-      runSpacing: 10,
+      spacing: 12,
+      runSpacing: 12,
       children: options.map((opt) {
         final name = opt.toString().split('.').last;
         final isSelected = selected == opt;
+        
         return GestureDetector(
-          onTap: () => onSelected(opt),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          onTap: () {
+            HapticFeedback.mediumImpact();
+            onSelected(opt);
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
             decoration: BoxDecoration(
-              color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              color: isSelected 
+                ? Theme.of(context).colorScheme.primary 
+                : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,
+                color: isSelected 
+                  ? Theme.of(context).colorScheme.primary 
+                  : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+                width: 2,
               ),
+              boxShadow: isSelected ? [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                  blurRadius: 15,
+                  spreadRadius: -2,
+                )
+              ] : [],
             ),
             child: Text(
               _formatName(name).toUpperCase(),
               style: TextStyle(
-                fontSize: 14,
-                color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
+                fontSize: 13,
+                color: isSelected 
+                  ? Theme.of(context).colorScheme.onPrimary 
+                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontWeight: FontWeight.w900,
-                letterSpacing: 0.5,
+                letterSpacing: 1.5,
               ),
             ),
+          )
+          .animate(target: isSelected ? 1 : 0)
+          .scale(
+            begin: const Offset(1, 1), 
+            end: const Offset(1.05, 1.05), 
+            curve: Curves.easeOutBack,
+            duration: 200.ms,
+          )
+          .shimmer(
+            delay: 400.ms,
+            duration: 1000.ms,
+            color: Colors.white24,
           ),
         );
       }).toList(),
