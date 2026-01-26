@@ -270,6 +270,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void _undoSwipe() {
     if (_history.isEmpty) return;
     
+    // STRICT CHECK: If NOT premium AND reached max free undos, show paywall and STOP
     if (!_isPremium && _undoCount >= _maxFreeUndos) {
       _showPaywall();
       return;
@@ -278,8 +279,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     setState(() {
       final last = _history.removeLast();
       _affirmations.insert(0, last);
-      _swipeCount = max(0, _swipeCount - 1);
-      _undoCount++;
+      _swipeCount = max(0, _swipeCount - 1); 
+      _undoCount++; // Increment current session undos
     });
     _updateWidget(_affirmations.first);
   }

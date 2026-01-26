@@ -100,17 +100,17 @@ class SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMixi
         ? Offset(size.width * 1.5, 0) 
         : Offset(-size.width * 1.5, 0);
     
-    _controller.duration = const Duration(milliseconds: 1000);
+    _controller.duration = const Duration(milliseconds: 600); // Snappier exit
 
     _positionAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: endOffset,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInCubic));
 
     _rotationAnimation = Tween<double>(
       begin: 0,
-      end: direction == SwipeDirection.right ? 0.5 : -0.5,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+      end: direction == SwipeDirection.right ? 0.4 : -0.4,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInCubic));
 
     await _controller.forward(from: 0);
   }
