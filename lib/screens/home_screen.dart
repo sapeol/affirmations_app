@@ -64,12 +64,36 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
   }
 
-  void _updateWidget(Affirmation aff) {
-    HomeWidget.saveWidgetData<String>('affirmation_text', aff.getText(DopeLanguage.en));
+  void _updateWidget(Affirmation aff) async {
+    final prefs = await UserPreferences.load();
+    final displayText = aff.getText(DopeLanguage.en);
+    final gradient = SwipeCard.getGradientForAffirmation(displayText, prefs.colorTheme);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    // Save text
+    HomeWidget.saveWidgetData<String>('affirmation_text', displayText);
+    
+    // Save colors (Hex strings for native)
+    HomeWidget.saveWidgetData<String>('gradient_start', '#${gradient[0].toARGB32().toRadixString(16).padLeft(8, '0')}');
+    HomeWidget.saveWidgetData<String>('gradient_end', '#${gradient[1].toARGB32().toRadixString(16).padLeft(8, '0')}');
+    
+    final textColor = isDark ? Colors.white : Colors.black;
+    HomeWidget.saveWidgetData<String>('text_color', '#${textColor.toARGB32().toRadixString(16).padLeft(8, '0')}');
+    HomeWidget.saveWidgetData<String>('theme_name', prefs.colorTheme.name);
+    
+    // Save persona
+    HomeWidget.saveWidgetData<String>('persona_name', aff.persona?.name.toUpperCase() ?? 'DELUSIONS');
+    
+    // Trigger updates
     HomeWidget.updateWidget(
       name: 'AffirmationWidgetProvider',
       androidName: 'AffirmationWidgetProvider',
       iOSName: 'AffirmationWidget',
+    );
+    HomeWidget.updateWidget(
+      name: 'AffirmationWidgetLargeProvider',
+      androidName: 'AffirmationWidgetLargeProvider',
+      iOSName: 'AffirmationWidgetLarge',
     );
   }
 

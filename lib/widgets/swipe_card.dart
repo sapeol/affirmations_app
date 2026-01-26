@@ -105,20 +105,25 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
         ? Offset(size.width * 1.5, _dragOffset.dy) 
         : Offset(-size.width * 1.5, _dragOffset.dy);
     
+    // Create a specific controller for the exit swipe to control speed independently if needed
+    // But for now, let's just make the existing one slower for the exit too.
+    _controller.duration = const Duration(milliseconds: 1000); // Even slower for exit
+
     _positionAnimation = Tween<Offset>(
       begin: _dragOffset,
       end: endOffset,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutExpo));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     _rotationAnimation = Tween<double>(
       begin: _dragRotation,
-      end: _dragRotation * 1.5,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutExpo));
+      end: _dragRotation * 1.2,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     _controller.forward(from: 0);
   }
 
   void _reset() {
+    _controller.duration = const Duration(milliseconds: 800);
     _positionAnimation = Tween<Offset>(
       begin: _dragOffset,
       end: Offset.zero,
