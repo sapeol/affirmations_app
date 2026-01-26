@@ -151,6 +151,7 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
     final thresholdX = MediaQuery.of(context).size.width * 0.35;
     double feedbackOpacity = (_dragOffset.dx.abs() / thresholdX).clamp(0.0, 1.0);
     Color feedbackColor = _dragOffset.dx > 0 ? Colors.pinkAccent : Colors.blueGrey;
+    IconData? feedbackIcon = _dragOffset.dx > 0 ? Icons.favorite_rounded : Icons.close_rounded;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -243,13 +244,22 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
                   if (widget.isEnabled)
                     Positioned.fill(
                       child: IgnorePointer(
-                        child: Container(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 100),
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: feedbackColor.withValues(alpha: feedbackOpacity * 0.4),
-                              width: 8, // Thicker border
+                              width: 8,
                             ),
                             borderRadius: BorderRadius.circular(40),
+                            color: feedbackColor.withValues(alpha: feedbackOpacity * 0.1),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              feedbackIcon,
+                              size: 100,
+                              color: Colors.white.withValues(alpha: feedbackOpacity * 0.5),
+                            ),
                           ),
                         ),
                       ),
