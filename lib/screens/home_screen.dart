@@ -405,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     padding: const EdgeInsets.only(right: 16.0),
                     child: Text(
                       "${prefSnapshot.data!.sanityStreak}D",
-                      style: Theme.of(context).textTheme.labelSmall,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 1),
                     ),
                   ),
                 ),
@@ -465,7 +465,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         alignment: Alignment.center,
                         clipBehavior: Clip.none,
                         children: _affirmations
-                            .take(3)
+                            .take(2) // Only show 2 cards: current and next
                             .toList()
                             .reversed
                             .toList()
@@ -474,21 +474,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             .map((entry) {
                           final reversedIndex = entry.key; 
                           final aff = entry.value;
-                          final totalInStack = min(_affirmations.length, 3);
+                          final totalInStack = min(_affirmations.length, 2);
                           final isTop = reversedIndex == totalInStack - 1;
 
                           return Positioned(
                             top: 40.0 - (reversedIndex * 15),
-                            child: AnimatedOpacity(
-                              duration: const Duration(milliseconds: 400),
-                              opacity: 1.0 - ((totalInStack - 1 - reversedIndex) * 0.3),
-                              child: SwipeCard(
-                                key: ValueKey(aff.getText(DopeLanguage.en)),
-                                affirmation: aff,
-                                language: lang,
-                                onSwipe: isTop ? _onSwipeAction : (direction) async => false,
-                                isEnabled: isTop,
-                              ),
+                            child: SwipeCard(
+                              key: ValueKey(aff.getText(DopeLanguage.en)),
+                              affirmation: aff,
+                              language: lang,
+                              onSwipe: isTop ? _onSwipeAction : (direction) async => false,
+                              isEnabled: isTop,
                             ),
                           );
                         }).toList(),

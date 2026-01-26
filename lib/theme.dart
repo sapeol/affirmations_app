@@ -5,14 +5,16 @@ import 'models/user_preferences.dart';
 class AppTheme {
   static final Map<AppColorTheme, AppPalette> palettes = {
     AppColorTheme.brutalist: AppPalette(
-      primary: const Color(0xFF000000),
-      secondary: const Color(0xFFFF3D00),
-      accent: const Color(0xFF00E676),
-      background: const Color(0xFFFFFFFF),
-      surface: const Color(0xFFFFFFFF),
-      text: const Color(0xFF000000),
-      subtext: const Color(0xFF000000).withValues(alpha: 0.7),
-      isDark: false,
+      primary: const Color(0xFFFF3D00), // Safety Orange
+      secondary: const Color(0xFF00E676), // Neon Green
+      accent: const Color(0xFF2979FF), // Electric Blue
+      backgroundLight: const Color(0xFFFFFFFF),
+      backgroundDark: const Color(0xFF050505),
+      surfaceLight: const Color(0xFFFFFFFF),
+      surfaceDark: const Color(0xFF121212),
+      textLight: const Color(0xFF000000),
+      textDark: const Color(0xFFFFFFFF),
+      isAlwaysDark: false,
       cardGradients: [
         [const Color(0xFFFFD600), const Color(0xFFFFD600)],
         [const Color(0xFF00E676), const Color(0xFF00E676)],
@@ -24,11 +26,13 @@ class AppTheme {
       primary: const Color(0xFF6200EA),
       secondary: const Color(0xFF00BFA5),
       accent: const Color(0xFFFFD600),
-      background: const Color(0xFFFDFDFF),
-      surface: Colors.white,
-      text: const Color(0xFF1A1A1A),
-      subtext: const Color(0xFF1A1A1A).withValues(alpha: 0.6),
-      isDark: false,
+      backgroundLight: const Color(0xFFFDFDFF),
+      backgroundDark: const Color(0xFF0F0F12),
+      surfaceLight: Colors.white,
+      surfaceDark: const Color(0xFF1A1A1E),
+      textLight: const Color(0xFF1A1A1A),
+      textDark: const Color(0xFFE1E1E6),
+      isAlwaysDark: false,
       cardGradients: [
         [const Color(0xFF8E2DE2), const Color(0xFF4A00E0)],
         [const Color(0xFF00B4DB), const Color(0xFF0083B0)],
@@ -40,11 +44,13 @@ class AppTheme {
       primary: const Color(0xFFFF80AB),
       secondary: const Color(0xFFB2FF59),
       accent: const Color(0xFF80D8FF),
-      background: const Color(0xFFFDF6F9),
-      surface: Colors.white,
-      text: const Color(0xFF2D2D2D),
-      subtext: const Color(0xFF2D2D2D).withValues(alpha: 0.6),
-      isDark: false,
+      backgroundLight: const Color(0xFFFDF6F9),
+      backgroundDark: const Color(0xFF161214),
+      surfaceLight: Colors.white,
+      surfaceDark: const Color(0xFF251F22),
+      textLight: const Color(0xFF3D3D3D),
+      textDark: const Color(0xFFF5E1E6),
+      isAlwaysDark: false,
       cardGradients: [
         [const Color(0xFFFFE0E0), const Color(0xFFFFF5F5)],
         [const Color(0xFFE0F0FF), const Color(0xFFF5FAFF)],
@@ -56,11 +62,13 @@ class AppTheme {
       primary: const Color(0xFF212121),
       secondary: const Color(0xFF757575),
       accent: const Color(0xFFBDBDBD),
-      background: const Color(0xFFFAFAFA),
-      surface: Colors.white,
-      text: const Color(0xFF000000),
-      subtext: const Color(0xFF000000).withValues(alpha: 0.5),
-      isDark: false,
+      backgroundLight: const Color(0xFFFAFAFA),
+      backgroundDark: const Color(0xFF0A0A0A),
+      surfaceLight: Colors.white,
+      surfaceDark: const Color(0xFF1A1A1A),
+      textLight: const Color(0xFF000000),
+      textDark: const Color(0xFFEEEEEE),
+      isAlwaysDark: false,
       cardGradients: [
         [const Color(0xFFE0E0E0), const Color(0xFFF5F5F5)],
         [const Color(0xFFECE9E6), const Color(0xFFFFFFFF)],
@@ -72,11 +80,13 @@ class AppTheme {
       primary: const Color(0xFF00FF41),
       secondary: const Color(0xFFFF00FF),
       accent: const Color(0xFF00FFFF),
-      background: const Color(0xFF050505),
-      surface: const Color(0xFF121212),
-      text: const Color(0xFF00FF41),
-      subtext: const Color(0xFF00FF41).withValues(alpha: 0.7),
-      isDark: true,
+      backgroundLight: const Color(0xFF050505), // Forced dark
+      backgroundDark: const Color(0xFF050505),
+      surfaceLight: const Color(0xFF121212),
+      surfaceDark: const Color(0xFF121212),
+      textLight: const Color(0xFF00FF41),
+      textDark: const Color(0xFF00FF41),
+      isAlwaysDark: true,
       cardGradients: [
         [const Color(0xFF000000), const Color(0xFF434343)],
         [const Color(0xFF0F2027), const Color(0xFF2C5364)],
@@ -88,12 +98,12 @@ class AppTheme {
 
   static ThemeData createTheme(Brightness brightness, String fontFamily, AppColorTheme colorTheme) {
     final palette = palettes[colorTheme] ?? palettes[AppColorTheme.brutalist]!;
-    final bool effectiveIsDark = palette.isDark || brightness == Brightness.dark;
+    final isSystemDark = brightness == Brightness.dark;
+    final bool effectiveIsDark = palette.isAlwaysDark || isSystemDark;
     
-    Color backgroundColor = effectiveIsDark ? (palette.isDark ? palette.background : const Color(0xFF0F0F12)) : palette.background;
-    Color surfaceColor = effectiveIsDark ? (palette.isDark ? palette.surface : const Color(0xFF1A1A1E)) : palette.surface;
-    Color textColor = effectiveIsDark ? (palette.isDark ? palette.text : const Color(0xFFE1E1E6)) : palette.text;
-    Color subtextColor = effectiveIsDark ? (palette.isDark ? palette.subtext : const Color(0xFFA0A0A5)) : palette.subtext;
+    Color backgroundColor = effectiveIsDark ? palette.backgroundDark : palette.backgroundLight;
+    Color surfaceColor = effectiveIsDark ? palette.surfaceDark : palette.surfaceLight;
+    Color textColor = effectiveIsDark ? palette.textDark : palette.textLight;
     
     final baseTheme = ThemeData(
       useMaterial3: true,
@@ -116,8 +126,12 @@ class AppTheme {
         bodyColor: textColor,
         displayColor: textColor,
       ).copyWith(
-        labelSmall: textTheme.labelSmall?.copyWith(color: subtextColor, fontWeight: FontWeight.bold),
-        bodySmall: textTheme.bodySmall?.copyWith(color: subtextColor),
+        labelSmall: textTheme.labelSmall?.copyWith(
+          color: textColor.withValues(alpha: 0.5), 
+          fontWeight: FontWeight.w900, 
+          fontSize: 12
+        ),
+        bodySmall: textTheme.bodySmall?.copyWith(color: textColor.withValues(alpha: 0.6)),
       ),
       scaffoldBackgroundColor: backgroundColor,
       appBarTheme: AppBarTheme(
@@ -154,22 +168,26 @@ class AppPalette {
   final Color primary;
   final Color secondary;
   final Color accent;
-  final Color background;
-  final Color surface;
-  final Color text;
-  final Color subtext;
-  final bool isDark;
+  final Color backgroundLight;
+  final Color backgroundDark;
+  final Color surfaceLight;
+  final Color surfaceDark;
+  final Color textLight;
+  final Color textDark;
+  final bool isAlwaysDark;
   final List<List<Color>> cardGradients;
 
   AppPalette({
     required this.primary,
     required this.secondary,
     required this.accent,
-    required this.background,
-    required this.surface,
-    required this.text,
-    required this.subtext,
-    required this.isDark,
+    required this.backgroundLight,
+    required this.backgroundDark,
+    required this.surfaceLight,
+    required this.surfaceDark,
+    required this.textLight,
+    required this.textDark,
+    required this.isAlwaysDark,
     required this.cardGradients,
   });
 }
