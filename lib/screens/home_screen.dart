@@ -393,31 +393,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ),
             ],
           ),
-          floatingActionButton: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              FloatingActionButton(
-                heroTag: 'refresh',
-                mini: true,
-                onPressed: _isLoading ? null : _refreshAffirmation,
-                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                child: const Icon(Icons.refresh_rounded),
-              ),
-              const SizedBox(height: 16),
-              FloatingActionButton.extended(
-                heroTag: 'add',
-                onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const CreateAffirmationScreen()),
-                  );
-                  if (result == true) _refreshAffirmation();
-                },
-                icon: const Icon(Icons.add),
-                label: const Text("OWN PERSPECTIVE"),
-              ),
-            ],
+          floatingActionButton: FloatingActionButton.extended(
+            heroTag: 'add',
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CreateAffirmationScreen()),
+              );
+              if (result == true) _refreshAffirmation();
+            },
+            icon: const Icon(Icons.add),
+            label: const Text("OWN PERSPECTIVE"),
           ),
         );
       },
