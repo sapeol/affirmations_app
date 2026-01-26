@@ -42,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Future<void> _loadInitialAffirmation() async {
     setState(() => _isLoading = true);
     final aff = await AffirmationsService.getDailyAffirmation();
+    await AffirmationsService.markAffirmationAsSeen(aff.getText(DopeLanguage.en));
     await Future.delayed(const Duration(milliseconds: 800));
     
     if (mounted) {
@@ -66,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final currentText = _currentAffirmation?.getText(DopeLanguage.en);
     setState(() => _isLoading = true);
     final aff = await AffirmationsService.getRandomAffirmation(excludeText: currentText);
+    await AffirmationsService.markAffirmationAsSeen(aff.getText(DopeLanguage.en));
     
     final prefs = await UserPreferences.load();
     if (!prefs.notificationsEnabled && mounted) {
@@ -114,6 +116,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       lastInteractionDate: prefs.lastInteractionDate,
       realityCheckHistory: prefs.realityCheckHistory,
       firstRunDate: prefs.firstRunDate,
+      seenAffirmations: prefs.seenAffirmations,
+      seenRebuttals: prefs.seenRebuttals,
     ));
   }
 
@@ -197,6 +201,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 lastInteractionDate: prefs.lastInteractionDate,
                 realityCheckHistory: prefs.realityCheckHistory,
                 firstRunDate: prefs.firstRunDate,
+                seenAffirmations: prefs.seenAffirmations,
+                seenRebuttals: prefs.seenRebuttals,
               ));
               if (!context.mounted) return;
               Navigator.pop(context);
@@ -354,7 +360,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                       TextButton(
                                         onPressed: () async {
                                           final prefs = await UserPreferences.load();
-                                          final rebuttal = AffirmationsService.getRebuttal(prefs.tone);
+                                          final rebuttal = await AffirmationsService.getRebuttal(prefs.tone);
                                           if (context.mounted) {
                                             showDialog(
                                               context: context,

@@ -59,6 +59,8 @@ class NotificationService {
         lastInteractionDate: prefs.lastInteractionDate,
         realityCheckHistory: jsonEncode(history),
         firstRunDate: prefs.firstRunDate,
+        seenAffirmations: prefs.seenAffirmations,
+        seenRebuttals: prefs.seenRebuttals,
       );
       await UserPreferences.save(updatedPrefs);
     }

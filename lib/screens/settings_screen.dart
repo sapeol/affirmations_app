@@ -112,20 +112,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: prefs.notificationsEnabled,
                 onChanged: (val) => _updatePreference(_copy(prefs, notificationsEnabled: val)),
               ),
-              _buildSettingTile(
-                icon: Icons.schedule_rounded,
-                title: "Ping Window",
-                subtitle: "${prefs.notificationHour.toString().padLeft(2, '0')}:${prefs.notificationMinute.toString().padLeft(2, '0')}",
-                onTap: () async {
-                  final time = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay(hour: prefs.notificationHour, minute: prefs.notificationMinute),
-                  );
-                  if (time != null) {
-                    _updatePreference(_copy(prefs, notificationHour: time.hour, notificationMinute: time.minute));
-                  }
-                },
-              ),
             ],
           );
         },
@@ -258,6 +244,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       lastInteractionDate: p.lastInteractionDate,
       realityCheckHistory: p.realityCheckHistory,
       firstRunDate: p.firstRunDate,
+      seenAffirmations: p.seenAffirmations,
+      seenRebuttals: p.seenRebuttals,
     );
   }
 }

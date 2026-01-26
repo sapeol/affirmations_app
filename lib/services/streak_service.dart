@@ -77,6 +77,8 @@ class StreakService {
       lastInteractionDate: lastInteractionDate ?? p.lastInteractionDate,
       realityCheckHistory: realityCheckHistory ?? p.realityCheckHistory,
       firstRunDate: p.firstRunDate,
+      seenAffirmations: p.seenAffirmations,
+      seenRebuttals: p.seenRebuttals,
     );
   }
 }

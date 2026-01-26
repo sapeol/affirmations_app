@@ -40,6 +40,8 @@ class UserPreferences {
   final String? lastInteractionDate; // ISO format
   final String realityCheckHistory; // JSON list of responses
   final String firstRunDate; // ISO format
+  final List<String> seenAffirmations;
+  final List<String> seenRebuttals;
 
   UserPreferences({
     required this.persona,
@@ -59,6 +61,8 @@ class UserPreferences {
     this.lastInteractionDate,
     this.realityCheckHistory = '[]',
     required this.firstRunDate,
+    this.seenAffirmations = const [],
+    this.seenRebuttals = const [],
   });
 
   static Future<void> save(UserPreferences prefs) async {
@@ -82,6 +86,8 @@ class UserPreferences {
     }
     await s.setString('realityCheckHistory', prefs.realityCheckHistory);
     await s.setString('firstRunDate', prefs.firstRunDate);
+    await s.setStringList('seenAffirmations', prefs.seenAffirmations);
+    await s.setStringList('seenRebuttals', prefs.seenRebuttals);
   }
 
   static T _enumFromString<T>(List<T> values, String? value, T defaultValue) {
@@ -120,6 +126,8 @@ class UserPreferences {
       lastInteractionDate: s.getString('lastInteractionDate'),
       realityCheckHistory: s.getString('realityCheckHistory') ?? '[]',
       firstRunDate: firstRun,
+      seenAffirmations: s.getStringList('seenAffirmations') ?? [],
+      seenRebuttals: s.getStringList('seenRebuttals') ?? [],
     );
   }
 

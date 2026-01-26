@@ -186,13 +186,12 @@ class AffirmationsService {
     final custom = await UserPreferences.getCustomAffirmations();
     
     // STRICT FILTERING: Match persona OR universal (null persona)
-    // Users will NEVER see an affirmation belonging to another specific persona.
     final filtered = _library.where((a) {
       return a.persona == prefs.persona || a.persona == null;
     }).toList();
 
     // Evolving Affirmations Logic
-    final firstRun = DateTime.parse(prefs.firstRunDate);
+    final firstRun = DateTime.tryParse(prefs.firstRunDate) ?? DateTime.now();
     final daysSinceStart = DateTime.now().difference(firstRun).inDays;
     
     String evolvingText;
@@ -209,20 +208,59 @@ class AffirmationsService {
     return [...filtered, ...custom];
   }
 
+  static Future<void> markAffirmationAsSeen(String text) async {
+    final prefs = await UserPreferences.load();
+    if (!prefs.seenAffirmations.contains(text)) {
+      final updatedSeen = [...prefs.seenAffirmations, text];
+      await UserPreferences.save(_copyPrefs(prefs, seenAffirmations: updatedSeen));
+    }
+  }
+
   static Future<Affirmation> getDailyAffirmation() async {
     final all = await getAllAffirmations();
-    if (all.isEmpty) return _library.first;
-    final now = DateTime.now();
     final prefs = await UserPreferences.load();
-    // Unique seed ensuring consistency for the day within the filtered pool
+    final seen = prefs.seenAffirmations;
+    final liked = prefs.likedAffirmations;
+
+    // Daily logic: Prioritize unseen. If no unseen, fallback to liked.
+    final unseenPool = all.where((a) => !seen.contains(a.getText(DopeLanguage.en))).toList();
+    final likedPool = all.where((a) => liked.contains(a.getText(DopeLanguage.en))).toList();
+
+    final pool = unseenPool.isNotEmpty ? unseenPool : likedPool;
+    
+    if (pool.isEmpty) return Affirmation(text: "System Empty. You have completed the internet. Go outside.", tone: DopeTone.deadpan);
+    
+    final now = DateTime.now();
     final seed = now.year + now.month + now.day + (prefs.systemLoad * 100).toInt() + prefs.persona.index;
-    return all[seed % all.length];
+    return pool[seed % pool.length];
   }
 
   static Future<Affirmation> getRandomAffirmation({String? excludeText}) async {
     final all = await getAllAffirmations();
-    if (all.isEmpty) return _library.first;
+    final prefs = await UserPreferences.load();
+    final seen = prefs.seenAffirmations;
+    final liked = prefs.likedAffirmations;
+
+    // Filter pools
+    final unseenPool = all.where((a) => !seen.contains(a.getText(DopeLanguage.en))).toList();
+    final likedPool = all.where((a) => liked.contains(a.getText(DopeLanguage.en))).toList();
+
+    List<Affirmation> finalPool;
+
+    if (unseenPool.isEmpty) {
+      finalPool = likedPool;
+    } else {
+      // 10% chance to resurface a liked affirmation if available
+      if (likedPool.isNotEmpty && Random().nextDouble() < 0.1) {
+        finalPool = likedPool;
+      } else {
+        finalPool = unseenPool;
+      }
+    }
+
+    if (finalPool.isEmpty) return Affirmation(text: "System Empty. You have completed the internet. Go outside.", tone: DopeTone.deadpan);
     
+    // Time-based injection logic (applied to the chosen pool)
     final now = DateTime.now();
     final hour = now.hour;
     List<Affirmation> priorityPool = [];
@@ -234,7 +272,8 @@ class AffirmationsService {
         "Sun's up. Unfortunately, so are you.",
         "Coffee first. Existential dread second.",
       ];
-      priorityPool = all.where((a) => morningTexts.contains(a.getText(DopeLanguage.en))).toList();
+      // Only prioritize if they exist in the CURRENT pool (unseen or liked)
+      priorityPool = finalPool.where((a) => morningTexts.contains(a.getText(DopeLanguage.en))).toList();
     }
     // Late Night Window: 12 AM - 2 AM
     else if (hour >= 0 && hour < 2) {
@@ -243,10 +282,10 @@ class AffirmationsService {
         "Nothing good happens after 2 AM. Go to bed.",
         "Your brain is offline. Stop refreshing.",
       ];
-      priorityPool = all.where((a) => nightTexts.contains(a.getText(DopeLanguage.en))).toList();
+      priorityPool = finalPool.where((a) => nightTexts.contains(a.getText(DopeLanguage.en))).toList();
     }
 
-    // 60% chance to pick a time-relevant message if available
+    // 60% chance to pick a time-relevant message if available in the filtered pool
     if (priorityPool.isNotEmpty && Random().nextDouble() < 0.6) {
       final pool = excludeText != null 
         ? priorityPool.where((a) => a.getText(DopeLanguage.en) != excludeText).toList()
@@ -257,14 +296,17 @@ class AffirmationsService {
     }
     
     final pool = excludeText != null 
-      ? all.where((a) => a.getText(DopeLanguage.en) != excludeText).toList()
-      : all;
+      ? finalPool.where((a) => a.getText(DopeLanguage.en) != excludeText).toList()
+      : finalPool;
       
-    final finalPool = pool.isEmpty ? all : pool;
-    return finalPool[Random().nextInt(finalPool.length)];
+    final actualPool = pool.isEmpty ? finalPool : pool;
+    return actualPool[Random().nextInt(actualPool.length)];
   }
 
-  static String getRebuttal(DopeTone tone) {
+  static Future<String> getRebuttal(DopeTone tone) async {
+    final prefs = await UserPreferences.load();
+    final seen = prefs.seenRebuttals;
+
     final rebuttals = {
       DopeTone.chill: [
         "Cool. Still doesn't make you a failure though.",
@@ -297,6 +339,41 @@ class AffirmationsService {
     };
 
     final list = rebuttals[tone] ?? rebuttals[DopeTone.chill]!;
-    return list[Random().nextInt(list.length)];
+    final unseen = list.where((r) => !seen.contains(r)).toList();
+    
+    final available = unseen.isEmpty ? list : unseen; // Fallback to list if all seen, OR return special
+    if (unseen.isEmpty) return "I'm out of arguments. You win.";
+
+    final selected = available[Random().nextInt(available.length)];
+    
+    // Mark as seen
+    final updatedSeen = [...prefs.seenRebuttals, selected];
+    await UserPreferences.save(_copyPrefs(prefs, seenRebuttals: updatedSeen));
+
+    return selected;
+  }
+
+  static UserPreferences _copyPrefs(UserPreferences p, {List<String>? seenAffirmations, List<String>? seenRebuttals}) {
+    return UserPreferences(
+      persona: p.persona,
+      tone: p.tone,
+      themeMode: p.themeMode,
+      fontFamily: p.fontFamily,
+      colorTheme: p.colorTheme,
+      language: p.language,
+      systemLoad: p.systemLoad,
+      batteryLevel: p.batteryLevel,
+      bandwidth: p.bandwidth,
+      likedAffirmations: p.likedAffirmations,
+      notificationsEnabled: p.notificationsEnabled,
+      notificationHour: p.notificationHour,
+      notificationMinute: p.notificationMinute,
+      sanityStreak: p.sanityStreak,
+      lastInteractionDate: p.lastInteractionDate,
+      realityCheckHistory: p.realityCheckHistory,
+      firstRunDate: p.firstRunDate,
+      seenAffirmations: seenAffirmations ?? p.seenAffirmations,
+      seenRebuttals: seenRebuttals ?? p.seenRebuttals,
+    );
   }
 }
