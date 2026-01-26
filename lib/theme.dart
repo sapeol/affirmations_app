@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'models/user_preferences.dart';
 
@@ -158,9 +159,20 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: backgroundColor,
       appBarTheme: AppBarTheme(
-        backgroundColor: backgroundColor,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
+        systemOverlayStyle: effectiveIsDark 
+          ? SystemUiOverlayStyle.light.copyWith(
+              statusBarColor: Colors.transparent,
+              systemNavigationBarColor: backgroundColor,
+              systemNavigationBarIconBrightness: Brightness.light,
+            )
+          : SystemUiOverlayStyle.dark.copyWith(
+              statusBarColor: Colors.transparent,
+              systemNavigationBarColor: backgroundColor,
+              systemNavigationBarIconBrightness: Brightness.dark,
+            ),
         iconTheme: IconThemeData(color: textColor),
         titleTextStyle: textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.w900,
