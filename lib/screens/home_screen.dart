@@ -5,7 +5,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:pay/pay.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'dart:io';
 import 'dart:math';
 import '../services/affirmations_service.dart';
@@ -76,9 +76,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         _isPremium = false; 
       });
     }
+    await _initRevenueCat();
     await _loadAffirmations();
     if (mounted) {
       _entranceController.forward();
+    }
+  }
+
+  Future<void> _initRevenueCat() async {
+    // Placeholder API keys - should be replaced with real ones from RevenueCat dashboard
+    final configuration = PurchasesConfiguration(
+      Platform.isAndroid ? "goog_placeholder" : "appl_placeholder"
+    );
+    await Purchases.configure(configuration);
+    
+    try {
+      CustomerInfo customerInfo = await Purchases.getCustomerInfo();
+      if (mounted) {
+        setState(() {
+          _isPremium = customerInfo.entitlements.active.isNotEmpty;
+        });
+      }
+    } catch (e) {
+      debugPrint("RevenueCat Error: $e");
     }
   }
 
@@ -187,45 +207,76 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           _buildPaywallFeature(Icons.palette_outlined, "Slightly Different Pastels"),
           _buildPaywallFeature(Icons.history_rounded, "A List of Your Failures"),
           const Spacer(),
-          if (Platform.isAndroid)
-            FutureBuilder<PaymentConfiguration>(
-              future: PaymentConfiguration.fromAsset('assets/google_pay_config.json'),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return GooglePayButton(
-                    paymentConfiguration: snapshot.data!,
-                    paymentItems: const [PaymentItem(label: 'Dopermations Premium', amount: '3.00', status: PaymentItemStatus.final_price)],
-                    type: GooglePayButtonType.buy,
-                    margin: const EdgeInsets.only(top: 15.0),
-                    onPaymentResult: (result) {
-                      setState(() => _isPremium = true);
-                      Navigator.pop(context);
-                    },
-                    loadingIndicator: const Center(child: CircularProgressIndicator()),
-                  );
-                }
-                return const Center(child: CircularProgressIndicator());
-              },
-            )
-          else
-            SizedBox(
-              width: double.infinity,
-              height: 64,
-              child: ElevatedButton(
-                onPressed: () { setState(() => _isPremium = true); Navigator.pop(context); },
-                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.onSurface, foregroundColor: Theme.of(context).colorScheme.surface, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
-                child: const Text("BUY HAPPINESS - \$3/MONTH", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 14)),
+          SizedBox(
+            width: double.infinity,
+            height: 64,
+            child: ElevatedButton(
+              onPressed: _purchasePremium,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               ),
+              child: const Text("BUY HAPPINESS - \$3/MONTH", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 14)),
             ),
+          ),
           const SizedBox(height: 12),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("I'D RATHER BE MISERABLE", style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 1, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("I'D RATHER BE MISERABLE", style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
+              ),
+              const SizedBox(width: 16),
+              TextButton(
+                onPressed: _restorePurchases,
+                child: Text("RESTORE", style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6))),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
         ],
       ),
     );
+  }
+
+  Future<void> _purchasePremium() async {
+    try {
+      Offerings offerings = await Purchases.getOfferings();
+      if (offerings.current != null && offerings.current!.availablePackages.isNotEmpty) {
+        CustomerInfo customerInfo = await Purchases.purchasePackage(offerings.current!.availablePackages.first);
+        if (customerInfo.entitlements.active.isNotEmpty) {
+          if (mounted) {
+            setState(() => _isPremium = true);
+            Navigator.pop(context);
+          }
+        }
+      } else {
+        // Fallback for demo purposes if no offerings are configured
+        if (mounted) {
+          setState(() => _isPremium = true);
+          Navigator.pop(context);
+        }
+      }
+    } catch (e) {
+      debugPrint("Purchase Error: $e");
+    }
+  }
+
+  Future<void> _restorePurchases() async {
+    try {
+      CustomerInfo customerInfo = await Purchases.restorePurchases();
+      if (customerInfo.entitlements.active.isNotEmpty) {
+        if (mounted) {
+          setState(() => _isPremium = true);
+          Navigator.pop(context);
+        }
+      }
+    } catch (e) {
+      debugPrint("Restore Error: $e");
+    }
   }
 
   Widget _buildPaywallFeature(IconData icon, String text) {
