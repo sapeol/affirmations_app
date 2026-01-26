@@ -36,7 +36,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _swipeCount = 0;
   int _undoCount = 0;
   final int _maxFreeSwipes = 5;
-  final int _maxFreeUndos = 5;
+  final int _maxFreeUndos = 10;
   bool _isActionInProgress = false;
   final CardSwiperController _swiperController = CardSwiperController();
   final List<Affirmation> _history = [];
@@ -180,6 +180,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const SizedBox(height: 48),
           _buildPaywallFeature(Icons.all_inclusive_rounded, "Endless Delusions"),
           _buildPaywallFeature(Icons.undo_rounded, "Unlimited Undos"),
+          _buildPaywallFeature(Icons.edit_note_rounded, "Custom Delusions"),
           _buildPaywallFeature(Icons.palette_outlined, "Slightly Different Pastels"),
           _buildPaywallFeature(Icons.history_rounded, "A List of Your Failures"),
           const Spacer(),
@@ -407,7 +408,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 const SizedBox(height: 32),
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   _buildActionCircle(
-                    icon: Icons.close_rounded,
+                    icon: Icons.undo_rounded,
                     color: Colors.redAccent,
                     onPressed: _undoSwipe,
                     isDisabled: _history.isEmpty || _isActionInProgress,
@@ -432,7 +433,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Padding(padding: const EdgeInsets.only(bottom: 40), child: _buildSoftButton(icon: Icons.ios_share_rounded, onPressed: _shareAsImage))
                   .animate().fadeIn(delay: 700.ms).slideY(begin: 0.3, end: 0),
               ]),
-          floatingActionButton: FloatingActionButton(heroTag: 'add', elevation: 0, highlightElevation: 0, backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), onPressed: () async { final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateAffirmationScreen())); if (result == true) _loadAffirmations(); }, child: const Icon(Icons.add_rounded, size: 20))
+          floatingActionButton: FloatingActionButton(
+            heroTag: 'add', 
+            elevation: 0, 
+            highlightElevation: 0, 
+            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), 
+            foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), 
+            onPressed: () async { 
+              if (!isPremium) {
+                _showPaywall();
+                return;
+              }
+              final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateAffirmationScreen())); 
+              if (result == true) _loadAffirmations(); 
+            }, 
+            child: const Icon(Icons.add_rounded, size: 20)
+          )
             .animate().scale(delay: 800.ms, curve: Curves.elasticOut),
         );
       },
