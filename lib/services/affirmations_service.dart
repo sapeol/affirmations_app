@@ -210,10 +210,6 @@ class AffirmationsService {
 
     // --- BURNT OUT (Iteration 1) ---
     Affirmation(
-      text: "Your battery is at 4%. Shut down before you crash.",
-      persona: DopePersona.burntOut,
-    ),
-    Affirmation(
       text: "Grinding until you break isn't a strategy, it's self-harm.",
       persona: DopePersona.burntOut,
     ),
@@ -759,10 +755,6 @@ class AffirmationsService {
     ),
 
     // --- BURNT OUT (Iteration 6) ---
-    Affirmation(
-      text: "You're not a battery. You can't just 'recharge' in 30 minutes.",
-      persona: DopePersona.burntOut,
-    ),
     Affirmation(
       text: "The pressure you feel is mostly imaginary. Let it pop.",
       persona: DopePersona.burntOut,
@@ -1322,10 +1314,6 @@ class AffirmationsService {
       persona: DopePersona.burntOut,
     ),
     Affirmation(
-      text: "Your battery is at 1%. Don't wait for the forced shutdown.",
-      persona: DopePersona.burntOut,
-    ),
-    Affirmation(
       text: "It's okay to be unproductive. You are a person, not a spreadsheet.",
       persona: DopePersona.burntOut,
     ),
@@ -1652,10 +1640,6 @@ class AffirmationsService {
       persona: DopePersona.burntOut,
     ),
     Affirmation(
-      text: "Your battery is at 1%. Don't wait for the forced shutdown. Log off now.",
-      persona: DopePersona.burntOut,
-    ),
-    Affirmation(
       text: "It's okay to be unproductive. You are a person, not a human-shaped spreadsheet.",
       persona: DopePersona.burntOut,
     ),
@@ -1860,10 +1844,6 @@ class AffirmationsService {
 
     // --- BURNT OUT (Iteration 16) ---
     Affirmation(
-      text: "You're not a battery. You don't just 'recharge'. You're an ecosystem. You need time to grow back.",
-      persona: DopePersona.burntOut,
-    ),
-    Affirmation(
       text: "The feeling of being 'behind' is a marketing tactic designed to keep you working. Ignore the ads.",
       persona: DopePersona.burntOut,
     ),
@@ -1978,7 +1958,7 @@ class AffirmationsService {
       persona: DopePersona.burntOut,
     ),
     Affirmation(
-      text: "Rest is not a luxury. It's a biological requirement. You're a human, not a battery.",
+      text: "Rest is not a biological requirement.",
       persona: DopePersona.burntOut,
     ),
     Affirmation(
@@ -2969,10 +2949,6 @@ class AffirmationsService {
     ),
     Affirmation(
       text: "The corporation will replace you in a heartbeat. Your family won't. Prioritize the people who actually matter.",
-      persona: DopePersona.burntOut,
-    ),
-    Affirmation(
-      text: "Your battery is at 1 percent. Don't wait for the forced shutdown. Log off now while you still can.",
       persona: DopePersona.burntOut,
     ),
     Affirmation(

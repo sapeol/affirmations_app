@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/affirmation.dart';
 import '../models/user_preferences.dart';
+import '../theme.dart';
 
 enum SwipeDirection { left, right, none }
 
@@ -19,18 +20,12 @@ class SwipeCard extends StatefulWidget {
     this.isEnabled = true,
   });
 
-  static List<Color> getGradientForAffirmation(String text) {
-    final List<List<Color>> pastelGradients = [
-      [const Color(0xFFFFE0E0), const Color(0xFFFFF5F5)],
-      [const Color(0xFFE0F0FF), const Color(0xFFF5FAFF)],
-      [const Color(0xFFE0FFE0), const Color(0xFFF5FFF5)],
-      [const Color(0xFFFFF4E0), const Color(0xFFFFFAF5)],
-      [const Color(0xFFF0E0FF), const Color(0xFFF9F5FF)],
-      [const Color(0xFFE0FFF9), const Color(0xFFF5FFFD)],
-    ];
+  static List<Color> getGradientForAffirmation(String text, AppColorTheme theme) {
+    final palette = AppTheme.palettes[theme] ?? AppTheme.palettes[AppColorTheme.brutalist]!;
+    final gradients = palette.cardGradients;
     // Deterministic selection based on text
-    final index = text.length % pastelGradients.length;
-    return pastelGradients[index];
+    final index = text.length % gradients.length;
+    return gradients[index];
   }
 
   @override
@@ -145,131 +140,137 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    final displayText = widget.affirmation.getText(widget.language);
-    final gradient = SwipeCard.getGradientForAffirmation(displayText);
-    
-    final thresholdX = MediaQuery.of(context).size.width * 0.35;
-    double feedbackOpacity = (_dragOffset.dx.abs() / thresholdX).clamp(0.0, 1.0);
-    Color feedbackColor = _dragOffset.dx > 0 ? Colors.greenAccent : Colors.redAccent;
-    IconData? feedbackIcon = _dragOffset.dx > 0 ? Icons.favorite_rounded : Icons.close_rounded;
+    return FutureBuilder<UserPreferences>(
+      future: UserPreferences.load(),
+      builder: (context, snapshot) {
+        final theme = snapshot.data?.colorTheme ?? AppColorTheme.brutalist;
+        final displayText = widget.affirmation.getText(widget.language);
+        final gradient = SwipeCard.getGradientForAffirmation(displayText, theme);
+        
+        final thresholdX = MediaQuery.of(context).size.width * 0.35;
+        double feedbackOpacity = (_dragOffset.dx.abs() / thresholdX).clamp(0.0, 1.0);
+        Color feedbackColor = _dragOffset.dx > 0 ? Colors.greenAccent : Colors.redAccent;
+        IconData? feedbackIcon = _dragOffset.dx > 0 ? Icons.favorite_rounded : Icons.close_rounded;
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        final offset = _controller.isAnimating ? _positionAnimation.value : _dragOffset;
-        final rotation = _controller.isAnimating ? _rotationAnimation.value : _dragRotation;
+        return AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            final offset = _controller.isAnimating ? _positionAnimation.value : _dragOffset;
+            final rotation = _controller.isAnimating ? _rotationAnimation.value : _dragRotation;
 
-        return Transform.translate(
-          offset: offset,
-          child: Transform(
-            transform: Matrix4.identity()
-              ..setEntry(3, 2, 0.001) // Perspective
-              ..rotateY(rotation * 0.5)
-              ..rotateZ(rotation),
-            alignment: Alignment.center,
-            child: child,
-          ),
-        );
-      },
-      child: IgnorePointer(
-        ignoring: !widget.isEnabled,
-        child: GestureDetector(
-          onPanUpdate: _onPanUpdate,
-          onPanEnd: _onPanEnd,
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.85,
-            height: MediaQuery.of(context).size.height * 0.55,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(40),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
-                  blurRadius: 30,
-                  offset: const Offset(0, 15),
+            return Transform.translate(
+              offset: offset,
+              child: Transform(
+                transform: Matrix4.identity()
+                  ..setEntry(3, 2, 0.001) // Perspective
+                  ..rotateY(rotation * 0.5)
+                  ..rotateZ(rotation),
+                alignment: Alignment.center,
+                child: child,
+              ),
+            );
+          },
+          child: IgnorePointer(
+            ignoring: !widget.isEnabled,
+            child: GestureDetector(
+              onPanUpdate: _onPanUpdate,
+              onPanEnd: _onPanEnd,
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.85,
+                height: MediaQuery.of(context).size.height * 0.55,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(40),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                      blurRadius: 30,
+                      offset: const Offset(0, 15),
+                    ),
+                    if (widget.isEnabled)
+                      BoxShadow(
+                        color: feedbackColor.withValues(alpha: feedbackOpacity * 0.1),
+                        blurRadius: 40,
+                        spreadRadius: 5,
+                      ),
+                  ],
                 ),
-                if (widget.isEnabled)
-                  BoxShadow(
-                    color: feedbackColor.withValues(alpha: feedbackOpacity * 0.1),
-                    blurRadius: 40,
-                    spreadRadius: 5,
-                  ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(40),
-              child: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: isDark 
-                          ? gradient.map((c) => Color.lerp(c, Colors.black, 0.6)!).toList()
-                          : gradient,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(40),
+                  child: Stack(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: isDark 
+                              ? gradient.map((c) => Color.lerp(c, Colors.black, 0.6)!).toList()
+                              : gradient,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(40.0),
-                    child: Column(
-                      children: [
-                        Icon(Icons.spa_rounded, color: isDark ? Colors.white10 : Colors.black26, size: 32),
-                        const Spacer(),
-                        Text(
-                          displayText,
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                height: 1.5,
-                                color: isDark ? Colors.white70 : Colors.black87,
+                      Padding(
+                        padding: const EdgeInsets.all(40.0),
+                        child: Column(
+                          children: [
+                            Icon(Icons.spa_rounded, color: isDark ? Colors.white10 : Colors.black26, size: 32),
+                            const Spacer(),
+                            Text(
+                              displayText,
+                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.5,
+                                    color: isDark ? Colors.white70 : Colors.black87,
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const Spacer(),
+                            if (widget.affirmation.persona != null)
+                              Text(
+                                "FROM ${widget.affirmation.persona!.name.toUpperCase()}",
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w900,
+                                  color: isDark ? Colors.white24 : Colors.black38,
+                                  letterSpacing: 2,
+                                ),
                               ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const Spacer(),
-                        if (widget.affirmation.persona != null)
-                          Text(
-                            "FROM ${widget.affirmation.persona!.name.toUpperCase()}",
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w900,
-                              color: isDark ? Colors.white24 : Colors.black38,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  if (widget.isEnabled)
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 100),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: feedbackColor.withValues(alpha: feedbackOpacity * 0.4),
-                              width: 8,
-                            ),
-                            borderRadius: BorderRadius.circular(40),
-                            color: feedbackColor.withValues(alpha: feedbackOpacity * 0.1),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              feedbackIcon,
-                              size: 100,
-                              color: Colors.white.withValues(alpha: feedbackOpacity * 0.5),
-                            ),
-                          ),
+                          ],
                         ),
                       ),
-                    ),
-                ],
+                      if (widget.isEnabled)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 100),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: feedbackColor.withValues(alpha: feedbackOpacity * 0.4),
+                                  width: 8,
+                                ),
+                                borderRadius: BorderRadius.circular(40),
+                                color: feedbackColor.withValues(alpha: feedbackOpacity * 0.1),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  feedbackIcon,
+                                  size: 100,
+                                  color: Colors.white.withValues(alpha: feedbackOpacity * 0.5),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

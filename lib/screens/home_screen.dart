@@ -283,8 +283,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final prefs = await UserPreferences.load();
     
+    // Match the actual width used in the app for consistent wrapping
+    final cardWidth = MediaQuery.of(context).size.width * 0.85;
+    final cardHeight = MediaQuery.of(context).size.height * 0.55;
+
     final image = await _screenshotController.captureFromWidget(
-      _buildShareCard(current, isDark, prefs.fontFamily),
+      _buildShareCard(current, isDark, prefs.fontFamily, cardWidth, cardHeight, prefs.colorTheme),
       delay: const Duration(milliseconds: 10),
     );
 
@@ -300,9 +304,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildShareCard(Affirmation aff, bool isDark, String fontFamily) {
+  Widget _buildShareCard(Affirmation aff, bool isDark, String fontFamily, double width, double height, AppColorTheme colorTheme) {
     final displayText = aff.getText(DopeLanguage.en);
-    var gradient = SwipeCard.getGradientForAffirmation(displayText);
+    var gradient = SwipeCard.getGradientForAffirmation(displayText, colorTheme);
     
     if (isDark) {
       gradient = gradient.map((c) => Color.lerp(c, Colors.black, 0.6)!).toList();
@@ -311,8 +315,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final baseStyle = GoogleFonts.getFont(fontFamily);
     
     return Container(
-      width: 400,
-      height: 600,
+      width: width,
+      height: height,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -323,20 +327,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(60.0),
+            padding: const EdgeInsets.all(40.0), // Match SwipeCard padding
             child: Column(
               children: [
                 Icon(
                   Icons.spa_rounded, 
-                  color: isDark ? Colors.white10 : Colors.black12, 
-                  size: 48
+                  color: isDark ? Colors.white10 : Colors.black26, 
+                  size: 32
                 ),
                 const Spacer(),
                 Text(
                   displayText,
                   style: baseStyle.copyWith(
-                    color: isDark ? Colors.white70 : Colors.black.withValues(alpha: 0.7),
-                    fontSize: 28,
+                    color: isDark ? Colors.white70 : Colors.black87,
+                    fontSize: 24, // headlineMedium is usually 24-28, let's match SwipeCard
                     fontWeight: FontWeight.w600,
                     height: 1.5,
                     decoration: TextDecoration.none,
@@ -348,10 +352,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   Text(
                     "FROM ${aff.persona!.name.toUpperCase()}",
                     style: baseStyle.copyWith(
-                      fontSize: 12,
+                      fontSize: 9,
                       fontWeight: FontWeight.w900,
-                      color: isDark ? Colors.white24 : Colors.black45,
-                      letterSpacing: 4,
+                      color: isDark ? Colors.white24 : Colors.black38,
+                      letterSpacing: 2,
                       decoration: TextDecoration.none,
                     ),
                   ),
@@ -361,7 +365,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   style: baseStyle.copyWith(
                     color: isDark ? Colors.white10 : Colors.black12, 
                     fontSize: 10, 
-                    letterSpacing: 12, 
+                    letterSpacing: 8, 
                     fontWeight: FontWeight.w300,
                     decoration: TextDecoration.none,
                   ),
