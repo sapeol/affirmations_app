@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
@@ -329,9 +330,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 }).toList())),
                 const SizedBox(height: 32),
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  _buildActionCircle(icon: Icons.close_rounded, color: Colors.redAccent, onPressed: (_history.isEmpty || _isActionInProgress) ? () {} : _undoSwipe),
+                  _buildActionCircle(
+                    icon: Icons.close_rounded,
+                    color: Colors.redAccent,
+                    onPressed: _undoSwipe,
+                    isDisabled: _history.isEmpty || _isActionInProgress,
+                  ),
                   const SizedBox(width: 40),
-                  _buildActionCircle(icon: Icons.favorite_rounded, color: Colors.greenAccent, onPressed: _isActionInProgress ? () {} : () => _cardKey.currentState?.triggerSwipe(SwipeDirection.right)),
+                  _buildActionCircle(
+                    icon: Icons.favorite_rounded,
+                    color: Colors.greenAccent,
+                    onPressed: () => _cardKey.currentState?.triggerSwipe(SwipeDirection.right),
+                    isDisabled: _isActionInProgress,
+                  ),
                 ]),
                 const SizedBox(height: 32),
                 if (!_isPremium) Padding(padding: const EdgeInsets.only(bottom: 24), child: Text("${_maxFreeSwipes - _swipeCount} MORE EXCUSES LEFT", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 2, fontSize: 14, fontWeight: FontWeight.w900))),
@@ -345,12 +356,101 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildActionCircle({required IconData icon, required Color color, required VoidCallback onPressed}) {
-    return Container(decoration: BoxDecoration(shape: BoxShape.circle, color: color.withValues(alpha: 0.1), border: Border.all(color: color.withValues(alpha: 0.2), width: 2)), child: IconButton(onPressed: onPressed, icon: Icon(icon, color: color), iconSize: 32, padding: const EdgeInsets.all(16)));
-  }
-
   Widget _buildSoftButton({required IconData icon, VoidCallback? onPressed}) {
     return IconButton(onPressed: onPressed, icon: Icon(icon), iconSize: 20, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: onPressed == null ? 0.1 : 0.4));
+  }
+
+  Widget _buildActionCircle({required IconData icon, required Color color, required VoidCallback onPressed, bool isDisabled = false}) {
+    return _AnimatedActionButton(
+      icon: icon,
+      color: color,
+      onPressed: onPressed,
+      isDisabled: isDisabled,
+    );
+  }
+}
+
+class _AnimatedActionButton extends StatefulWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback onPressed;
+  final bool isDisabled;
+
+  const _AnimatedActionButton({
+    required this.icon,
+    required this.color,
+    required this.onPressed,
+    this.isDisabled = false,
+  });
+
+  @override
+  State<_AnimatedActionButton> createState() => _AnimatedActionButtonState();
+}
+
+class _AnimatedActionButtonState extends State<_AnimatedActionButton> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+      lowerBound: 0.0,
+      upperBound: 0.1,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    if (widget.isDisabled) return;
+    HapticFeedback.lightImpact();
+    widget.onPressed();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => widget.isDisabled ? null : _controller.forward(),
+      onTapUp: (_) => widget.isDisabled ? null : _controller.reverse(),
+      onTapCancel: () => widget.isDisabled ? null : _controller.reverse(),
+      onTap: _handleTap,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: widget.color.withValues(alpha: widget.isDisabled ? 0.02 : 0.1),
+            border: Border.all(
+              color: widget.color.withValues(alpha: widget.isDisabled ? 0.05 : 0.2),
+              width: 2,
+            ),
+            boxShadow: widget.isDisabled ? [] : [
+              BoxShadow(
+                color: widget.color.withValues(alpha: 0.1),
+                blurRadius: 12,
+                spreadRadius: 0,
+              )
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Icon(
+              widget.icon,
+              color: widget.color.withValues(alpha: widget.isDisabled ? 0.2 : 1.0),
+              size: 32,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
