@@ -41,9 +41,10 @@ class AppTheme {
       textTheme: textTheme.apply(
         bodyColor: mainTextColor,
         displayColor: mainTextColor,
+        fontSizeFactor: 1.1, // Increase base font size by 10%
       ).copyWith(
-        labelSmall: textTheme.labelSmall?.copyWith(color: secondaryTextColor),
-        bodySmall: textTheme.bodySmall?.copyWith(color: secondaryTextColor),
+        labelSmall: textTheme.labelSmall?.copyWith(color: secondaryTextColor, fontSize: 11),
+        bodySmall: textTheme.bodySmall?.copyWith(color: secondaryTextColor, fontSize: 12),
       ),
       scaffoldBackgroundColor: isDark ? const Color(0xFF121216) : const Color(0xFFFDFDFF),
       appBarTheme: AppBarTheme(

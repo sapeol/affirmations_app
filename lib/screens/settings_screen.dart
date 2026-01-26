@@ -117,7 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildGroupHeader(String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(title, style: Theme.of(context).textTheme.labelSmall?.copyWith(
+      child: Text(title, style: Theme.of(context).textTheme.labelMedium?.copyWith(
         color: Theme.of(context).colorScheme.primary,
         fontWeight: FontWeight.w900,
         letterSpacing: 2,
@@ -128,8 +128,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildSettingTile({required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
     return ListTile(
       leading: Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text(subtitle.toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 12, letterSpacing: 1, fontWeight: FontWeight.w600)),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+      subtitle: Text(subtitle.toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 13, letterSpacing: 1, fontWeight: FontWeight.w600)),
       trailing: Icon(Icons.chevron_right, size: 20, color: Theme.of(context).colorScheme.outline),
       onTap: onTap,
     );

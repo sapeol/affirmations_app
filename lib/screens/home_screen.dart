@@ -465,11 +465,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Spacer(),
+                    const SizedBox(height: 24),
                     Expanded(
-                      flex: 10,
+                      flex: 12,
                       child: Stack(
                         alignment: Alignment.center,
+                        clipBehavior: Clip.none,
                         children: _affirmations
                             .take(3)
                             .toList()
@@ -484,7 +485,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           final isTop = reversedIndex == totalInStack - 1;
 
                           return Positioned(
-                            top: 60.0 - (reversedIndex * 12),
+                            top: 40.0 - (reversedIndex * 15),
                             child: AnimatedOpacity(
                               duration: const Duration(milliseconds: 400),
                               opacity: 1.0 - ((totalInStack - 1 - reversedIndex) * 0.3),
@@ -500,22 +501,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         }).toList(),
                       ),
                     ),
-                    const Spacer(),
+                    const SizedBox(height: 32),
                     if (!_isPremium)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 24),
                         child: Text(
                           "${_maxFreeSwipes - _swipeCount} MORE EXCUSES LEFT",
                           style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w400,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
                             color: isDark ? Colors.white38 : Colors.black45,
                             letterSpacing: 3,
                           ),
                         ),
                       ),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 60),
+                      padding: const EdgeInsets.only(bottom: 40),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
