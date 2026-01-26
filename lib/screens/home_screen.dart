@@ -225,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             child: Text(
               "I'D RATHER BE MISERABLE", 
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 1,
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
@@ -385,7 +385,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   Text(
                     "FROM ${aff.persona!.name.toUpperCase()}",
                     style: baseStyle.copyWith(
-                      fontSize: 9,
+                      fontSize: 14,
                       fontWeight: FontWeight.w900,
                       color: isDark ? Colors.white24 : Colors.black38,
                       letterSpacing: 2,
@@ -397,7 +397,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   "DELUSIONS",
                   style: baseStyle.copyWith(
                     color: isDark ? Colors.white10 : Colors.black12, 
-                    fontSize: 10, 
+                    fontSize: 14, 
                     letterSpacing: 8, 
                     fontWeight: FontWeight.w300,
                     decoration: TextDecoration.none,
@@ -482,7 +482,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             "REFETCH THE LIES",
                             style: TextStyle(
                               letterSpacing: 2,
-                              fontSize: 10,
+                              fontSize: 14,
                               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
@@ -552,7 +552,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           "${_maxFreeSwipes - _swipeCount} MORE EXCUSES LEFT",
                           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                             letterSpacing: 2,
-                            fontSize: 13, // Slightly larger for legibility
+                            fontSize: 14, // Minimum 14px
                             fontWeight: FontWeight.w900,
                           ),
                         ),

@@ -179,7 +179,7 @@ class SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMixi
                           Text(
                             "FROM ${widget.affirmation.persona!.name.toUpperCase()}",
                             style: TextStyle(
-                              fontSize: 9,
+                              fontSize: 14,
                               fontWeight: FontWeight.w900,
                               color: effectiveIsDark ? Colors.white24 : Colors.black38,
                               letterSpacing: 2,

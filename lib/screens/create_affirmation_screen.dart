@@ -103,7 +103,7 @@ class _CreateAffirmationScreenState extends State<CreateAffirmationScreen> {
               Text(
                 "PREVIEW",
                 style: TextStyle(
-                  fontSize: 10, 
+                  fontSize: 14, 
                   fontWeight: FontWeight.w900, 
                   letterSpacing: 4,
                   color: Theme.of(context).colorScheme.primary,

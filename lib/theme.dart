@@ -152,7 +152,7 @@ class AppTheme {
         labelSmall: textTheme.labelSmall?.copyWith(
           color: textColor.withValues(alpha: 0.7), 
           fontWeight: FontWeight.w900, 
-          fontSize: 12,
+          fontSize: 14,
           letterSpacing: 1.2,
         ),
       ),

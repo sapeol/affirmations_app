@@ -1,12 +1,11 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/user_preferences.dart';
 import '../models/affirmation.dart';
 import '../services/affirmations_service.dart';
 import 'streak_detail_screen.dart';
 import 'weekly_report_screen.dart';
+import 'affirmations_list_screen.dart';
 import '../locator.dart';
-import '../widgets/swipe_card.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -27,38 +26,61 @@ class ProfileScreen extends StatelessWidget {
 
               final prefs = prefSnapshot.data!;
               final affirmations = affSnapshot.data!;
-              final likedIds = prefs.likedAffirmations;
-
-              final likedAffs = likedIds.map((id) {
+              
+              // Separating Saved Perspectives (liked) and Personal Write-ups (custom)
+              final likedAffs = prefs.likedAffirmations.map((id) {
                 return affirmations.firstWhere(
                   (a) => a.getText(DopeLanguage.en) == id,
                   orElse: () => Affirmation(text: id, isCustom: true),
                 );
-              }).toList();
+              }).where((a) => !a.isCustom).toList();
 
-              return ListView(
-                padding: const EdgeInsets.all(24),
-                children: [
-                  _buildHeader(context, prefs),
-                  const SizedBox(height: 24),
-                  _buildReportTile(context),
-                  const SizedBox(height: 40),
-                  Text("SAVED PERSPECTIVES", style: _sectionStyle(context)),
-                  const SizedBox(height: 16),
-                  if (likedAffs.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 32.0),
-                      child: Center(
-                        child: Text(
-                          "NO SAVED DATA. START LIKING TO BUILD YOUR SYSTEM.",
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 10, letterSpacing: 1, fontWeight: FontWeight.w900),
-                          textAlign: TextAlign.center,
+              return FutureBuilder<List<Affirmation>>(
+                future: UserPreferences.getCustomAffirmations(),
+                builder: (context, customSnapshot) {
+                  final customAffs = customSnapshot.data ?? [];
+
+                  return ListView(
+                    padding: const EdgeInsets.all(24),
+                    children: [
+                      _buildHeader(context, prefs),
+                      const SizedBox(height: 24),
+                      _buildReportTile(context),
+                      const SizedBox(height: 24),
+                      _buildCategoryTile(
+                        context,
+                        "SAVED PERSPECTIVES",
+                        "Your library of lies you liked.",
+                        Icons.favorite_rounded,
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AffirmationsListScreen(
+                              title: "Saved Perspectives",
+                              affirmations: likedAffs,
+                            ),
+                          ),
                         ),
                       ),
-                    )
-                  else
-                    ...likedAffs.map((a) => _buildAffirmationTile(context, a)),
-                ],
+                      const SizedBox(height: 12),
+                      _buildCategoryTile(
+                        context,
+                        "PERSONAL WRITE-UPS",
+                        "Your own custom delusions.",
+                        Icons.edit_note_rounded,
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AffirmationsListScreen(
+                              title: "Personal Write-ups",
+                              affirmations: customAffs,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               );
             },
           );
@@ -67,106 +89,33 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  TextStyle _sectionStyle(BuildContext context) {
-    return Theme.of(context).textTheme.labelSmall!.copyWith(
-      letterSpacing: 2, 
-      fontWeight: FontWeight.w900, 
-      color: Theme.of(context).colorScheme.primary,
-    );
-  }
-
-  Widget _buildAffirmationTile(BuildContext context, Affirmation a) {
-    final displayText = a.getText(DopeLanguage.en);
-    
+  Widget _buildCategoryTile(BuildContext context, String title, String subtitle, IconData icon, VoidCallback onTap) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        onTap: () => _showAffirmationCard(context, a),
-        leading: Icon(
-          a.isCustom ? Icons.edit_note_rounded : Icons.spa_rounded,
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-        ),
+        onTap: onTap,
+        leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
         title: Text(
-          displayText, 
-          maxLines: 2, 
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 16, // Minimum 16px for body
-            color: Theme.of(context).colorScheme.onSurface,
-            fontWeight: FontWeight.w500,
-            height: 1.4,
-          ),
+          title,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
         ),
-        trailing: Icon(Icons.chevron_right_rounded, size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w500),
+        ),
+        trailing: const Icon(Icons.chevron_right_rounded, size: 16),
       ),
     );
   }
 
-  void _showAffirmationCard(BuildContext context, Affirmation a) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: 'Dismiss',
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      transitionDuration: const Duration(milliseconds: 400),
-      pageBuilder: (context, anim1, anim2) {
-        return BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-          child: FadeTransition(
-            opacity: anim1,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Hero(
-                  tag: 'aff-${a.getText(DopeLanguage.en)}',
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Stack(
-                      children: [
-                        SwipeCard(
-                          affirmation: a,
-                          language: DopeLanguage.en,
-                          onSwipe: (_) async => true,
-                          isEnabled: false,
-                        ),
-                        Positioned(
-                          top: 16,
-                          right: 16,
-                          child: IconButton(
-                            onPressed: () => Navigator.pop(context),
-                            icon: Icon(Icons.close_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildReportTile(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-      child: ListTile(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const WeeklyReportScreen()),
-        ),
-        leading: Icon(Icons.auto_awesome_mosaic_rounded, color: Theme.of(context).colorScheme.primary),
-        title: Text(
-          "WEEKLY REFLECTION",
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 2, color: Theme.of(context).colorScheme.onSurface),
-        ),
-        subtitle: Text(
-          "View your progress this week",
-          style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w500),
-        ),
-        trailing: Icon(Icons.chevron_right_rounded, size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
+    return _buildCategoryTile(
+      context,
+      "WEEKLY REFLECTION",
+      "View your progress this week",
+      Icons.auto_awesome_mosaic_rounded,
+      () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const WeeklyReportScreen()),
       ),
     );
   }
@@ -185,7 +134,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             _formatName(prefs.persona.name).toUpperCase(),
-            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 2, color: Theme.of(context).colorScheme.onSurface),
+            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 2),
           ),
           const SizedBox(height: 16),
           GestureDetector(
@@ -208,7 +157,7 @@ class ProfileScreen extends StatelessWidget {
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1,
-                      fontSize: 11,
+                      fontSize: 14,
                     ),
                   ),
                   const SizedBox(width: 8),

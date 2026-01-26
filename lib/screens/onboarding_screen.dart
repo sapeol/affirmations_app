@@ -86,7 +86,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           TextButton(
             onPressed: _finish,
-            child: Text("SKIP", style: TextStyle(color: Theme.of(context).colorScheme.outline, fontWeight: FontWeight.bold, fontSize: 12)),
+            child: Text("SKIP", style: TextStyle(color: Theme.of(context).colorScheme.outline, fontWeight: FontWeight.bold, fontSize: 14)),
           ),
         ],
       ),
@@ -129,7 +129,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             const SizedBox(height: 40),
             Text("USER PERSONA", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900)),
             const SizedBox(height: 12),
-            Text("HOW DOES YOUR BRAIN TYPICALLY OPERATE?", style: TextStyle(color: Theme.of(context).colorScheme.outline, fontSize: 12, letterSpacing: 1)),
+            Text("HOW DOES YOUR BRAIN TYPICALLY OPERATE?", style: TextStyle(color: Theme.of(context).colorScheme.outline, fontSize: 14, letterSpacing: 1)),
             const SizedBox(height: 40),
             _buildStableSelection(DopePersona.values, _selectedPersona, (v) => setState(() => _selectedPersona = v as DopePersona)),
             const SizedBox(height: 80), // Extra padding for scrolling
@@ -161,7 +161,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget _buildSelectionTitle(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
-      child: Text(text, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 2)),
+      child: Text(text, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2)),
     );
   }
 
@@ -187,7 +187,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: Text(
               _formatName(name).toUpperCase(),
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0.5,

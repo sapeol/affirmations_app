@@ -72,7 +72,7 @@ class StreakDetailScreen extends StatelessWidget {
             style: TextStyle(
               color: Theme.of(context).colorScheme.primary,
               letterSpacing: 2,
-              fontSize: 10,
+              fontSize: 14,
               fontWeight: FontWeight.w900,
             ),
           ),
@@ -91,7 +91,7 @@ class StreakDetailScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text("SYSTEM STATUS", style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
+          Text("SYSTEM STATUS", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
           const SizedBox(height: 12),
           Text(
             '"$message"',
@@ -130,15 +130,15 @@ class StreakDetailScreen extends StatelessWidget {
             "${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}",
             style: TextStyle(
               fontFamily: 'Courier', 
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
           trailing: Text(
-            isActive ? "ACTIVE" : "OFFLINE",
+            isActive ? "ACTIVE" : "VISITED",
             style: TextStyle(
-              fontSize: 10,
+              fontSize: 14,
               fontWeight: FontWeight.w900,
               color: isActive ? Colors.greenAccent : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
             ),
