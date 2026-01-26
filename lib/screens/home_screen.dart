@@ -356,37 +356,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                         onPressed: _shareAsImage,
                                         icon: Icon(Icons.share_rounded, color: Theme.of(context).colorScheme.outline),
                                       ),
-                                      const SizedBox(width: 16),
-                                      TextButton(
-                                        onPressed: () async {
-                                          final prefs = await UserPreferences.load();
-                                          final rebuttal = await AffirmationsService.getRebuttal(prefs.tone);
-                                          if (context.mounted) {
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) => AlertDialog(
-                                                title: const Text("SYSTEM REBUTTAL"),
-                                                content: Text(rebuttal),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.pop(context),
-                                                    child: const Text("WHATEVER"),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                            _refreshAffirmation();
-                                          }
-                                        },
-                                        child: Text(
-                                          "NAH",
-                                          style: TextStyle(
-                                            color: Theme.of(context).colorScheme.outline,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
                                     ],
                                   ),
                                   const SizedBox(height: 32),
@@ -396,33 +365,43 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                                       side: BorderSide(color: Colors.redAccent.withValues(alpha: 0.5)),
                                     ),
-                                    onPressed: () {
-                                      final msgs = [
-                                        "Cool. This isn’t one. It’s just a reminder you’re not trash.",
-                                        "You don’t have to believe this. Just don’t spiral.",
-                                        "Skepticism noted. You're still doing fine.",
-                                        "Hate away. The system doesn't mind.",
-                                        "It's just text on a screen. Breathe.",
-                                      ];
-                                      final msg = msgs[DateTime.now().second % msgs.length];
+                                    onPressed: () async {
+                                      String msg;
+                                      final useSystemRebuttal = DateTime.now().millisecond % 2 == 0;
                                       
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) => AlertDialog(
-                                          backgroundColor: const Color(0xFF1A0505),
-                                          title: const Text("RECEIVED", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
-                                          content: Text(msg, style: const TextStyle(color: Colors.white70)),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.pop(context),
-                                              child: const Text("FINE"),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                      _refreshAffirmation();
+                                      if (useSystemRebuttal) {
+                                        final prefs = await UserPreferences.load();
+                                        msg = await AffirmationsService.getRebuttal(prefs.tone);
+                                      } else {
+                                        final msgs = [
+                                          "Cool. This isn’t one. It’s just a reminder you’re not trash.",
+                                          "You don’t have to believe this. Just don’t spiral.",
+                                          "Skepticism noted. You're still doing fine.",
+                                          "Hate away. The system doesn't mind.",
+                                          "It's just text on a screen. Breathe.",
+                                        ];
+                                        msg = msgs[DateTime.now().second % msgs.length];
+                                      }
+                                      
+                                      if (context.mounted) {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            backgroundColor: const Color(0xFF1A0505),
+                                            title: const Text("RECEIVED", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                                            content: Text(msg, style: const TextStyle(color: Colors.white70)),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(context),
+                                                child: const Text("FINE"),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                        _refreshAffirmation();
+                                      }
                                     },
-                                    child: const Text("I HATE AFFIRMATIONS", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
+                                    child: const Text("I DON'T THINK SO", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
                                   ),
                                 ],
                               ),
