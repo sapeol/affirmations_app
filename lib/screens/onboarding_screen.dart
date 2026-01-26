@@ -27,8 +27,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       colorTheme: _selectedTheme,
       notificationsEnabled: false,
       firstRunDate: DateTime.now().toIso8601String(),
-      seenAffirmations: const [],
-      seenRebuttals: const [],
     ));
     if (mounted) {
       Navigator.of(context).pushReplacement(

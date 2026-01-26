@@ -32,10 +32,7 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
       notificationMinute: prefs.notificationMinute,
       sanityStreak: prefs.sanityStreak,
       lastInteractionDate: prefs.lastInteractionDate,
-      realityCheckHistory: prefs.realityCheckHistory,
       firstRunDate: prefs.firstRunDate,
-      seenAffirmations: prefs.seenAffirmations,
-      seenRebuttals: prefs.seenRebuttals,
     ));
     if (mounted) Navigator.pop(context, true);
   }

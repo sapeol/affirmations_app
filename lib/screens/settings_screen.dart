@@ -242,10 +242,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       notificationMinute: notificationMinute ?? p.notificationMinute,
       sanityStreak: p.sanityStreak,
       lastInteractionDate: p.lastInteractionDate,
-      realityCheckHistory: p.realityCheckHistory,
       firstRunDate: p.firstRunDate,
-      seenAffirmations: p.seenAffirmations,
-      seenRebuttals: p.seenRebuttals,
     );
   }
 }

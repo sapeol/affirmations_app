@@ -57,7 +57,6 @@ class StreakService {
   static UserPreferences _copyPrefsWith(UserPreferences p, {
     int? sanityStreak,
     String? lastInteractionDate,
-    String? realityCheckHistory,
   }) {
     return UserPreferences(
       persona: p.persona,
@@ -75,10 +74,7 @@ class StreakService {
       notificationMinute: p.notificationMinute,
       sanityStreak: sanityStreak ?? p.sanityStreak,
       lastInteractionDate: lastInteractionDate ?? p.lastInteractionDate,
-      realityCheckHistory: realityCheckHistory ?? p.realityCheckHistory,
       firstRunDate: p.firstRunDate,
-      seenAffirmations: p.seenAffirmations,
-      seenRebuttals: p.seenRebuttals,
     );
   }
 }

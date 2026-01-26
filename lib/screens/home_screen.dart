@@ -114,10 +114,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       notificationMinute: prefs.notificationMinute,
       sanityStreak: prefs.sanityStreak,
       lastInteractionDate: prefs.lastInteractionDate,
-      realityCheckHistory: prefs.realityCheckHistory,
       firstRunDate: prefs.firstRunDate,
-      seenAffirmations: prefs.seenAffirmations,
-      seenRebuttals: prefs.seenRebuttals,
     ));
   }
 
@@ -199,10 +196,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 notificationMinute: prefs.notificationMinute,
                 sanityStreak: prefs.sanityStreak,
                 lastInteractionDate: prefs.lastInteractionDate,
-                realityCheckHistory: prefs.realityCheckHistory,
                 firstRunDate: prefs.firstRunDate,
-                seenAffirmations: prefs.seenAffirmations,
-                seenRebuttals: prefs.seenRebuttals,
               ));
               if (!context.mounted) return;
               Navigator.pop(context);

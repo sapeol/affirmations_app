@@ -1,6 +1,7 @@
 import 'dart:math';
 import '../models/affirmation.dart';
 import '../models/user_preferences.dart';
+import 'database_service.dart';
 
 class AffirmationsService {
   static final List<Affirmation> _library = [
@@ -209,17 +210,13 @@ class AffirmationsService {
   }
 
   static Future<void> markAffirmationAsSeen(String text) async {
-    final prefs = await UserPreferences.load();
-    if (!prefs.seenAffirmations.contains(text)) {
-      final updatedSeen = [...prefs.seenAffirmations, text];
-      await UserPreferences.save(_copyPrefs(prefs, seenAffirmations: updatedSeen));
-    }
+    await DatabaseService().markSeen(text, 'affirmation');
   }
 
   static Future<Affirmation> getDailyAffirmation() async {
     final all = await getAllAffirmations();
     final prefs = await UserPreferences.load();
-    final seen = prefs.seenAffirmations;
+    final seen = await DatabaseService().getSeenContent('affirmation');
     final liked = prefs.likedAffirmations;
 
     // Daily logic: Prioritize unseen. If no unseen, fallback to liked.
@@ -238,7 +235,7 @@ class AffirmationsService {
   static Future<Affirmation> getRandomAffirmation({String? excludeText}) async {
     final all = await getAllAffirmations();
     final prefs = await UserPreferences.load();
-    final seen = prefs.seenAffirmations;
+    final seen = await DatabaseService().getSeenContent('affirmation');
     final liked = prefs.likedAffirmations;
 
     // Filter pools
@@ -304,8 +301,7 @@ class AffirmationsService {
   }
 
   static Future<String> getRebuttal(DopeTone tone) async {
-    final prefs = await UserPreferences.load();
-    final seen = prefs.seenRebuttals;
+    final seen = await DatabaseService().getSeenContent('rebuttal');
 
     final rebuttals = {
       DopeTone.chill: [
@@ -387,33 +383,8 @@ class AffirmationsService {
     final selected = available[Random().nextInt(available.length)];
     
     // Mark as seen
-    final updatedSeen = [...prefs.seenRebuttals, selected];
-    await UserPreferences.save(_copyPrefs(prefs, seenRebuttals: updatedSeen));
+    await DatabaseService().markSeen(selected, 'rebuttal');
 
     return selected;
-  }
-
-  static UserPreferences _copyPrefs(UserPreferences p, {List<String>? seenAffirmations, List<String>? seenRebuttals}) {
-    return UserPreferences(
-      persona: p.persona,
-      tone: p.tone,
-      themeMode: p.themeMode,
-      fontFamily: p.fontFamily,
-      colorTheme: p.colorTheme,
-      language: p.language,
-      systemLoad: p.systemLoad,
-      batteryLevel: p.batteryLevel,
-      bandwidth: p.bandwidth,
-      likedAffirmations: p.likedAffirmations,
-      notificationsEnabled: p.notificationsEnabled,
-      notificationHour: p.notificationHour,
-      notificationMinute: p.notificationMinute,
-      sanityStreak: p.sanityStreak,
-      lastInteractionDate: p.lastInteractionDate,
-      realityCheckHistory: p.realityCheckHistory,
-      firstRunDate: p.firstRunDate,
-      seenAffirmations: seenAffirmations ?? p.seenAffirmations,
-      seenRebuttals: seenRebuttals ?? p.seenRebuttals,
-    );
   }
 }

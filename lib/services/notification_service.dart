@@ -4,6 +4,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'affirmations_service.dart';
 import '../models/user_preferences.dart';
 import 'streak_service.dart';
+import 'database_service.dart';
 import 'dart:convert';
 
 
@@ -30,17 +31,18 @@ class NotificationService {
   static void _onNotificationResponse(NotificationResponse response) async {
     if (response.actionId != null) {
       // Record reality check response
-      final prefs = await UserPreferences.load();
-      List history = jsonDecode(prefs.realityCheckHistory);
-      history.add({
-        'timestamp': DateTime.now().toIso8601String(),
-        'action': response.actionId,
-        'payload': response.payload,
-      });
+      await DatabaseService().logHistory(
+        'reality_check', 
+        jsonEncode({
+          'action': response.actionId,
+          'payload': response.payload,
+        })
+      );
       
       // Also update streak on interaction
       await StreakService.updateStreak();
 
+      final prefs = await UserPreferences.load();
       final updatedPrefs = UserPreferences(
         persona: prefs.persona,
         tone: prefs.tone,
@@ -55,12 +57,9 @@ class NotificationService {
         notificationsEnabled: prefs.notificationsEnabled,
         notificationHour: prefs.notificationHour,
         notificationMinute: prefs.notificationMinute,
-        sanityStreak: prefs.sanityStreak, // Will be updated by load if needed, but let's be safe
+        sanityStreak: prefs.sanityStreak,
         lastInteractionDate: prefs.lastInteractionDate,
-        realityCheckHistory: jsonEncode(history),
         firstRunDate: prefs.firstRunDate,
-        seenAffirmations: prefs.seenAffirmations,
-        seenRebuttals: prefs.seenRebuttals,
       );
       await UserPreferences.save(updatedPrefs);
     }
