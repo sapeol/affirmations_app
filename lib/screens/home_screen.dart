@@ -9,7 +9,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 import 'dart:io';
 import 'dart:math';
 import '../services/affirmations_service.dart';
@@ -381,67 +380,101 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 .animate().fadeIn(delay: 400.ms),
             ],
           ),
-          body: Skeletonizer(
-            enabled: _isLoading,
-            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const SizedBox(height: 24),
-              Expanded(
-                flex: 12, 
-                child: (_affirmations.isEmpty && !_isLoading)
-                  ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.wb_sunny_outlined, size: 48, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)), const SizedBox(height: 24), Text("The well is dry. Just like your soul.", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w300, fontStyle: FontStyle.italic)), const SizedBox(height: 48), TextButton(onPressed: _loadAffirmations, child: Text("REFETCH THE LIES", style: TextStyle(letterSpacing: 2, fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5))))]))
-                  : CardSwiper(
-                      controller: _swiperController,
-                      cardsCount: _isLoading ? 1 : _affirmations.length,
-                      onSwipe: _onSwipeAction,
-                      numberOfCardsDisplayed: _isLoading ? 1 : min(_affirmations.length, 2),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-                      cardBuilder: (context, index, horizontalThresholdPercentage, verticalThresholdPercentage) {
-                        final aff = _isLoading 
-                          ? Affirmation.create(text: "Loading your delusions...") 
-                          : _affirmations[index];
-                        return SwipeCard(
-                          affirmation: aff,
-                          language: lang,
-                          onSwipe: (dir) async => true,
-                          isEnabled: !_isLoading,
-                        );
-                      },
-                    ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.1, end: 0),
-              ),
-              const SizedBox(height: 32),
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                _buildActionCircle(
-                  icon: Icons.close_rounded,
-                  color: Colors.redAccent,
-                  onPressed: _undoSwipe,
-                  isDisabled: _history.isEmpty || _isActionInProgress,
+          body: _isLoading 
+            ? _buildMinimalLoader()
+            : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                const SizedBox(height: 24),
+                Expanded(
+                  flex: 12, 
+                  child: (_affirmations.isEmpty && !_isLoading)
+                    ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.wb_sunny_outlined, size: 48, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)), const SizedBox(height: 24), Text("The well is dry. Just like your soul.", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w300, fontStyle: FontStyle.italic)), const SizedBox(height: 48), TextButton(onPressed: _loadAffirmations, child: Text("REFETCH THE LIES", style: TextStyle(letterSpacing: 2, fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5))))]))
+                    : CardSwiper(
+                        controller: _swiperController,
+                        cardsCount: _affirmations.length,
+                        onSwipe: _onSwipeAction,
+                        numberOfCardsDisplayed: min(_affirmations.length, 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+                        cardBuilder: (context, index, horizontalThresholdPercentage, verticalThresholdPercentage) {
+                          return SwipeCard(
+                            affirmation: _affirmations[index],
+                            language: lang,
+                            onSwipe: (dir) async => true,
+                            isEnabled: true,
+                          );
+                        },
+                      ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.1, end: 0),
                 ),
-                const SizedBox(width: 40),
-                _buildActionCircle(
-                  icon: Icons.favorite_rounded,
-                  color: Colors.greenAccent,
-                  onPressed: () {
-                    if (!isPremium && _swipeCount >= _maxFreeSwipes) {
-                      _showPaywall();
-                    } else {
-                      _swiperController.swipe(CardSwiperDirection.right);
-                    }
-                  },
-                  isDisabled: _isActionInProgress,
-                ),
-              ]).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutCubic),
-              const SizedBox(height: 32),
-              if (!isPremium) Padding(padding: const EdgeInsets.only(bottom: 24), child: Text("${_maxFreeSwipes - _swipeCount} MORE EXCUSES LEFT", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 2, fontSize: 14, fontWeight: FontWeight.w900)))
-                .animate().fadeIn(delay: 600.ms),
-              Padding(padding: const EdgeInsets.only(bottom: 40), child: _buildSoftButton(icon: Icons.ios_share_rounded, onPressed: _shareAsImage))
-                .animate().fadeIn(delay: 700.ms).slideY(begin: 0.3, end: 0),
-            ]),
-          ),
+                const SizedBox(height: 32),
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  _buildActionCircle(
+                    icon: Icons.close_rounded,
+                    color: Colors.redAccent,
+                    onPressed: _undoSwipe,
+                    isDisabled: _history.isEmpty || _isActionInProgress,
+                  ),
+                  const SizedBox(width: 40),
+                  _buildActionCircle(
+                    icon: Icons.favorite_rounded,
+                    color: Colors.greenAccent,
+                    onPressed: () {
+                      if (!isPremium && _swipeCount >= _maxFreeSwipes) {
+                        _showPaywall();
+                      } else {
+                        _swiperController.swipe(CardSwiperDirection.right);
+                      }
+                    },
+                    isDisabled: _isActionInProgress,
+                  ),
+                ]).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutCubic),
+                const SizedBox(height: 32),
+                if (!isPremium) Padding(padding: const EdgeInsets.only(bottom: 24), child: Text("${_maxFreeSwipes - _swipeCount} MORE EXCUSES LEFT", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 2, fontSize: 14, fontWeight: FontWeight.w900)))
+                  .animate().fadeIn(delay: 600.ms),
+                Padding(padding: const EdgeInsets.only(bottom: 40), child: _buildSoftButton(icon: Icons.ios_share_rounded, onPressed: _shareAsImage))
+                  .animate().fadeIn(delay: 700.ms).slideY(begin: 0.3, end: 0),
+              ]),
           floatingActionButton: FloatingActionButton(heroTag: 'add', elevation: 0, highlightElevation: 0, backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), onPressed: () async { final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateAffirmationScreen())); if (result == true) _loadAffirmations(); }, child: const Icon(Icons.add_rounded, size: 20))
             .animate().scale(delay: 800.ms, curve: Curves.elasticOut),
         );
       },
     );
+  }
+
+  Widget _buildMinimalLoader() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+            ),
+            child: Icon(
+              Icons.blur_on_rounded,
+              size: 48,
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
+            ),
+          )
+          .animate(onPlay: (controller) => controller.repeat())
+          .scale(begin: const Offset(0.9, 0.9), end: const Offset(1.1, 1.1), duration: 1000.ms, curve: Curves.easeInOutQuad)
+          .then()
+          .scale(begin: const Offset(1.1, 1.1), end: const Offset(0.9, 0.9), duration: 1000.ms, curve: Curves.easeInOutQuad),
+          const SizedBox(height: 48),
+          Text(
+            "CALIBRATING SYSTEM",
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 6,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+            ),
+          )
+          .animate(onPlay: (controller) => controller.repeat())
+          .shimmer(duration: 2000.ms, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4)),
+        ],
+      ),
+    ).animate().fadeIn();
   }
 
   Widget _buildSoftButton({required IconData icon, VoidCallback? onPressed}) {
