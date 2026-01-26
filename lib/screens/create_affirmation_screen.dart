@@ -31,8 +31,6 @@ class _CreateAffirmationScreenState extends State<CreateAffirmationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    
     return Scaffold(
       appBar: AppBar(
         title: const Text("CREATE DELUSION"),
@@ -65,14 +63,14 @@ class _CreateAffirmationScreenState extends State<CreateAffirmationScreen> {
               "What lie do you need to tell yourself today?",
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w300,
-                color: isDark ? Colors.white70 : Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
             Text(
               "Write an excuse that resonates with your current spiral.",
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: isDark ? Colors.white38 : Colors.black45,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -85,17 +83,17 @@ class _CreateAffirmationScreenState extends State<CreateAffirmationScreen> {
               style: TextStyle(
                 fontSize: 18, 
                 fontWeight: FontWeight.w400,
-                color: isDark ? Colors.white : Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               decoration: InputDecoration(
                 hintText: "I am probably going to be fine...",
-                hintStyle: TextStyle(color: isDark ? Colors.white10 : Colors.black12),
+                hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.black.withValues(alpha: 0.03),
+                fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
                 contentPadding: const EdgeInsets.all(32),
               ),
               onChanged: (_) => setState(() {}),
@@ -113,10 +111,10 @@ class _CreateAffirmationScreenState extends State<CreateAffirmationScreen> {
               ),
               const SizedBox(height: 16),
               Card(
-                color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.white,
+                color: Theme.of(context).cardTheme.color,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(32),
-                  side: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+                  side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(40.0),
@@ -127,7 +125,7 @@ class _CreateAffirmationScreenState extends State<CreateAffirmationScreen> {
                         height: 1.5,
                         fontWeight: FontWeight.w400,
                         fontStyle: FontStyle.italic,
-                        color: isDark ? Colors.white70 : Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                       textAlign: TextAlign.center,
                     ),

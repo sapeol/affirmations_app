@@ -102,7 +102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildGroupHeader("DAILY PING"),
               SwitchListTile(
                 secondary: Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary),
-                title: Text("Enable Pings", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                title: Text("Enable Pings", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
                 activeThumbColor: Theme.of(context).colorScheme.primary,
                 value: prefs.notificationsEnabled,
                 onChanged: (val) => _updatePreference(_copy(prefs, notificationsEnabled: val)),
@@ -127,10 +127,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildSettingTile({required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
     return ListTile(
-      leading: Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-      subtitle: Text(subtitle.toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 13, letterSpacing: 1, fontWeight: FontWeight.w600)),
-      trailing: Icon(Icons.chevron_right, size: 20, color: Theme.of(context).colorScheme.outline),
+      leading: Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+      title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface)),
+      subtitle: Text(subtitle.toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 13, letterSpacing: 1, fontWeight: FontWeight.w900)),
+      trailing: Icon(Icons.chevron_right, size: 20, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
       onTap: onTap,
     );
   }
@@ -150,7 +150,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 32),
-              child: Text(title.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2)),
+              child: Text(title.toUpperCase(), style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, color: Theme.of(context).colorScheme.onSurface)),
             ),
             Expanded(
               child: ListView.builder(
@@ -158,9 +158,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 itemCount: options.length,
                 itemBuilder: (context, index) {
                   final opt = options[index];
+                  final isSelected = current == opt;
                   return ListTile(
-                    title: Text(_formatEnum(opt).toUpperCase(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-                    trailing: current == opt ? Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary) : null,
+                    title: Text(_formatEnum(opt).toUpperCase(), style: TextStyle(fontSize: 14, fontWeight: isSelected ? FontWeight.w900 : FontWeight.w500, color: Theme.of(context).colorScheme.onSurface)),
+                    trailing: isSelected ? Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary) : null,
                     onTap: () {
                       onSelected(opt);
                       Navigator.pop(context);
@@ -185,9 +186,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         height: MediaQuery.of(context).size.height * 0.7,
         child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.all(32.0),
-              child: Text("TYPOGRAPHY", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2)),
+            Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Text("TYPOGRAPHY", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, color: Theme.of(context).colorScheme.onSurface)),
             ),
             Expanded(
               child: ListView(
@@ -196,10 +197,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                      child: Text(entry.key.toUpperCase(), style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900)),
+                      child: Text(entry.key.toUpperCase(), style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.primary)),
                     ),
                     ...entry.value.map((font) => ListTile(
-                      title: Text(font, style: TextStyle(fontFamily: font, fontWeight: FontWeight.w500)),
+                      title: Text(font, style: TextStyle(fontFamily: font, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface)),
                       trailing: prefs.fontFamily == font ? Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary) : null,
                       onTap: () {
                         _updatePreference(_copy(prefs, fontFamily: font));

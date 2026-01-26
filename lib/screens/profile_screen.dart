@@ -50,7 +50,7 @@ class ProfileScreen extends StatelessWidget {
                       child: Center(
                         child: Text(
                           "NO SAVED DATA. START LIKING TO BUILD YOUR SYSTEM.",
-                          style: TextStyle(color: Theme.of(context).colorScheme.outline, fontSize: 10, letterSpacing: 1, fontWeight: FontWeight.w600),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 10, letterSpacing: 1, fontWeight: FontWeight.w900),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -76,16 +76,14 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildAffirmationTile(BuildContext context, Affirmation a) {
     final displayText = a.getText(DopeLanguage.en);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: Theme.of(context).cardTheme.color,
       child: ListTile(
         onTap: () => _showAffirmationCard(context, a),
         leading: Icon(
           a.isCustom ? Icons.edit_note_rounded : Icons.spa_rounded,
-          color: isDark ? Colors.white24 : Colors.black26,
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
         ),
         title: Text(
           displayText, 
@@ -93,11 +91,11 @@ class ProfileScreen extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 14, 
-            color: isDark ? Colors.white70 : Colors.black87,
-            fontWeight: FontWeight.w500,
+            color: Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        trailing: Icon(Icons.chevron_right_rounded, size: 16, color: Theme.of(context).colorScheme.outline),
+        trailing: Icon(Icons.chevron_right_rounded, size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
       ),
     );
   }
@@ -125,7 +123,7 @@ class ProfileScreen extends StatelessWidget {
                     right: 16,
                     child: IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close_rounded, color: Colors.black38),
+                      icon: Icon(Icons.close_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
                     ),
                   ),
                 ],
@@ -138,36 +136,34 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildReportTile(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Card(
-      color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.05),
+      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
       child: ListTile(
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const WeeklyReportScreen()),
         ),
-        leading: Icon(Icons.auto_awesome_mosaic_rounded, color: isDark ? Colors.white24 : Colors.black38),
+        leading: Icon(Icons.auto_awesome_mosaic_rounded, color: Theme.of(context).colorScheme.primary),
         title: Text(
           "WEEKLY REFLECTION",
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 2, color: isDark ? Colors.white70 : Colors.black87),
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 2, color: Theme.of(context).colorScheme.onSurface),
         ),
         subtitle: Text(
           "View your progress this week",
-          style: TextStyle(fontSize: 10, color: isDark ? Colors.white38 : Colors.black54, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w500),
         ),
-        trailing: Icon(Icons.chevron_right_rounded, size: 16, color: Theme.of(context).colorScheme.outline),
+        trailing: Icon(Icons.chevron_right_rounded, size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
       ),
     );
   }
 
   Widget _buildHeader(BuildContext context, UserPreferences prefs) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.black.withValues(alpha: 0.03),
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
@@ -175,7 +171,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             _formatName(prefs.persona.name).toUpperCase(),
-            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 2, color: isDark ? Colors.white70 : Colors.black87),
+            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 2, color: Theme.of(context).colorScheme.onSurface),
           ),
           const SizedBox(height: 16),
           GestureDetector(

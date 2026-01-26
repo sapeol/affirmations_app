@@ -152,11 +152,12 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
         Color feedbackColor = _dragOffset.dx > 0 ? Colors.greenAccent : Colors.redAccent;
         IconData? feedbackIcon = _dragOffset.dx > 0 ? Icons.favorite_rounded : Icons.close_rounded;
 
-            final isSystemDark = Theme.of(context).brightness == Brightness.dark;
-            final palette = AppTheme.palettes[theme] ?? AppTheme.palettes[AppColorTheme.brutalist]!;
-            final bool effectiveIsDark = palette.isAlwaysDark || isSystemDark;
+        final isSystemDark = Theme.of(context).brightness == Brightness.dark;
+        final palette = AppTheme.palettes[theme] ?? AppTheme.palettes[AppColorTheme.brutalist]!;
+        final bool effectiveIsDark = palette.isAlwaysDark || isSystemDark;
         
-            return AnimatedBuilder(          animation: _controller,
+        return AnimatedBuilder(
+          animation: _controller,
           builder: (context, child) {
             final offset = _controller.isAnimating ? _positionAnimation.value : _dragOffset;
             final rotation = _controller.isAnimating ? _rotationAnimation.value : _dragRotation;
@@ -183,12 +184,13 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
                 height: MediaQuery.of(context).size.height * 0.55,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(40),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: effectiveIsDark ? 0.4 : 0.05),
-                                  blurRadius: 30,
-                                  offset: const Offset(0, 15),
-                                ),                    if (widget.isEnabled)
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: effectiveIsDark ? 0.4 : 0.05),
+                      blurRadius: 30,
+                      offset: const Offset(0, 15),
+                    ),
+                    if (widget.isEnabled)
                       BoxShadow(
                         color: feedbackColor.withValues(alpha: feedbackOpacity * 0.1),
                         blurRadius: 40,
@@ -200,46 +202,52 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
                   borderRadius: BorderRadius.circular(40),
                   child: Stack(
                     children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                              colors: effectiveIsDark 
-                                                ? gradient.map((c) => Color.lerp(c, Colors.black, 0.7)!).toList()
-                                                : gradient,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(40.0),
-                                          child: Column(
-                                            children: [
-                                              Icon(Icons.spa_rounded, color: effectiveIsDark ? Colors.white10 : Colors.black26, size: 32),
-                                              const Spacer(),
-                                              Text(
-                                                displayText,
-                                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                                      fontWeight: FontWeight.w600,
-                                                      height: 1.5,
-                                                      color: effectiveIsDark ? Colors.white70 : Colors.black87,
-                                                    ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              const Spacer(),
-                                              if (widget.affirmation.persona != null)
-                                                Text(
-                                                  "FROM ${widget.affirmation.persona!.name.toUpperCase()}",
-                                                  style: TextStyle(
-                                                    fontSize: 9,
-                                                    fontWeight: FontWeight.w900,
-                                                    color: effectiveIsDark ? Colors.white24 : Colors.black38,
-                                                    letterSpacing: 2,
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),                      if (widget.isEnabled)
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: effectiveIsDark 
+                              ? gradient.map((c) => Color.lerp(c, Colors.black, 0.7)!).toList()
+                              : gradient,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(40.0),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.spa_rounded, 
+                              color: effectiveIsDark ? Colors.white10 : Colors.black26, 
+                              size: 32
+                            ),
+                            const Spacer(),
+                            Text(
+                              displayText,
+                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.5,
+                                    // FORCE high contrast text color based on effectiveIsDark
+                                    color: effectiveIsDark ? Colors.white : Colors.black,
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const Spacer(),
+                            if (widget.affirmation.persona != null)
+                              Text(
+                                "FROM ${widget.affirmation.persona!.name.toUpperCase()}",
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w900,
+                                  color: effectiveIsDark ? Colors.white24 : Colors.black38,
+                                  letterSpacing: 2,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      if (widget.isEnabled)
                         Positioned.fill(
                           child: IgnorePointer(
                             child: AnimatedContainer(

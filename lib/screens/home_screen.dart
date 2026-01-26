@@ -112,11 +112,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildPaywall() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
         boxShadow: [
           BoxShadow(
@@ -133,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             width: 40, 
             height: 4, 
             decoration: BoxDecoration(
-              color: Theme.of(context).dividerTheme.color, 
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), 
               borderRadius: BorderRadius.circular(2)
             )
           ),
@@ -141,18 +140,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.pinkAccent.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.auto_awesome_rounded, color: Colors.pinkAccent, size: 48),
+            child: Icon(Icons.auto_awesome_rounded, color: Theme.of(context).colorScheme.primary, size: 48),
           ),
           const SizedBox(height: 32),
           Text(
             "PAY UP, OPTIMIST",
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w800, 
+              fontWeight: FontWeight.w900, 
               letterSpacing: 2,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 16),
@@ -161,8 +161,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               height: 1.6, 
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w500,
               fontSize: 15,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: 48),
@@ -179,14 +180,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: isDark ? Colors.white : Colors.black,
-                foregroundColor: isDark ? Colors.black : Colors.white,
+                backgroundColor: Theme.of(context).colorScheme.onSurface,
+                foregroundColor: Theme.of(context).colorScheme.surface,
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               ),
               child: const Text(
                 "BUY HAPPINESS - \$3/MONTH", 
-                style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1, fontSize: 14)
+                style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 14)
               ),
             ),
           ),
@@ -197,8 +198,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               "I'D RATHER BE MISERABLE", 
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w900,
                 letterSpacing: 1,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
               )
             ),
           ),
@@ -219,14 +221,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), size: 20),
+            child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
           ),
           const SizedBox(width: 20),
           Text(
             text, 
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15, 
-              fontWeight: FontWeight.w500, 
+              fontWeight: FontWeight.w600, 
+              color: Theme.of(context).colorScheme.onSurface,
             )
           ),
         ],
@@ -305,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     var gradient = SwipeCard.getGradientForAffirmation(displayText, colorTheme);
     
     if (isDark) {
-      gradient = gradient.map((c) => Color.lerp(c, Colors.black, 0.6)!).toList();
+      gradient = gradient.map((c) => Color.lerp(c, Colors.black, 0.7)!).toList();
     }
     
     final baseStyle = GoogleFonts.getFont(fontFamily);
@@ -335,7 +338,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 Text(
                   displayText,
                   style: baseStyle.copyWith(
-                    color: isDark ? Colors.white70 : Colors.black87,
+                    color: isDark ? Colors.white : Colors.black,
                     fontSize: 24, 
                     fontWeight: FontWeight.w600,
                     height: 1.5,

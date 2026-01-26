@@ -48,7 +48,6 @@ class StreakDetailScreen extends StatelessWidget {
   }
 
   Widget _buildMetricCard(BuildContext context, String label, String value) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
@@ -65,7 +64,7 @@ class StreakDetailScreen extends StatelessWidget {
             style: TextStyle(
               fontWeight: FontWeight.w900, 
               fontSize: 32,
-              color: isDark ? Colors.white70 : Colors.black87,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           Text(
@@ -83,25 +82,24 @@ class StreakDetailScreen extends StatelessWidget {
   }
 
   Widget _buildMessageCard(BuildContext context, String message) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.black.withValues(alpha: 0.03),
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
-          Text("SYSTEM STATUS", style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2, color: isDark ? Colors.white38 : Colors.black38)),
+          Text("SYSTEM STATUS", style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
           const SizedBox(height: 12),
           Text(
             '"$message"',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontStyle: FontStyle.italic,
-              fontWeight: FontWeight.w300,
-              color: isDark ? Colors.white60 : Colors.black54,
+              fontWeight: FontWeight.w400,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
         ],
@@ -110,7 +108,6 @@ class StreakDetailScreen extends StatelessWidget {
   }
 
   Widget _buildHistoryList(BuildContext context, UserPreferences prefs) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final firstRun = DateTime.tryParse(prefs.firstRunDate) ?? DateTime.now();
     final today = DateTime.now();
     final totalDays = today.difference(firstRun).inDays + 1;
@@ -126,7 +123,7 @@ class StreakDetailScreen extends StatelessWidget {
           dense: true,
           leading: Icon(
             isActive ? Icons.check_circle_rounded : Icons.circle_outlined,
-            color: isActive ? Colors.greenAccent : (isDark ? Colors.white10 : Colors.black12),
+            color: isActive ? Colors.greenAccent : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
             size: 16,
           ),
           title: Text(
@@ -135,7 +132,7 @@ class StreakDetailScreen extends StatelessWidget {
               fontFamily: 'Courier', 
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white54 : Colors.black54,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
           trailing: Text(
@@ -143,7 +140,7 @@ class StreakDetailScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w900,
-              color: isActive ? Colors.greenAccent : (isDark ? Colors.white24 : Colors.black26),
+              color: isActive ? Colors.greenAccent : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
             ),
           ),
         );

@@ -37,7 +37,7 @@ class WeeklyReportScreen extends StatelessWidget {
                   "Time Wasted", 
                   data['showed_up'], 
                   Icons.auto_awesome_outlined,
-                  const Color(0xFFE0F0FF)
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
                 ),
                 const SizedBox(height: 32),
                 _buildStatSection(
@@ -45,7 +45,7 @@ class WeeklyReportScreen extends StatelessWidget {
                   "Stubbornness", 
                   data['quit'] == 'NO' ? "Maxed Out" : "Failing", 
                   Icons.spa_rounded,
-                  const Color(0xFFFFE0E0)
+                  Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1)
                 ),
                 const SizedBox(height: 32),
                 _buildStatSection(
@@ -53,7 +53,7 @@ class WeeklyReportScreen extends StatelessWidget {
                   "Net Delusion", 
                   "STEADY", 
                   Icons.blur_on_rounded,
-                  const Color(0xFFE0FFE0)
+                  Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.1)
                 ),
                 const SizedBox(height: 80),
                 _buildClosing(context),
@@ -66,45 +66,36 @@ class WeeklyReportScreen extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, String week) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           week.toUpperCase(),
-          style: TextStyle(
-            fontSize: 10,
-            letterSpacing: 6,
-            fontWeight: FontWeight.w900,
-            color: isDark ? Colors.white38 : Colors.black45,
-          ),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 6, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
         ),
         const SizedBox(height: 12),
         Text(
           "Your Weekly Receipt",
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.w300,
-            color: isDark ? Colors.white70 : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildStatSection(BuildContext context, String title, String value, IconData icon, Color basePastel) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final displayPastel = isDark ? Color.lerp(basePastel, Colors.black, 0.7)! : basePastel;
-
+  Widget _buildStatSection(BuildContext context, String title, String value, IconData icon, Color bgColor) {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: displayPastel.withValues(alpha: isDark ? 0.3 : 0.6),
+        color: bgColor,
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: displayPastel.withValues(alpha: isDark ? 0.5 : 1.0), width: 2),
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), width: 2),
       ),
       child: Row(
         children: [
-          Icon(icon, color: isDark ? Colors.white38 : Colors.black54, size: 32),
+          Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), size: 32),
           const SizedBox(width: 32),
           Expanded(
             child: Column(
@@ -112,11 +103,10 @@ class WeeklyReportScreen extends StatelessWidget {
               children: [
                 Text(
                   title.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 9,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     letterSpacing: 2,
                     fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white38 : Colors.black54,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -124,8 +114,8 @@ class WeeklyReportScreen extends StatelessWidget {
                   value,
                   style: TextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white70 : Colors.black87,
+                    fontWeight: FontWeight.w900,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -137,17 +127,16 @@ class WeeklyReportScreen extends StatelessWidget {
   }
 
   Widget _buildClosing(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Column(
         children: [
-          Icon(Icons.wb_sunny_outlined, size: 32, color: isDark ? Colors.white24 : Colors.black26),
+          Icon(Icons.wb_sunny_outlined, size: 32, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
           const SizedBox(height: 24),
           Text(
             "Another week of pretending.\nGood job, I guess.",
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isDark ? Colors.white38 : Colors.black54,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
               fontWeight: FontWeight.w400,
               fontStyle: FontStyle.italic,
               height: 1.6,

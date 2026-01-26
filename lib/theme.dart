@@ -5,11 +5,14 @@ import 'models/user_preferences.dart';
 class AppTheme {
   static final Map<AppColorTheme, AppPalette> palettes = {
     AppColorTheme.brutalist: AppPalette(
-      primary: const Color(0xFFFF3D00), // Safety Orange
-      secondary: const Color(0xFF00E676), // Neon Green
-      accent: const Color(0xFF2979FF), // Electric Blue
+      primaryLight: const Color(0xFFFF3D00),
+      primaryDark: const Color(0xFFFF3D00),
+      secondaryLight: const Color(0xFF00E676),
+      secondaryDark: const Color(0xFF00E676),
+      accentLight: const Color(0xFF2979FF),
+      accentDark: const Color(0xFF2979FF),
       backgroundLight: const Color(0xFFFFFFFF),
-      backgroundDark: const Color(0xFF050505),
+      backgroundDark: const Color(0xFF000000),
       surfaceLight: const Color(0xFFFFFFFF),
       surfaceDark: const Color(0xFF121212),
       textLight: const Color(0xFF000000),
@@ -23,15 +26,18 @@ class AppTheme {
       ],
     ),
     AppColorTheme.vibrant: AppPalette(
-      primary: const Color(0xFF6200EA),
-      secondary: const Color(0xFF00BFA5),
-      accent: const Color(0xFFFFD600),
+      primaryLight: const Color(0xFF6200EA),
+      primaryDark: const Color(0xFFB388FF),
+      secondaryLight: const Color(0xFF00BFA5),
+      secondaryDark: const Color(0xFF64FFDA),
+      accentLight: const Color(0xFFFFD600),
+      accentDark: const Color(0xFFFFE57F),
       backgroundLight: const Color(0xFFFDFDFF),
-      backgroundDark: const Color(0xFF0F0F12),
+      backgroundDark: const Color(0xFF080015),
       surfaceLight: Colors.white,
-      surfaceDark: const Color(0xFF1A1A1E),
+      surfaceDark: const Color(0xFF120025),
       textLight: const Color(0xFF1A1A1A),
-      textDark: const Color(0xFFE1E1E6),
+      textDark: const Color(0xFFFFFFFF),
       isAlwaysDark: false,
       cardGradients: [
         [const Color(0xFF8E2DE2), const Color(0xFF4A00E0)],
@@ -41,15 +47,18 @@ class AppTheme {
       ],
     ),
     AppColorTheme.softcore: AppPalette(
-      primary: const Color(0xFFFF80AB),
-      secondary: const Color(0xFFB2FF59),
-      accent: const Color(0xFF80D8FF),
-      backgroundLight: const Color(0xFFFDF6F9),
-      backgroundDark: const Color(0xFF161214),
+      primaryLight: const Color(0xFFFF4081),
+      primaryDark: const Color(0xFFFF80AB),
+      secondaryLight: const Color(0xFF7CB342),
+      secondaryDark: const Color(0xFFB2FF59),
+      accentLight: const Color(0xFF039BE5),
+      accentDark: const Color(0xFF81D4FA),
+      backgroundLight: const Color(0xFFFFF0F5),
+      backgroundDark: const Color(0xFF1A0F12),
       surfaceLight: Colors.white,
-      surfaceDark: const Color(0xFF251F22),
-      textLight: const Color(0xFF3D3D3D),
-      textDark: const Color(0xFFF5E1E6),
+      surfaceDark: const Color(0xFF25161A),
+      textLight: const Color(0xFF2D2D2D),
+      textDark: const Color(0xFFFFF0F5),
       isAlwaysDark: false,
       cardGradients: [
         [const Color(0xFFFFE0E0), const Color(0xFFFFF5F5)],
@@ -59,28 +68,34 @@ class AppTheme {
       ],
     ),
     AppColorTheme.minimalist: AppPalette(
-      primary: const Color(0xFF212121),
-      secondary: const Color(0xFF757575),
-      accent: const Color(0xFFBDBDBD),
-      backgroundLight: const Color(0xFFFAFAFA),
-      backgroundDark: const Color(0xFF0A0A0A),
-      surfaceLight: Colors.white,
-      surfaceDark: const Color(0xFF1A1A1A),
+      primaryLight: const Color(0xFF000000),
+      primaryDark: const Color(0xFFFFFFFF),
+      secondaryLight: const Color(0xFF616161),
+      secondaryDark: const Color(0xFFBDBDBD),
+      accentLight: const Color(0xFF9E9E9E),
+      accentDark: const Color(0xFF757575),
+      backgroundLight: const Color(0xFFFFFFFF),
+      backgroundDark: const Color(0xFF000000),
+      surfaceLight: const Color(0xFFFFFFFF),
+      surfaceDark: const Color(0xFF121212),
       textLight: const Color(0xFF000000),
-      textDark: const Color(0xFFEEEEEE),
+      textDark: const Color(0xFFFFFFFF),
       isAlwaysDark: false,
       cardGradients: [
-        [const Color(0xFFE0E0E0), const Color(0xFFF5F5F5)],
-        [const Color(0xFFECE9E6), const Color(0xFFFFFFFF)],
-        [const Color(0xFFCFD9DF), const Color(0xFFE2EBF0)],
-        [const Color(0xFFBDC3C7), const Color(0xFFBDC3C7)],
+        [const Color(0xFFF5F5F5), const Color(0xFFEEEEEE)],
+        [const Color(0xFFEEEEEE), const Color(0xFFE0E0E0)],
+        [const Color(0xFFE0E0E0), const Color(0xFFBDBDBD)],
+        [const Color(0xFFBDBDBD), const Color(0xFF9E9E9E)],
       ],
     ),
     AppColorTheme.cyber: AppPalette(
-      primary: const Color(0xFF00FF41),
-      secondary: const Color(0xFFFF00FF),
-      accent: const Color(0xFF00FFFF),
-      backgroundLight: const Color(0xFF050505), // Forced dark
+      primaryLight: const Color(0xFF00FF41),
+      primaryDark: const Color(0xFF00FF41),
+      secondaryLight: const Color(0xFFFF00FF),
+      secondaryDark: const Color(0xFFFF00FF),
+      accentLight: const Color(0xFF00FFFF),
+      accentDark: const Color(0xFF00FFFF),
+      backgroundLight: const Color(0xFF050505),
       backgroundDark: const Color(0xFF050505),
       surfaceLight: const Color(0xFF121212),
       surfaceDark: const Color(0xFF121212),
@@ -104,18 +119,22 @@ class AppTheme {
     Color backgroundColor = effectiveIsDark ? palette.backgroundDark : palette.backgroundLight;
     Color surfaceColor = effectiveIsDark ? palette.surfaceDark : palette.surfaceLight;
     Color textColor = effectiveIsDark ? palette.textDark : palette.textLight;
+    Color primaryColor = effectiveIsDark ? palette.primaryDark : palette.primaryLight;
+    Color secondaryColor = effectiveIsDark ? palette.secondaryDark : palette.secondaryLight;
     
     final baseTheme = ThemeData(
       useMaterial3: true,
       brightness: effectiveIsDark ? Brightness.dark : Brightness.light,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: palette.primary,
-        primary: palette.primary,
-        secondary: palette.secondary,
-        tertiary: palette.accent,
+      colorScheme: ColorScheme(
+        brightness: effectiveIsDark ? Brightness.dark : Brightness.light,
+        primary: primaryColor,
+        onPrimary: effectiveIsDark ? Colors.black : Colors.white,
+        secondary: secondaryColor,
+        onSecondary: effectiveIsDark ? Colors.black : Colors.white,
+        error: Colors.redAccent,
+        onError: Colors.white,
         surface: surfaceColor,
         onSurface: textColor,
-        brightness: effectiveIsDark ? Brightness.dark : Brightness.light,
       ),
     );
 
@@ -127,11 +146,11 @@ class AppTheme {
         displayColor: textColor,
       ).copyWith(
         labelSmall: textTheme.labelSmall?.copyWith(
-          color: textColor.withValues(alpha: 0.5), 
+          color: textColor.withValues(alpha: 0.7), 
           fontWeight: FontWeight.w900, 
           fontSize: 12
         ),
-        bodySmall: textTheme.bodySmall?.copyWith(color: textColor.withValues(alpha: 0.6)),
+        bodySmall: textTheme.bodySmall?.copyWith(color: textColor.withValues(alpha: 0.7)),
       ),
       scaffoldBackgroundColor: backgroundColor,
       appBarTheme: AppBarTheme(
@@ -147,7 +166,7 @@ class AppTheme {
         ),
       ),
       dividerTheme: DividerThemeData(
-        color: textColor.withValues(alpha: 0.1),
+        color: textColor.withValues(alpha: 0.2),
         thickness: 1,
       ),
       cardTheme: CardThemeData(
@@ -165,9 +184,12 @@ class AppTheme {
 }
 
 class AppPalette {
-  final Color primary;
-  final Color secondary;
-  final Color accent;
+  final Color primaryLight;
+  final Color primaryDark;
+  final Color secondaryLight;
+  final Color secondaryDark;
+  final Color accentLight;
+  final Color accentDark;
   final Color backgroundLight;
   final Color backgroundDark;
   final Color surfaceLight;
@@ -178,9 +200,12 @@ class AppPalette {
   final List<List<Color>> cardGradients;
 
   AppPalette({
-    required this.primary,
-    required this.secondary,
-    required this.accent,
+    required this.primaryLight,
+    required this.primaryDark,
+    required this.secondaryLight,
+    required this.secondaryDark,
+    required this.accentLight,
+    required this.accentDark,
     required this.backgroundLight,
     required this.backgroundDark,
     required this.surfaceLight,
