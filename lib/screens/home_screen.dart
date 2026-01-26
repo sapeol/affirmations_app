@@ -3,6 +3,7 @@ import 'package:home_widget/home_widget.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 import 'dart:math';
 import '../services/affirmations_service.dart';
@@ -307,6 +308,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       gradient = gradient.map((c) => Color.lerp(c, Colors.black, 0.6)!).toList();
     }
     
+    final baseStyle = GoogleFonts.getFont(fontFamily);
+    
     return Container(
       width: 400,
       height: 600,
@@ -333,12 +336,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 const Spacer(),
                 Text(
                   displayText,
-                  style: TextStyle(
+                  style: baseStyle.copyWith(
                     color: isDark ? Colors.white70 : Colors.black.withValues(alpha: 0.7),
                     fontSize: 28,
                     fontWeight: FontWeight.w600,
                     height: 1.5,
-                    fontFamily: fontFamily,
                     decoration: TextDecoration.none,
                   ),
                   textAlign: TextAlign.center,
@@ -347,24 +349,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 if (aff.persona != null)
                   Text(
                     "FROM ${aff.persona!.name.toUpperCase()}",
-                    style: TextStyle(
+                    style: baseStyle.copyWith(
                       fontSize: 12,
                       fontWeight: FontWeight.w900,
                       color: isDark ? Colors.white24 : Colors.black45,
                       letterSpacing: 4,
-                      fontFamily: fontFamily,
                       decoration: TextDecoration.none,
                     ),
                   ),
                 const SizedBox(height: 24),
                 Text(
                   "DELUSIONS",
-                  style: TextStyle(
+                  style: baseStyle.copyWith(
                     color: isDark ? Colors.white10 : Colors.black12, 
                     fontSize: 10, 
                     letterSpacing: 12, 
                     fontWeight: FontWeight.w300,
-                    fontFamily: fontFamily,
                     decoration: TextDecoration.none,
                   ),
                 ),
