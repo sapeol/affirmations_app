@@ -340,25 +340,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               animation: _staggeredAnimations[0],
               builder: (context, child) => Transform.translate(
                 offset: Offset(0, 20 * (1 - _staggeredAnimations[0].value)),
-                child: Opacity(opacity: _staggeredAnimations[0].value, child: child),
+                child: Opacity(opacity: _staggeredAnimations[0].value.clamp(0.0, 1.0), child: child),
               ),
               child: Text("DELUSIONS", style: Theme.of(context).appBarTheme.titleTextStyle),
             ),
             centerTitle: true,
             leading: AnimatedBuilder(
               animation: _staggeredAnimations[0],
-              builder: (context, child) => Opacity(opacity: _staggeredAnimations[0].value, child: child),
+              builder: (context, child) => Opacity(opacity: _staggeredAnimations[0].value.clamp(0.0, 1.0), child: child),
               child: IconButton(icon: Icon(Icons.blur_on_rounded, color: Theme.of(context).iconTheme.color), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()))),
             ),
             actions: [
               if (prefSnapshot.hasData) AnimatedBuilder(
                 animation: _staggeredAnimations[0],
-                builder: (context, child) => Opacity(opacity: _staggeredAnimations[0].value, child: child),
+                builder: (context, child) => Opacity(opacity: _staggeredAnimations[0].value.clamp(0.0, 1.0), child: child),
                 child: Center(child: Padding(padding: const EdgeInsets.only(right: 16.0), child: Text("${prefSnapshot.data!.sanityStreak}D", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 1)))),
               ),
               AnimatedBuilder(
                 animation: _staggeredAnimations[0],
-                builder: (context, child) => Opacity(opacity: _staggeredAnimations[0].value, child: child),
+                builder: (context, child) => Opacity(opacity: _staggeredAnimations[0].value.clamp(0.0, 1.0), child: child),
                 child: IconButton(icon: Icon(Icons.tune_rounded, color: Theme.of(context).iconTheme.color), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())).then((_) => _loadAffirmations())),
               ),
             ],
@@ -375,7 +375,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     animation: _staggeredAnimations[1],
                     builder: (context, child) => Transform.translate(
                       offset: Offset(0, 100 * (1 - _staggeredAnimations[1].value)),
-                      child: Opacity(opacity: _staggeredAnimations[1].value, child: child),
+                      child: Opacity(opacity: _staggeredAnimations[1].value.clamp(0.0, 1.0), child: child),
                     ),
                     child: Stack(alignment: Alignment.center, clipBehavior: Clip.none, children: _affirmations.take(2).toList().reversed.toList().asMap().entries.map((entry) {
                       final reversedIndex = entry.key; final aff = entry.value; final totalInStack = min(_affirmations.length, 2); final isTop = reversedIndex == totalInStack - 1;
@@ -388,7 +388,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   animation: _staggeredAnimations[2],
                   builder: (context, child) => Transform.translate(
                     offset: Offset(0, 50 * (1 - _staggeredAnimations[2].value)),
-                    child: Opacity(opacity: _staggeredAnimations[2].value, child: child),
+                    child: Opacity(opacity: _staggeredAnimations[2].value.clamp(0.0, 1.0), child: child),
                   ),
                   child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     _buildActionCircle(
@@ -415,14 +415,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 const SizedBox(height: 32),
                 if (!_isPremium) AnimatedBuilder(
                   animation: _staggeredAnimations[3],
-                  builder: (context, child) => Opacity(opacity: _staggeredAnimations[3].value, child: child),
+                  builder: (context, child) => Opacity(opacity: _staggeredAnimations[3].value.clamp(0.0, 1.0), child: child),
                   child: Padding(padding: const EdgeInsets.only(bottom: 24), child: Text("${_maxFreeSwipes - _swipeCount} MORE EXCUSES LEFT", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 2, fontSize: 14, fontWeight: FontWeight.w900))),
                 ),
                 AnimatedBuilder(
                   animation: _staggeredAnimations[3],
                   builder: (context, child) => Transform.translate(
                     offset: Offset(0, 30 * (1 - _staggeredAnimations[3].value)),
-                    child: Opacity(opacity: _staggeredAnimations[3].value, child: child),
+                    child: Opacity(opacity: _staggeredAnimations[3].value.clamp(0.0, 1.0), child: child),
                   ),
                   child: Padding(padding: const EdgeInsets.only(bottom: 40), child: _buildSoftButton(icon: Icons.ios_share_rounded, onPressed: _shareAsImage)),
                 ),
@@ -433,7 +433,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             animation: _staggeredAnimations[3],
             builder: (context, child) => Transform.scale(
               scale: _staggeredAnimations[3].value,
-              child: Opacity(opacity: _staggeredAnimations[3].value, child: child),
+              child: Opacity(opacity: _staggeredAnimations[3].value.clamp(0.0, 1.0), child: child),
             ),
             child: FloatingActionButton(heroTag: 'add', elevation: 0, highlightElevation: 0, backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), onPressed: () async { final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateAffirmationScreen())); if (result == true) _loadAffirmations(); }, child: const Icon(Icons.add_rounded, size: 20)),
           ),
