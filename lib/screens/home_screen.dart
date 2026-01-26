@@ -11,6 +11,7 @@ import 'settings_screen.dart';
 import 'profile_screen.dart';
 import 'create_affirmation_screen.dart';
 import '../locator.dart';
+import '../widgets/swipe_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,10 +21,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
-  Affirmation? _currentAffirmation;
+  List<Affirmation> _affirmations = [];
   bool _isLoading = true;
   final ScreenshotController _screenshotController = ScreenshotController();
   List<String> _likedIds = [];
+  final List<Affirmation> _history = [];
 
   @override
   void initState() {
@@ -36,21 +38,23 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     setState(() {
       _likedIds = prefs.likedAffirmations;
     });
-    _loadInitialAffirmation();
+    _loadAffirmations();
   }
 
-  Future<void> _loadInitialAffirmation() async {
+  Future<void> _loadAffirmations() async {
     setState(() => _isLoading = true);
-    final aff = await locator<AffirmationsService>().getDailyAffirmation();
-    await locator<AffirmationsService>().markAffirmationAsSeen(aff.getText(DopeLanguage.en));
-    await Future.delayed(const Duration(milliseconds: 800));
+    final service = locator<AffirmationsService>();
+    final all = await service.getAllAffirmations();
+    all.shuffle();
     
     if (mounted) {
       setState(() {
-        _currentAffirmation = aff;
+        _affirmations = all;
         _isLoading = false;
       });
-      _updateWidget(aff);
+      if (_affirmations.isNotEmpty) {
+        _updateWidget(_affirmations.first);
+      }
     }
   }
 
@@ -63,31 +67,38 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  void _refreshAffirmation() async {
-    final currentText = _currentAffirmation?.getText(DopeLanguage.en);
-    setState(() => _isLoading = true);
-    final aff = await locator<AffirmationsService>().getRandomAffirmation(excludeText: currentText);
-    await locator<AffirmationsService>().markAffirmationAsSeen(aff.getText(DopeLanguage.en));
+  void _onSwipe(bool isLike) {
+    if (_affirmations.isEmpty) return;
     
-    final prefs = await UserPreferences.load();
-    if (!prefs.notificationsEnabled && mounted) {
-      _showNotificationPrompt();
+    final removed = _affirmations.removeAt(0);
+    _history.add(removed);
+    if (_history.length > 10) _history.removeAt(0);
+
+    if (isLike) {
+      _toggleLike(removed);
     }
 
-    await Future.delayed(const Duration(milliseconds: 1000));
-    
-    if (mounted) {
-      setState(() {
-        _currentAffirmation = aff;
-        _isLoading = false;
-      });
-      _updateWidget(aff);
+    if (_affirmations.isNotEmpty) {
+      _updateWidget(_affirmations.first);
+    } else {
+      _loadAffirmations();
     }
+    
+    setState(() {});
   }
 
-  void _toggleLike() async {
-    if (_currentAffirmation == null) return;
-    final id = _currentAffirmation!.getText(DopeLanguage.en);
+  void _undoSwipe() {
+    if (_history.isEmpty) return;
+    
+    setState(() {
+      final last = _history.removeLast();
+      _affirmations.insert(0, last);
+    });
+    _updateWidget(_affirmations.first);
+  }
+
+  void _toggleLike(Affirmation aff) async {
+    final id = aff.getText(DopeLanguage.en);
     
     setState(() {
       if (_likedIds.contains(id)) {
@@ -115,10 +126,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Future<void> _shareAsImage() async {
-    if (_currentAffirmation == null) return;
+    if (_affirmations.isEmpty) return;
+    final current = _affirmations.first;
     
     final image = await _screenshotController.captureFromWidget(
-      _buildShareCard(_currentAffirmation!),
+      _buildShareCard(current),
       delay: const Duration(milliseconds: 10),
     );
 
@@ -164,58 +176,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  void _showNotificationPrompt() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.notifications_active_outlined),
-        title: const Text("Daily Inspiration?"),
-        content: const Text("Would you like to receive a gentle affirmation every morning to start your day with light?"),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Later")),
-          FilledButton.tonal(
-            onPressed: () async {
-              final prefs = await UserPreferences.load();
-              await UserPreferences.save(UserPreferences(
-                persona: prefs.persona,
-                themeMode: prefs.themeMode,
-                fontFamily: prefs.fontFamily,
-                colorTheme: prefs.colorTheme,
-                language: prefs.language,
-                likedAffirmations: prefs.likedAffirmations,
-                notificationsEnabled: true,
-                notificationHour: prefs.notificationHour,
-                notificationMinute: prefs.notificationMinute,
-                sanityStreak: prefs.sanityStreak,
-                lastInteractionDate: prefs.lastInteractionDate,
-                firstRunDate: prefs.firstRunDate,
-              ));
-              if (!context.mounted) return;
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Notifications enabled"),
-                  behavior: SnackBarBehavior.fixed,
-                ),
-              );
-            },
-            child: const Text("Enable"),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final aff = _currentAffirmation;
-
     return FutureBuilder<UserPreferences>(
       future: UserPreferences.load(),
       builder: (context, prefSnapshot) {
         final lang = prefSnapshot.data?.language ?? DopeLanguage.en;
-        final displayText = aff?.getText(lang) ?? "";
-        final isLiked = _likedIds.contains(aff?.getText(DopeLanguage.en));
 
         return Scaffold(
           appBar: AppBar(
@@ -261,136 +227,79 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                ).then((_) => _loadInitialAffirmation()),
+                ).then((_) => _loadAffirmations()),
               ),
             ],
           ),
           body: Stack(
             children: [
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
+              if (_isLoading)
+                const Center(child: ExpressiveLoader())
+              else if (_affirmations.isEmpty)
+                Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 48),
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 800),
-                        child: _isLoading
-                            ? const ExpressiveLoader(key: ValueKey('loading'))
-                            : Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Card(
-                                    key: ValueKey(displayText),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 64.0),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            displayText,
-                                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                                  color: Theme.of(context).colorScheme.onSurface,
-                                                  fontWeight: FontWeight.w800,
-                                                  height: 1.3,
-                                                  letterSpacing: -0.5,
-                                                ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          const SizedBox(height: 24),
-                                          if (aff?.persona != null)
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                              decoration: BoxDecoration(
-                                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                                                borderRadius: BorderRadius.circular(4),
-                                              ),
-                                              child: Text(
-                                                aff!.persona!.name.toUpperCase(),
-                                                style: TextStyle(
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context).colorScheme.primary,
-                                                  letterSpacing: 1,
-                                                ),
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      IconButton(
-                                        onPressed: _toggleLike,
-                                        icon: Icon(
-                                          isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                                          color: isLiked ? Colors.redAccent : Theme.of(context).colorScheme.outline,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      IconButton(
-                                        onPressed: _shareAsImage,
-                                        icon: Icon(Icons.share_rounded, color: Theme.of(context).colorScheme.outline),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 32),
-                                  TextButton(
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: Colors.redAccent,
-                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                      side: BorderSide(color: Colors.redAccent.withValues(alpha: 0.5)),
-                                    ),
-                                    onPressed: () async {
-                                      String msg;
-                                      final useSystemRebuttal = DateTime.now().millisecond % 2 == 0;
-                                      
-                                      if (useSystemRebuttal) {
-                                        await UserPreferences.load(); // Load ensures DB init if needed, though usually already loaded
-                                        msg = await locator<AffirmationsService>().getRebuttal();
-                                      } else {
-                                        final msgs = [
-                                          "Cool. This isn’t one. It’s just a reminder you’re not trash.",
-                                          "You don’t have to believe this. Just don’t spiral.",
-                                          "Skepticism noted. You're still doing fine.",
-                                          "Hate away. The system doesn't mind.",
-                                          "It's just text on a screen. Breathe.",
-                                        ];
-                                        msg = msgs[DateTime.now().second % msgs.length];
-                                      }
-                                      
-                                      if (context.mounted) {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            backgroundColor: const Color(0xFF1A0505),
-                                            title: const Text("RECEIVED", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
-                                            content: Text(msg, style: const TextStyle(color: Colors.white70)),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () => Navigator.pop(context),
-                                                child: const Text("FINE"),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                        _refreshAffirmation();
-                                      }
-                                    },
-                                    child: const Text("I DON'T THINK SO", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
-                                  ),
-                                ],
-                              ),
+                      const Text("No more affirmations for now."),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _loadAffirmations,
+                        child: const Text("Reload"),
                       ),
-                      const SizedBox(height: 80),
                     ],
                   ),
+                )
+              else
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: _affirmations
+                            .take(3)
+                            .toList()
+                            .reversed
+                            .toList()
+                            .asMap()
+                            .entries
+                            .map((entry) {
+                          final reversedIndex = entry.key; // 0 is bottom, 2 is top
+                          final aff = entry.value;
+                          final isTop = reversedIndex == _affirmations.take(3).length - 1;
+
+                          return Positioned(
+                            top: 100.0 - (reversedIndex * 10),
+                            child: SwipeCard(
+                              key: ValueKey(aff.getText(DopeLanguage.en)),
+                              affirmation: aff,
+                              language: lang,
+                              onSwipe: isTop ? _onSwipe : (_) {},
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton.filledTonal(
+                          onPressed: _history.isEmpty ? null : _undoSwipe,
+                          icon: const Icon(Icons.undo_rounded),
+                          tooltip: "Undo Swipe",
+                        ),
+                        const SizedBox(width: 24),
+                        IconButton.filledTonal(
+                          onPressed: _shareAsImage,
+                          icon: const Icon(Icons.share_rounded),
+                          tooltip: "Share current",
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 80),
+                  ],
                 ),
-              ),
             ],
           ),
           floatingActionButton: FloatingActionButton.extended(
@@ -400,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 context,
                 MaterialPageRoute(builder: (context) => const CreateAffirmationScreen()),
               );
-              if (result == true) _refreshAffirmation();
+              if (result == true) _loadAffirmations();
             },
             icon: const Icon(Icons.add),
             label: const Text("OWN PERSPECTIVE"),
