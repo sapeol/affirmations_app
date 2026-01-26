@@ -2345,6 +2345,446 @@ class AffirmationsService {
       persona: DopePersona.striver,
     ),
 
+    // --- OVERTHINKER (Iteration 21) ---
+    Affirmation(
+      text: "You're trying to solve a problem that only exists because you're bored. Find something else to do.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "The past is dead. Stop trying to perform CPR on it. Let it go.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "Your brain is a filter that only lets the negative through. Clean the filter today.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "Stop analyzing the 'energy' of the room. Just sit down and exist.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "Sometimes 'no' is just a 'no'. It's not a commentary on your entire existence.",
+      persona: DopePersona.overthinker,
+    ),
+
+    // --- BUILDER (Iteration 21) ---
+    Affirmation(
+      text: "Stop talking about 'scaling' and start talking to your first user. If you have one.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "Your tech stack is a vanity project. Your users only care if the thing works.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "The best product is the one that actually gets used. Everything else is a hobby.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "Stop over-engineering the solution to a simple problem. Simple is better for everyone.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "Build something that matters. Even if it's small. Especially if it's small and works.",
+      persona: DopePersona.builder,
+    ),
+
+    // --- BURNT OUT (Iteration 21) ---
+    Affirmation(
+      text: "You're not 'lazy', you're depleted. There's a biological limit to your output. Respect it.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "The world won't end if you take a day off. It really won't. I checked the logs.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "Your worth is not measured by the number of hours you work or the number of bugs you fix.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "Take a break. Your sanity is worth more than any deadline you're stressing about.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "Permission to be completely human granted. Just for today. No expectations, no pressure.",
+      persona: DopePersona.burntOut,
+    ),
+
+    // --- ADHD BRAIN (Iteration 21) ---
+    Affirmation(
+      text: "Your brain is a superpower if you can control the throttle. Slow down and focus for five minutes.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "The shiny new thing is just a distraction from the important thing you're avoiding.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "Stop looking for the 'magic system'. The system is just doing the work. Start doing.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "One task. Complete it. Then move on. Don't look at anything else until it's done.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "Your 'inspiration' is just your brain trying to avoid the boring parts of the job.",
+      persona: DopePersona.adhdBrain,
+    ),
+
+    // --- STRIVER (Iteration 21) ---
+    Affirmation(
+      text: "You're trying to win a race that has no finish line. Slow down and enjoy the run.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "Success is not a destination, it's just a treadmill you can't get off easily. Check your pace.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "Stop trying to prove yourself to people who don't care. Their opinion is irrelevant.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "Your 'dream' is just a high-pressure job with better branding. Re-evaluate your goals.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "You don't have to be the best. You just have to be good enough to not hate your life.",
+      persona: DopePersona.striver,
+    ),
+
+    // --- OVERTHINKER (Iteration 22) ---
+    Affirmation(
+      text: "You're trying to solve for 'x' when 'x' doesn't even exist in this equation. Chill out.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "The reason you're stuck is because you're trying to calculate the trajectory of a step before taking it.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "Your brain is a loop of bad news. Break the circuit and go fold a sock. Just one.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "Analyzing your past failures won't prevent future ones. It just ruins your present.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "The 'what-if' game is a race to the bottom. congratulations, you're currently winning.",
+      persona: DopePersona.overthinker,
+    ),
+
+    // --- BUILDER (Iteration 22) ---
+    Affirmation(
+      text: "Version 1 is supposed to suck. That's why it's Version 1. Ship it anyway.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "You don't need another course. You need a prototype. Put down the book and build.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "Talking about your idea releases the same dopamine as doing it. Stop talking and start doing.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "Constraints are not blockers. They are the rules of the game. Play better.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "If you're not embarrassed by your first release, you launched too late. Go now.",
+      persona: DopePersona.builder,
+    ),
+
+    // --- BURNT OUT (Iteration 22) ---
+    Affirmation(
+      text: "Saying 'no' is a complete sentence. You should try using it more often.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "Your inbox is not a ticking bomb. It won't explode if you ignore it for an hour.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "Self-care is not a bath bomb. It's setting boundaries that make people slightly annoyed.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "You can't pour from an empty cup. Or a cup that's currently on fire. Stop.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "Being busy is not a personality trait. It's just a failure of prioritization.",
+      persona: DopePersona.burntOut,
+    ),
+
+    // --- ADHD BRAIN (Iteration 22) ---
+    Affirmation(
+      text: "Multitasking is just an efficient way to screw up several things at once. Do one thing.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "Put the phone down. The dopamine hit you're looking for isn't in that app.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "Write it down. You will not remember it. Your brain is a sieve, not a vault.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "Body doubling works. Find someone to sit near you while you do the boring stuff.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "Forgive yourself for the lost hours. Start the next hour fresh. It's all you can do.",
+      persona: DopePersona.adhdBrain,
+    ),
+
+    // --- STRIVER (Iteration 22) ---
+    Affirmation(
+      text: "Hustle culture is a pyramid scheme. Don't be the foundation. Be the one who left.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "Rest is not the enemy of ambition. Burnout is the enemy of survival. Choose wisely.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "You don't have to be the best in the room. You just have to be the one who didn't quit.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "Your job title is rented. Your health is owned. Spend your energy where it counts.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "Don't climb a mountain just so the world can see you. Climb it so you can see the world.",
+      persona: DopePersona.striver,
+    ),
+
+    // --- OVERTHINKER (Iteration 23) ---
+    Affirmation(
+      text: "You are not the main character in everyone else's mind. They're too busy thinking about themselves.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "Replaying that conversation won't unlock a secret ending. It's over. Move on.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "Your gut feeling is probably just indigestion. Eat a vegetable and stop worrying.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "Stop trying to read between the lines. There's nothing there but blank space.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "Perfection is a defense mechanism. Stop protecting yourself from being human.",
+      persona: DopePersona.overthinker,
+    ),
+
+    // --- BUILDER (Iteration 23) ---
+    Affirmation(
+      text: "Ideas are easy. Execution is the only thing that's actually hard. Get to work.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "Don't fall in love with your solution. Fall in love with the problem. Or just fix it.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "If it's not broken, you haven't tested it with real people yet. Go find some.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "Ship it. Fix it. Repeat. This is the only way anyone actually builds anything.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "Your roadmap is a work of fiction. Start building the reality.",
+      persona: DopePersona.builder,
+    ),
+
+    // --- BURNT OUT (Iteration 23) ---
+    Affirmation(
+      text: "Sleep is the most productive thing you can do right now. Go horizontal.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "You don't need to 'earn' your right to exist without working. You're already here.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "The world is on fire. You don't have to be the one holding the hose today. Rest.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "Disconnect from the noise to reconnect with your own heartbeat. Turn it off.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "Surviving another day in the system is enough of an achievement. Well done.",
+      persona: DopePersona.burntOut,
+    ),
+
+    // --- ADHD BRAIN (Iteration 23) ---
+    Affirmation(
+      text: "Done is better than 'perfect but only in my head'. Close the file.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "Your brain is a high-speed train with no tracks. Build somerails with a timer.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "Focus on one thing. Just one. For the next ten minutes. I'm watching you.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "You are not lazy. You just have a brain that's easily bored. Give it a toy.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "Make a list. Lose it. Make another one. It's the process that counts, I guess.",
+      persona: DopePersona.adhdBrain,
+    ),
+
+    // --- STRIVER (Iteration 23) ---
+    Affirmation(
+      text: "Ambition is fine, but don't let it become a person you'd hate to have a drink with.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "The finish line is a mirage. Enjoy the grass under your feet while you're running.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "You can have everything you want, but probably not all at the same time. Relax.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "Be as patient with your progress as you are demanding of your potential.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "Impact is more important than impression. Focus on the work, not the applause.",
+      persona: DopePersona.striver,
+    ),
+
+    // --- OVERTHINKER (Iteration 24) ---
+    Affirmation(
+      text: "The reason you can't find the answer is that you're asking the wrong question. Stop asking.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "Your brain is a filter that only lets the worst case scenarios through. Clean the filter.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "Analyzing the tone of that text message won't change the fact that they're just busy.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "Sometimes it's not a sign from the universe. It's just a coincidence. Get over it.",
+      persona: DopePersona.overthinker,
+    ),
+    Affirmation(
+      text: "The loop in your head isn't a strategy. It's a cage. Break it and go for a walk.",
+      persona: DopePersona.overthinker,
+    ),
+
+    // --- BUILDER (Iteration 24) ---
+    Affirmation(
+      text: "Don't build for the world. Build for the one person who cares. (Probably just you).",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "Your tech stack is a vanity project. Your users don't care if it's Rust or Ruby. Build it.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "The best feature is the one you had the courage to delete. Kill your darlings and ship.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "Stop over-engineering the solution to a simple problem. Simple is better for everyone.",
+      persona: DopePersona.builder,
+    ),
+    Affirmation(
+      text: "A weekend of building is worth a month of reading about building. Put the book down.",
+      persona: DopePersona.builder,
+    ),
+
+    // --- BURNT OUT (Iteration 24) ---
+    Affirmation(
+      text: "You're not 'lazy', you're depleted. There's a biological limit to your output. Respect it.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "The world won't end if you take a day off. It really won't. I checked the logs.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "Your worth is not measured by the number of hours you work or the number of bugs you fix.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "Take a break. Your sanity is worth more than any deadline you're currently stressing about.",
+      persona: DopePersona.burntOut,
+    ),
+    Affirmation(
+      text: "Permission to be completely human granted. Just for today. No expectations, no pressure.",
+      persona: DopePersona.burntOut,
+    ),
+
+    // --- ADHD BRAIN (Iteration 24) ---
+    Affirmation(
+      text: "Your brain is a carnival. It's fun, but eventually you have to go home. Go home now.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "The shiny new thing is just a shiny old thing in a new costume. Focus on the work.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "Stop looking for the 'perfect system'. The system is just doing the work. Start doing.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "One task. Complete it. Then move on. Don't look at anything else until it's done.",
+      persona: DopePersona.adhdBrain,
+    ),
+    Affirmation(
+      text: "Your 'inspiration' is just your brain trying to avoid the boring parts of the job.",
+      persona: DopePersona.adhdBrain,
+    ),
+
+    // --- STRIVER (Iteration 24) ---
+    Affirmation(
+      text: "Success is a treadmill. You're running fast, but the scenery never changes. Hop off.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "You're competing against a version of yourself that doesn't exist. Stop it.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "Your worth is not tied to your bank account or the title on your business card.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "Ambition is fine, but don't let it turn you into someone you'd hate to meet.",
+      persona: DopePersona.striver,
+    ),
+    Affirmation(
+      text: "Stop chasing the 'win' and start enjoying the game you're actually playing.",
+      persona: DopePersona.striver,
+    ),
+
     // --- UNIVERSAL (Accessible to all personas) ---
     Affirmation(text: "Reality called. It wants you to stop scrolling."),
     Affirmation(text: "Drink water. You're basically a plant with complicated emotions."),
