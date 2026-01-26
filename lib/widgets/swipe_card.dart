@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/affirmation.dart';
 import '../models/user_preferences.dart';
@@ -29,16 +28,14 @@ class SwipeCard extends StatefulWidget {
   }
 
   @override
-  State<SwipeCard> createState() => _SwipeCardState();
+  State<SwipeCard> createState() => SwipeCardState();
 }
 
-class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMixin {
+class SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _positionAnimation;
   late Animation<double> _rotationAnimation;
   
-  Offset _dragOffset = Offset.zero;
-  double _dragRotation = 0;
   bool _isSwiping = false;
 
   @override
@@ -46,7 +43,7 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800), // Slower, more natural duration
+      duration: const Duration(milliseconds: 800),
     );
 
     _positionAnimation = Tween<Offset>(
@@ -66,81 +63,37 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
     super.dispose();
   }
 
-  void _onPanUpdate(DragUpdateDetails details) {
+  Future<void> triggerSwipe(SwipeDirection direction) async {
     if (!widget.isEnabled || _isSwiping) return;
-    setState(() {
-      _dragOffset += details.delta;
-      _dragRotation = (_dragOffset.dx / 60) * (pi / 180);
-    });
-  }
-
-  void _onPanEnd(DragEndDetails details) async {
-    if (!widget.isEnabled || _isSwiping) return;
-
-    final thresholdX = MediaQuery.of(context).size.width * 0.3;
-
-    if (_dragOffset.dx > thresholdX || details.velocity.pixelsPerSecond.dx > 700) {
-      _handleSwipe(SwipeDirection.right);
-    } else if (_dragOffset.dx < -thresholdX || details.velocity.pixelsPerSecond.dx < -700) {
-      _handleSwipe(SwipeDirection.left);
-    } else {
-      _reset();
-    }
-  }
-
-  Future<void> _handleSwipe(SwipeDirection direction) async {
+    
     final accepted = await widget.onSwipe(direction);
     if (accepted) {
-      _swipe(direction);
-    } else {
-      _reset();
+      _animateOut(direction);
     }
   }
 
-  void _swipe(SwipeDirection direction) {
+  void _animateOut(SwipeDirection direction) {
+    if (!mounted) return;
     setState(() => _isSwiping = true);
     final size = MediaQuery.of(context).size;
     
     Offset endOffset = direction == SwipeDirection.right 
-        ? Offset(size.width * 1.5, _dragOffset.dy) 
-        : Offset(-size.width * 1.5, _dragOffset.dy);
+        ? Offset(size.width * 1.5, 0) 
+        : Offset(-size.width * 1.5, 0);
     
-    // Create a specific controller for the exit swipe to control speed independently if needed
-    // But for now, let's just make the existing one slower for the exit too.
-    _controller.duration = const Duration(milliseconds: 1000); // Even slower for exit
+    _controller.duration = const Duration(milliseconds: 1000);
 
     _positionAnimation = Tween<Offset>(
-      begin: _dragOffset,
+      begin: Offset.zero,
       end: endOffset,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     _rotationAnimation = Tween<double>(
-      begin: _dragRotation,
-      end: _dragRotation * 1.2,
+      begin: 0,
+      end: direction == SwipeDirection.right ? 0.5 : -0.5,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     _controller.forward(from: 0);
-  }
-
-  void _reset() {
-    _controller.duration = const Duration(milliseconds: 800);
-    _positionAnimation = Tween<Offset>(
-      begin: _dragOffset,
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
-
-    _rotationAnimation = Tween<double>(
-      begin: _dragRotation,
-      end: 0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
-
-    _controller.forward(from: 0).then((_) {
-      setState(() {
-        _dragOffset = Offset.zero;
-        _dragRotation = 0;
-        _isSwiping = false;
-      });
-    });
   }
 
   @override
@@ -152,11 +105,6 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
         final displayText = widget.affirmation.getText(widget.language);
         final gradient = SwipeCard.getGradientForAffirmation(displayText, theme);
         
-        final thresholdX = MediaQuery.of(context).size.width * 0.35;
-        double feedbackOpacity = (_dragOffset.dx.abs() / thresholdX).clamp(0.0, 1.0);
-        Color feedbackColor = _dragOffset.dx > 0 ? Colors.greenAccent : Colors.redAccent;
-        IconData? feedbackIcon = _dragOffset.dx > 0 ? Icons.favorite_rounded : Icons.close_rounded;
-
         final isSystemDark = Theme.of(context).brightness == Brightness.dark;
         final palette = AppTheme.palettes[theme] ?? AppTheme.palettes[AppColorTheme.brutalist]!;
         final bool effectiveIsDark = palette.isAlwaysDark || isSystemDark;
@@ -164,8 +112,8 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
         return AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
-            final offset = _controller.isAnimating ? _positionAnimation.value : _dragOffset;
-            final rotation = _controller.isAnimating ? _rotationAnimation.value : _dragRotation;
+            final offset = _positionAnimation.value;
+            final rotation = _rotationAnimation.value;
 
             return Transform.translate(
               offset: offset,
@@ -179,104 +127,68 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
               ),
             );
           },
-          child: IgnorePointer(
-            ignoring: !widget.isEnabled,
-            child: GestureDetector(
-              onPanUpdate: _onPanUpdate,
-              onPanEnd: _onPanEnd,
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.85,
-                height: MediaQuery.of(context).size.height * 0.55,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(40),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: effectiveIsDark ? 0.4 : 0.05),
-                      blurRadius: 30,
-                      offset: const Offset(0, 15),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.85,
+            height: MediaQuery.of(context).size.height * 0.55,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(40),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: effectiveIsDark ? 0.4 : 0.05),
+                  blurRadius: 30,
+                  offset: const Offset(0, 15),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(40),
+              child: Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: effectiveIsDark 
+                          ? gradient.map((c) => Color.lerp(c, Colors.black, 0.7)!).toList()
+                          : gradient,
+                      ),
                     ),
-                    if (widget.isEnabled)
-                      BoxShadow(
-                        color: feedbackColor.withValues(alpha: feedbackOpacity * 0.1),
-                        blurRadius: 40,
-                        spreadRadius: 5,
-                      ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(40),
-                  child: Stack(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: effectiveIsDark 
-                              ? gradient.map((c) => Color.lerp(c, Colors.black, 0.7)!).toList()
-                              : gradient,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(40.0),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.spa_rounded, 
-                              color: effectiveIsDark ? Colors.white10 : Colors.black26, 
-                              size: 32
-                            ),
-                            const Spacer(),
-                            Text(
-                              displayText,
-                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.5,
-                                    color: effectiveIsDark ? Colors.white : Colors.black,
-                                  ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const Spacer(),
-                            if (widget.affirmation.persona != null)
-                              Text(
-                                "FROM ${widget.affirmation.persona!.name.toUpperCase()}",
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w900,
-                                  color: effectiveIsDark ? Colors.white24 : Colors.black38,
-                                  letterSpacing: 2,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      if (widget.isEnabled)
-                        Positioned.fill(
-                          child: IgnorePointer(
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 100),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: feedbackColor.withValues(alpha: feedbackOpacity * 0.4),
-                                  width: 8,
-                                ),
-                                borderRadius: BorderRadius.circular(40),
-                                color: feedbackColor.withValues(alpha: feedbackOpacity * 0.1),
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  feedbackIcon,
-                                  size: 100,
-                                  color: Colors.white.withValues(alpha: feedbackOpacity * 0.5),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
                   ),
-                ),
+                  Padding(
+                    padding: const EdgeInsets.all(40.0),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.spa_rounded, 
+                          color: effectiveIsDark ? Colors.white10 : Colors.black26, 
+                          size: 32
+                        ),
+                        const Spacer(),
+                        Text(
+                          displayText,
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                height: 1.5,
+                                color: effectiveIsDark ? Colors.white : Colors.black,
+                              ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const Spacer(),
+                        if (widget.affirmation.persona != null)
+                          Text(
+                            "FROM ${widget.affirmation.persona!.name.toUpperCase()}",
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
+                              color: effectiveIsDark ? Colors.white24 : Colors.black38,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

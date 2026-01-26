@@ -31,6 +31,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   int _swipeCount = 0;
   bool _isPremium = false;
   final int _maxFreeSwipes = 20;
+  
+  // Key to control the top card
+  final GlobalKey<SwipeCardState> _cardKey = GlobalKey<SwipeCardState>();
 
   @override
   void initState() {
@@ -492,7 +495,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         alignment: Alignment.center,
                         clipBehavior: Clip.none,
                         children: _affirmations
-                            .take(2) // Only show 2 cards: current and next
+                            .take(2) 
                             .toList()
                             .reversed
                             .toList()
@@ -507,7 +510,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           return Positioned(
                             top: 40.0 - (reversedIndex * 15),
                             child: SwipeCard(
-                              key: ValueKey(aff.getText(DopeLanguage.en)),
+                              key: isTop ? _cardKey : ValueKey(aff.getText(DopeLanguage.en)),
                               affirmation: aff,
                               language: lang,
                               onSwipe: isTop ? _onSwipeAction : (direction) async => false,
@@ -516,6 +519,23 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           );
                         }).toList(),
                       ),
+                    ),
+                    const SizedBox(height: 32),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildActionCircle(
+                          icon: Icons.close_rounded,
+                          color: Colors.redAccent,
+                          onPressed: () => _cardKey.currentState?.triggerSwipe(SwipeDirection.left),
+                        ),
+                        const SizedBox(width: 40),
+                        _buildActionCircle(
+                          icon: Icons.favorite_rounded,
+                          color: Colors.greenAccent,
+                          onPressed: () => _cardKey.currentState?.triggerSwipe(SwipeDirection.right),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 32),
                     if (!_isPremium)
@@ -564,6 +584,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         );
       },
+    );
+  }
+
+  Widget _buildActionCircle({required IconData icon, required Color color, required VoidCallback onPressed}) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color.withValues(alpha: 0.1),
+        border: Border.all(color: color.withValues(alpha: 0.2), width: 2),
+      ),
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(icon, color: color),
+        iconSize: 32,
+        padding: const EdgeInsets.all(16),
+      ),
     );
   }
 
