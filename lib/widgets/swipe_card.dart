@@ -46,18 +46,18 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 800), // Slower, more natural duration
     );
 
     _positionAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutQuart));
 
     _rotationAnimation = Tween<double>(
       begin: 0,
       end: 0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutQuart));
   }
 
   @override
@@ -108,26 +108,26 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
     _positionAnimation = Tween<Offset>(
       begin: _dragOffset,
       end: endOffset,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInCubic));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutExpo));
 
     _rotationAnimation = Tween<double>(
       begin: _dragRotation,
-      end: _dragRotation * 2,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInCubic));
+      end: _dragRotation * 1.5,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutExpo));
 
-    _controller.forward();
+    _controller.forward(from: 0);
   }
 
   void _reset() {
     _positionAnimation = Tween<Offset>(
       begin: _dragOffset,
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _rotationAnimation = Tween<double>(
       begin: _dragRotation,
       end: 0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _controller.forward(from: 0).then((_) {
       setState(() {
@@ -228,7 +228,6 @@ class _SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMix
                               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                                     fontWeight: FontWeight.w600,
                                     height: 1.5,
-                                    // FORCE high contrast text color based on effectiveIsDark
                                     color: effectiveIsDark ? Colors.white : Colors.black,
                                   ),
                               textAlign: TextAlign.center,
