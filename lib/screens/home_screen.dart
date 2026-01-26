@@ -105,7 +105,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Future<bool> _onSwipeAction(SwipeDirection direction) async {
     if (_affirmations.isEmpty) return false;
 
-    if (!_isPremium && _swipeCount >= _maxFreeSwipes) {
+    // Check paywall only if LIKING (since ignoring is free/rewarding)
+    if (direction == SwipeDirection.right && !_isPremium && _swipeCount >= _maxFreeSwipes) {
       _showPaywall();
       return false;
     }
@@ -114,12 +115,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _history.add(removed);
     if (_history.length > 10) _history.removeAt(0);
 
-    if (direction == SwipeDirection.right) {
-      _toggleLike(removed);
-    }
-
     setState(() {
-      _swipeCount++;
+      if (direction == SwipeDirection.right) {
+        _toggleLike(removed);
+        _swipeCount++; // Decreases excuses left
+      } else {
+        _swipeCount = max(-100, _swipeCount - 1); // Increases excuses left
+      }
     });
 
     if (_affirmations.isNotEmpty) {

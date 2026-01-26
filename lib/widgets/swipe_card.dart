@@ -84,13 +84,14 @@ class SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMixi
   Future<void> triggerSwipe(SwipeDirection direction) async {
     if (!widget.isEnabled || _isSwiping) return;
     
-    final accepted = await widget.onSwipe(direction);
-    if (accepted) {
-      _animateOut(direction);
-    }
+    // 1. Run animation first
+    await _animateOut(direction);
+    
+    // 2. Then notify parent to update data and count
+    await widget.onSwipe(direction);
   }
 
-  void _animateOut(SwipeDirection direction) {
+  Future<void> _animateOut(SwipeDirection direction) async {
     if (!mounted) return;
     setState(() => _isSwiping = true);
     final size = MediaQuery.of(context).size;
@@ -111,7 +112,7 @@ class SwipeCardState extends State<SwipeCard> with SingleTickerProviderStateMixi
       end: direction == SwipeDirection.right ? 0.5 : -0.5,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
-    _controller.forward(from: 0);
+    await _controller.forward(from: 0);
   }
 
   @override
