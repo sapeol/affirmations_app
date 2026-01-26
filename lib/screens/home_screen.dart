@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _swipeCount = 0;
   int _undoCount = 0;
   final int _maxFreeSwipes = 5;
-  final int _maxFreeUndos = 2;
+  final int _maxFreeUndos = 5;
   bool _isActionInProgress = false;
   final GlobalKey<SwipeCardState> _cardKey = GlobalKey<SwipeCardState>();
   final List<Affirmation> _history = [];
@@ -183,6 +183,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           Text("You've run out of delusions for today. Give us \$3 or go face reality. Your choice.", textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.6, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8))),
           const SizedBox(height: 48),
           _buildPaywallFeature(Icons.all_inclusive_rounded, "Endless Delusions"),
+          _buildPaywallFeature(Icons.undo_rounded, "Unlimited Undos"),
           _buildPaywallFeature(Icons.palette_outlined, "Slightly Different Pastels"),
           _buildPaywallFeature(Icons.history_rounded, "A List of Your Failures"),
           const Spacer(),
