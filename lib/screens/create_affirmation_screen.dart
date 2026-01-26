@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/affirmation.dart';
-import '../models/user_preferences.dart';
+import '../services/affirmations_service.dart';
+import '../locator.dart';
 
 class CreateAffirmationScreen extends StatefulWidget {
   const CreateAffirmationScreen({super.key});
@@ -17,12 +18,12 @@ class _CreateAffirmationScreenState extends State<CreateAffirmationScreen> {
     if (_controller.text.trim().isEmpty) return;
 
     setState(() => _isSaving = true);
-    final newAff = Affirmation(
+    final newAff = Affirmation.create(
       text: _controller.text.trim(),
       isCustom: true,
     );
 
-    await UserPreferences.addCustomAffirmation(newAff);
+    await locator<AffirmationsService>().addCustomAffirmation(newAff);
     
     if (mounted) {
       Navigator.pop(context, true);

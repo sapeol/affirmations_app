@@ -4,10 +4,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'affirmations_service.dart';
 import '../models/user_preferences.dart';
 import 'streak_service.dart';
-import 'database_service.dart';
-import 'dart:convert';
 import '../locator.dart';
-
 
 class NotificationService {
   final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
@@ -16,7 +13,7 @@ class NotificationService {
     tz.initializeTimeZones();
     
     const AndroidInitializationSettings androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const DarwinInitializationSettings iosInit = DarwinInitializationSettings(); // Use Darwin for iOS, macOS
+    const DarwinInitializationSettings iosInit = DarwinInitializationSettings();
     
     const InitializationSettings initSettings = InitializationSettings(
       android: androidInit,
@@ -31,34 +28,11 @@ class NotificationService {
 
   void _onNotificationResponse(NotificationResponse response) async {
     if (response.actionId != null) {
-      // Record reality check response
-      await locator<DatabaseService>().logHistory(
-        'reality_check', 
-        jsonEncode({
-          'action': response.actionId,
-          'payload': response.payload,
-        })
-      );
-      
-      // Also update streak on interaction
+      // Logic for interaction can be added here
       await locator<StreakService>().updateStreak();
 
       final prefs = await UserPreferences.load();
-      final updatedPrefs = UserPreferences(
-        persona: prefs.persona,
-        themeMode: prefs.themeMode,
-        fontFamily: prefs.fontFamily,
-        colorTheme: prefs.colorTheme,
-        language: prefs.language,
-        likedAffirmations: prefs.likedAffirmations,
-        notificationsEnabled: prefs.notificationsEnabled,
-        notificationHour: prefs.notificationHour,
-        notificationMinute: prefs.notificationMinute,
-        sanityStreak: prefs.sanityStreak,
-        lastInteractionDate: prefs.lastInteractionDate,
-        firstRunDate: prefs.firstRunDate,
-      );
-      await UserPreferences.save(updatedPrefs);
+      await UserPreferences.save(prefs);
     }
   }
 
@@ -97,8 +71,7 @@ class NotificationService {
       }
     }
 
-    // Interactive Reality Check
-    final bool isRealityCheck = DateTime.now().second % 2 == 0; // Simple heuristic for demo
+    final bool isRealityCheck = DateTime.now().second % 2 == 0;
     
     final List<AndroidNotificationAction> androidActions = isRealityCheck ? [
       const AndroidNotificationAction('rc_yes', 'YES', showsUserInterface: true),
@@ -106,11 +79,11 @@ class NotificationService {
     ] : [];
 
     await _notifications.zonedSchedule(
-      0, // id
-      isRealityCheck ? 'REALITY CHECK' : 'DOPERMATIONS', // title
-      isRealityCheck ? 'Are you overthinking or just thinking?' : aff.getText(prefs.language), // body
-      scheduledDate, // scheduledDate
-      NotificationDetails( // notificationDetails
+      0,
+      isRealityCheck ? 'REALITY CHECK' : 'DOPERMATIONS',
+      isRealityCheck ? 'Are you overthinking or just thinking?' : aff.getText(prefs.language),
+      scheduledDate,
+      NotificationDetails(
         android: AndroidNotificationDetails(
           'daily_pings',
           'Daily Pings',
@@ -119,10 +92,10 @@ class NotificationService {
           priority: Priority.high,
           actions: androidActions,
         ),
-        iOS: const DarwinNotificationDetails(), // Darwin for iOS
+        iOS: const DarwinNotificationDetails(),
       ),
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-      androidScheduleMode: scheduleMode, // Android specific
+      androidScheduleMode: scheduleMode,
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }

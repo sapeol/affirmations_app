@@ -38,7 +38,6 @@ dependencies:
   shared_preferences: ^2.5.4
   home_widget: ^0.9.0
   record: ^6.1.2
-  path_provider: ^2.1.5
   path: ^1.9.1
   share_plus: ^12.0.1
   screenshot: ^3.0.0
@@ -48,17 +47,20 @@ dependencies:
   get_it: ^9.2.0
   battery_plus: ^7.0.0
   purchases_flutter: ^9.10.7
+  flutter_card_swiper: ^7.0.0
+  flutter_animate: ^4.5.2
+  flutter_riverpod: ^2.6.1
+  skeletonizer: ^1.4.2
+  isar: ^3.1.0+1
+  isar_flutter_libs: ^3.1.0+1
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  isar_generator: ^3.1.0+1
+  build_runner: ^2.4.13
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

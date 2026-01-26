@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'dart:io';
 import 'dart:math';
 import '../services/affirmations_service.dart';
@@ -16,54 +20,37 @@ import 'profile_screen.dart';
 import 'create_affirmation_screen.dart';
 import '../locator.dart';
 import '../widgets/swipe_card.dart';
+import '../main.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<Affirmation> _affirmations = [];
   bool _isLoading = true;
   final ScreenshotController _screenshotController = ScreenshotController();
   List<String> _likedIds = [];
-  bool _isPremium = false;
   int _swipeCount = 0;
   int _undoCount = 0;
   final int _maxFreeSwipes = 5;
   final int _maxFreeUndos = 5;
   bool _isActionInProgress = false;
-  final GlobalKey<SwipeCardState> _cardKey = GlobalKey<SwipeCardState>();
+  final CardSwiperController _swiperController = CardSwiperController();
   final List<Affirmation> _history = [];
-
-  late AnimationController _entranceController;
-  late List<Animation<double>> _staggeredAnimations;
 
   @override
   void initState() {
     super.initState();
-    _entranceController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-
-    _staggeredAnimations = List.generate(4, (index) {
-      final start = index * 0.15;
-      final end = (start + 0.4).clamp(0.0, 1.0);
-      return CurvedAnimation(
-        parent: _entranceController,
-        curve: Interval(start, end, curve: Curves.easeOutBack),
-      );
-    });
-
     _init();
   }
 
   @override
   void dispose() {
-    _entranceController.dispose();
+    _swiperController.dispose();
     super.dispose();
   }
 
@@ -73,18 +60,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       setState(() {
         _swipeCount = 0; 
         _likedIds = prefs.likedAffirmations;
-        _isPremium = false; 
       });
     }
     await _initRevenueCat();
     await _loadAffirmations();
-    if (mounted) {
-      _entranceController.forward();
-    }
   }
 
   Future<void> _initRevenueCat() async {
-    // Placeholder API keys - should be replaced with real ones from RevenueCat dashboard
     final configuration = PurchasesConfiguration(
       Platform.isAndroid ? "goog_placeholder" : "appl_placeholder"
     );
@@ -92,11 +74,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     
     try {
       CustomerInfo customerInfo = await Purchases.getCustomerInfo();
-      if (mounted) {
-        setState(() {
-          _isPremium = customerInfo.entitlements.active.isNotEmpty;
-        });
-      }
+      ref.read(premiumProvider.notifier).state = customerInfo.entitlements.active.isNotEmpty;
     } catch (e) {
       debugPrint("RevenueCat Error: $e");
     }
@@ -132,27 +110,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final textColor = isDark ? Colors.white : Colors.black;
     HomeWidget.saveWidgetData<String>('text_color', '#${textColor.toARGB32().toRadixString(16).padLeft(8, '0')}');
     HomeWidget.saveWidgetData<String>('theme_name', prefs.colorTheme.name);
-    HomeWidget.saveWidgetData<String>('persona_name', aff.persona?.name.toUpperCase() ?? 'DELUSIONS');
+    HomeWidget.saveWidgetData<String>('persona_name', aff.persona.name.toUpperCase());
     
     HomeWidget.updateWidget(name: 'AffirmationWidgetProvider', androidName: 'AffirmationWidgetProvider', iOSName: 'AffirmationWidget');
     HomeWidget.updateWidget(name: 'AffirmationWidgetLargeProvider', androidName: 'AffirmationWidgetLargeProvider', iOSName: 'AffirmationWidgetLarge');
   }
 
-  Future<bool> _onSwipeAction(SwipeDirection direction) async {
+  bool _onSwipeAction(int previousIndex, int? currentIndex, CardSwiperDirection direction) {
     if (_affirmations.isEmpty || _isActionInProgress) return false;
+    final isPremium = ref.read(premiumProvider);
 
-    if (!_isPremium && _swipeCount >= _maxFreeSwipes) {
+    if (!isPremium && _swipeCount >= _maxFreeSwipes) {
       _showPaywall();
       return false;
     }
 
     _isActionInProgress = true;
-    final removed = _affirmations.removeAt(0);
+    final removed = _affirmations[previousIndex];
     _history.add(removed);
     if (_history.length > 15) _history.removeAt(0);
 
     setState(() {
-      if (direction == SwipeDirection.right) {
+      if (direction == CardSwiperDirection.right) {
         _toggleLike(removed);
         _swipeCount++;
       } else {
@@ -160,10 +139,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       }
     });
 
-    if (_affirmations.isNotEmpty) {
-      _updateWidget(_affirmations.first);
-    } else {
-      await _loadAffirmations();
+    if (currentIndex != null && currentIndex < _affirmations.length) {
+      _updateWidget(_affirmations[currentIndex]);
     }
     
     _isActionInProgress = false;
@@ -242,44 +219,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Future<void> _purchasePremium() async {
-    try {
-      Offerings offerings = await Purchases.getOfferings();
-      if (offerings.current != null && offerings.current!.availablePackages.isNotEmpty) {
-        final package = offerings.current!.availablePackages.first;
-        PurchaseResult result = await Purchases.purchase(PurchaseParams.package(package));
-        if (result.customerInfo.entitlements.active.isNotEmpty) {
-          if (mounted) {
-            setState(() => _isPremium = true);
-            Navigator.pop(context);
-          }
-        }
-      } else {
-        // Fallback for demo purposes if no offerings are configured
-        if (mounted) {
-          setState(() => _isPremium = true);
-          Navigator.pop(context);
-        }
-      }
-    } catch (e) {
-      debugPrint("Purchase Error: $e");
-    }
-  }
-
-  Future<void> _restorePurchases() async {
-    try {
-      CustomerInfo customerInfo = await Purchases.restorePurchases();
-      if (customerInfo.entitlements.active.isNotEmpty) {
-        if (mounted) {
-          setState(() => _isPremium = true);
-          Navigator.pop(context);
-        }
-      }
-    } catch (e) {
-      debugPrint("Restore Error: $e");
-    }
-  }
-
   Widget _buildPaywallFeature(IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -297,15 +236,54 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  Future<void> _purchasePremium() async {
+    try {
+      Offerings offerings = await Purchases.getOfferings();
+      if (offerings.current != null && offerings.current!.availablePackages.isNotEmpty) {
+        final package = offerings.current!.availablePackages.first;
+        PurchaseResult result = await Purchases.purchase(PurchaseParams.package(package));
+        if (result.customerInfo.entitlements.active.isNotEmpty) {
+          if (mounted) {
+            ref.read(premiumProvider.notifier).state = true;
+            Navigator.pop(context);
+          }
+        }
+      } else {
+        if (mounted) {
+          ref.read(premiumProvider.notifier).state = true;
+          Navigator.pop(context);
+        }
+      }
+    } catch (e) {
+      debugPrint("Purchase Error: $e");
+    }
+  }
+
+  Future<void> _restorePurchases() async {
+    try {
+      CustomerInfo customerInfo = await Purchases.restorePurchases();
+      if (customerInfo.entitlements.active.isNotEmpty) {
+        if (mounted) {
+          ref.read(premiumProvider.notifier).state = true;
+          Navigator.pop(context);
+        }
+      }
+    } catch (e) {
+      debugPrint("Restore Error: $e");
+    }
+  }
+
   void _undoSwipe() async {
     if (_history.isEmpty || _isActionInProgress) return;
+    final isPremium = ref.read(premiumProvider);
     
-    if (!_isPremium && _undoCount >= _maxFreeUndos) {
+    if (!isPremium && _undoCount >= _maxFreeUndos) {
       _showPaywall();
       return;
     }
     
     _isActionInProgress = true;
+    _swiperController.undo();
     setState(() {
       final last = _history.removeLast();
       _affirmations.insert(0, last);
@@ -370,7 +348,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             const Spacer(),
             Text(displayText, style: baseStyle.copyWith(color: isDark ? Colors.white : Colors.black, fontSize: 24, fontWeight: FontWeight.w600, height: 1.5, decoration: TextDecoration.none), textAlign: TextAlign.center),
             const Spacer(),
-            if (aff.persona != null) Text("FROM ${aff.persona!.name.toUpperCase()}", style: baseStyle.copyWith(fontSize: 14, fontWeight: FontWeight.w900, color: isDark ? Colors.white24 : Colors.black38, letterSpacing: 2, decoration: TextDecoration.none)),
+            Text("FROM ${aff.persona.name.toUpperCase()}", style: baseStyle.copyWith(fontSize: 14, fontWeight: FontWeight.w900, color: isDark ? Colors.white24 : Colors.black38, letterSpacing: 2, decoration: TextDecoration.none)),
             const SizedBox(height: 24),
             Text("DELUSIONS", style: baseStyle.copyWith(color: isDark ? Colors.white10 : Colors.black12, fontSize: 14, letterSpacing: 8, fontWeight: FontWeight.w300, decoration: TextDecoration.none)),
           ],
@@ -381,6 +359,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final isPremium = ref.watch(premiumProvider);
+    
     return FutureBuilder<UserPreferences>(
       future: UserPreferences.load(),
       builder: (context, prefSnapshot) {
@@ -389,107 +369,73 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: AppBar(
             backgroundColor: Colors.transparent, elevation: 0,
-            title: AnimatedBuilder(
-              animation: _staggeredAnimations[0],
-              builder: (context, child) => Transform.translate(
-                offset: Offset(0, 20 * (1 - _staggeredAnimations[0].value)),
-                child: Opacity(opacity: _staggeredAnimations[0].value.clamp(0.0, 1.0), child: child),
-              ),
-              child: Text("DELUSIONS", style: Theme.of(context).appBarTheme.titleTextStyle),
-            ),
+            title: Text("DELUSIONS", style: Theme.of(context).appBarTheme.titleTextStyle)
+              .animate().fadeIn(duration: 600.ms).slideY(begin: -0.2, end: 0, curve: Curves.easeOutBack),
             centerTitle: true,
-            leading: AnimatedBuilder(
-              animation: _staggeredAnimations[0],
-              builder: (context, child) => Opacity(opacity: _staggeredAnimations[0].value.clamp(0.0, 1.0), child: child),
-              child: IconButton(icon: Icon(Icons.blur_on_rounded, color: Theme.of(context).iconTheme.color), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()))),
-            ),
+            leading: IconButton(icon: Icon(Icons.blur_on_rounded, color: Theme.of(context).iconTheme.color), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen())))
+              .animate().fadeIn(delay: 200.ms),
             actions: [
-              if (prefSnapshot.hasData) AnimatedBuilder(
-                animation: _staggeredAnimations[0],
-                builder: (context, child) => Opacity(opacity: _staggeredAnimations[0].value.clamp(0.0, 1.0), child: child),
-                child: Center(child: Padding(padding: const EdgeInsets.only(right: 16.0), child: Text("${prefSnapshot.data!.sanityStreak}D", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 1)))),
-              ),
-              AnimatedBuilder(
-                animation: _staggeredAnimations[0],
-                builder: (context, child) => Opacity(opacity: _staggeredAnimations[0].value.clamp(0.0, 1.0), child: child),
-                child: IconButton(icon: Icon(Icons.tune_rounded, color: Theme.of(context).iconTheme.color), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())).then((_) => _loadAffirmations())),
-              ),
+              if (prefSnapshot.hasData) Center(child: Padding(padding: const EdgeInsets.only(right: 16.0), child: Text("${prefSnapshot.data!.sanityStreak}D", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 1))))
+                .animate().fadeIn(delay: 300.ms),
+              IconButton(icon: Icon(Icons.tune_rounded, color: Theme.of(context).iconTheme.color), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())).then((_) => _loadAffirmations()))
+                .animate().fadeIn(delay: 400.ms),
             ],
           ),
-          body: Stack(
-            children: [
-              if (_isLoading) const Center(child: ExpressiveLoader())
-              else if (_affirmations.isEmpty) Center(child: FadeIn(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.wb_sunny_outlined, size: 48, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)), const SizedBox(height: 24), Text("The well is dry. Just like your soul.", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w300, fontStyle: FontStyle.italic)), const SizedBox(height: 48), TextButton(onPressed: _loadAffirmations, child: Text("REFETCH THE LIES", style: TextStyle(letterSpacing: 2, fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5))))])))
-              else Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                const SizedBox(height: 24),
-                Expanded(
-                  flex: 12, 
-                  child: AnimatedBuilder(
-                    animation: _staggeredAnimations[1],
-                    builder: (context, child) => Transform.translate(
-                      offset: Offset(0, 100 * (1 - _staggeredAnimations[1].value)),
-                      child: Opacity(opacity: _staggeredAnimations[1].value.clamp(0.0, 1.0), child: child),
-                    ),
-                    child: Stack(alignment: Alignment.center, clipBehavior: Clip.none, children: _affirmations.take(2).toList().reversed.toList().asMap().entries.map((entry) {
-                      final reversedIndex = entry.key; final aff = entry.value; final totalInStack = min(_affirmations.length, 2); final isTop = reversedIndex == totalInStack - 1;
-                      return Positioned(top: 40.0 - (reversedIndex * 15), child: SwipeCard(key: isTop ? _cardKey : ValueKey(aff.getText(DopeLanguage.en)), affirmation: aff, language: lang, onSwipe: isTop ? _onSwipeAction : (direction) async => false, isEnabled: isTop));
-                    }).toList()),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                AnimatedBuilder(
-                  animation: _staggeredAnimations[2],
-                  builder: (context, child) => Transform.translate(
-                    offset: Offset(0, 50 * (1 - _staggeredAnimations[2].value)),
-                    child: Opacity(opacity: _staggeredAnimations[2].value.clamp(0.0, 1.0), child: child),
-                  ),
-                  child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    _buildActionCircle(
-                      icon: Icons.close_rounded,
-                      color: Colors.redAccent,
-                      onPressed: _undoSwipe,
-                      isDisabled: _history.isEmpty || _isActionInProgress,
-                    ),
-                    const SizedBox(width: 40),
-                    _buildActionCircle(
-                      icon: Icons.favorite_rounded,
-                      color: Colors.greenAccent,
-                      onPressed: () {
-                        if (!_isPremium && _swipeCount >= _maxFreeSwipes) {
-                          _showPaywall();
-                        } else {
-                          _cardKey.currentState?.triggerSwipe(SwipeDirection.right);
-                        }
+          body: Skeletonizer(
+            enabled: _isLoading,
+            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const SizedBox(height: 24),
+              Expanded(
+                flex: 12, 
+                child: _affirmations.isEmpty && !_isLoading 
+                  ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.wb_sunny_outlined, size: 48, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)), const SizedBox(height: 24), Text("The well is dry. Just like your soul.", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w300, fontStyle: FontStyle.italic)), const SizedBox(height: 48), TextButton(onPressed: _loadAffirmations, child: Text("REFETCH THE LIES", style: TextStyle(letterSpacing: 2, fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5))))]))
+                  : CardSwiper(
+                      controller: _swiperController,
+                      cardsCount: _affirmations.length,
+                      onSwipe: _onSwipeAction,
+                      numberOfCardsDisplayed: 2,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+                      cardBuilder: (context, index, horizontalThresholdPercentage, verticalThresholdPercentage) {
+                        return SwipeCard(
+                          affirmation: _affirmations[index],
+                          language: lang,
+                          onSwipe: (dir) async => true,
+                          isEnabled: true,
+                        );
                       },
-                      isDisabled: _isActionInProgress,
-                    ),
-                  ]),
+                    ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.1, end: 0),
+              ),
+              const SizedBox(height: 32),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                _buildActionCircle(
+                  icon: Icons.close_rounded,
+                  color: Colors.redAccent,
+                  onPressed: _undoSwipe,
+                  isDisabled: _history.isEmpty || _isActionInProgress,
                 ),
-                const SizedBox(height: 32),
-                if (!_isPremium) AnimatedBuilder(
-                  animation: _staggeredAnimations[3],
-                  builder: (context, child) => Opacity(opacity: _staggeredAnimations[3].value.clamp(0.0, 1.0), child: child),
-                  child: Padding(padding: const EdgeInsets.only(bottom: 24), child: Text("${_maxFreeSwipes - _swipeCount} MORE EXCUSES LEFT", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 2, fontSize: 14, fontWeight: FontWeight.w900))),
+                const SizedBox(width: 40),
+                _buildActionCircle(
+                  icon: Icons.favorite_rounded,
+                  color: Colors.greenAccent,
+                  onPressed: () {
+                    if (!isPremium && _swipeCount >= _maxFreeSwipes) {
+                      _showPaywall();
+                    } else {
+                      _swiperController.swipe(CardSwiperDirection.right);
+                    }
+                  },
+                  isDisabled: _isActionInProgress,
                 ),
-                AnimatedBuilder(
-                  animation: _staggeredAnimations[3],
-                  builder: (context, child) => Transform.translate(
-                    offset: Offset(0, 30 * (1 - _staggeredAnimations[3].value)),
-                    child: Opacity(opacity: _staggeredAnimations[3].value.clamp(0.0, 1.0), child: child),
-                  ),
-                  child: Padding(padding: const EdgeInsets.only(bottom: 40), child: _buildSoftButton(icon: Icons.ios_share_rounded, onPressed: _shareAsImage)),
-                ),
-              ]),
-            ],
+              ]).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutCubic),
+              const SizedBox(height: 32),
+              if (!isPremium) Padding(padding: const EdgeInsets.only(bottom: 24), child: Text("${_maxFreeSwipes - _swipeCount} MORE EXCUSES LEFT", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 2, fontSize: 14, fontWeight: FontWeight.w900)))
+                .animate().fadeIn(delay: 600.ms),
+              Padding(padding: const EdgeInsets.only(bottom: 40), child: _buildSoftButton(icon: Icons.ios_share_rounded, onPressed: _shareAsImage))
+                .animate().fadeIn(delay: 700.ms).slideY(begin: 0.3, end: 0),
+            ]),
           ),
-          floatingActionButton: AnimatedBuilder(
-            animation: _staggeredAnimations[3],
-            builder: (context, child) => Transform.scale(
-              scale: _staggeredAnimations[3].value,
-              child: Opacity(opacity: _staggeredAnimations[3].value.clamp(0.0, 1.0), child: child),
-            ),
-            child: FloatingActionButton(heroTag: 'add', elevation: 0, highlightElevation: 0, backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), onPressed: () async { final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateAffirmationScreen())); if (result == true) _loadAffirmations(); }, child: const Icon(Icons.add_rounded, size: 20)),
-          ),
+          floatingActionButton: FloatingActionButton(heroTag: 'add', elevation: 0, highlightElevation: 0, backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), onPressed: () async { final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateAffirmationScreen())); if (result == true) _loadAffirmations(); }, child: const Icon(Icons.add_rounded, size: 20))
+            .animate().scale(delay: 800.ms, curve: Curves.elasticOut),
         );
       },
     );
@@ -591,13 +537,6 @@ class _AnimatedActionButtonState extends State<_AnimatedActionButton> with Singl
       ),
     );
   }
-}
-
-class FadeIn extends StatelessWidget {
-  final Widget child;
-  const FadeIn({super.key, required this.child});
-  @override
-  Widget build(BuildContext context) { return TweenAnimationBuilder<double>(tween: Tween(begin: 0.0, end: 1.0), duration: const Duration(seconds: 1), builder: (context, value, child) => Opacity(opacity: value, child: child), child: child); }
 }
 
 class ExpressiveLoader extends StatefulWidget {

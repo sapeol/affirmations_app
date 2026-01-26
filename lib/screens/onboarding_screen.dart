@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_preferences.dart';
 import 'home_screen.dart';
-
 import '../main.dart';
 
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   final int _totalPages = 3;
@@ -153,13 +153,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           _buildSelectionTitle("COLOR PALETTE"),
           _buildStableSelection(AppColorTheme.values, _selectedTheme, (v) {
             setState(() => _selectedTheme = v as AppColorTheme);
-            colorThemeNotifier.value = v as AppColorTheme;
+            ref.read(colorThemeExProvider.notifier).state = v as AppColorTheme;
           }),
           const SizedBox(height: 32),
           _buildSelectionTitle("SYSTEM THEME"),
           _buildStableSelection([ThemeMode.light, ThemeMode.dark], _selectedThemeMode, (v) {
             setState(() => _selectedThemeMode = v as ThemeMode);
-            themeNotifier.value = v as ThemeMode;
+            ref.read(themeModeProvider.notifier).state = v as ThemeMode;
           }),
         ],
       ),

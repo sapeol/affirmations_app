@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
 import '../models/user_preferences.dart';
 import '../main.dart';
 import '../services/notification_service.dart';
 import '../locator.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   late Future<UserPreferences> _prefsFuture;
 
   final Map<String, List<String>> _fontCategories = {
@@ -29,9 +30,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _updatePreference(UserPreferences newPrefs) async {
     await UserPreferences.save(newPrefs);
-    themeNotifier.value = newPrefs.themeMode;
-    fontNotifier.value = newPrefs.fontFamily;
-    colorThemeNotifier.value = newPrefs.colorTheme;
+    ref.read(themeModeProvider.notifier).state = newPrefs.themeMode;
+    ref.read(fontFamilyProvider.notifier).state = newPrefs.fontFamily;
+    ref.read(colorThemeExProvider.notifier).state = newPrefs.colorTheme;
     
     await locator<NotificationService>().scheduleDailyPing();
     

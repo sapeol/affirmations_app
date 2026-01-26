@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'theme.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/home_screen.dart';
 import 'models/user_preferences.dart';
-
 import 'services/notification_service.dart';
+import 'services/affirmations_service.dart';
 import 'locator.dart';
 
-final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.dark);
-final ValueNotifier<String> fontNotifier = ValueNotifier('Roboto');
-final colorThemeNotifier = ValueNotifier<AppColorTheme>(AppColorTheme.brutalist);
+final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.dark);
+final fontFamilyProvider = StateProvider<String>((ref) => 'Roboto');
+final colorThemeExProvider = StateProvider<AppColorTheme>((ref) => AppColorTheme.brutalist);
+final premiumProvider = StateProvider<bool>((ref) => false);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,20 +21,22 @@ void main() async {
   
   setupLocator();
   await locator<NotificationService>().init();
+  await locator<AffirmationsService>().init();
   
   final prefs = await UserPreferences.load();
-  themeNotifier.value = prefs.themeMode;
-  fontNotifier.value = prefs.fontFamily;
-  colorThemeNotifier.value = prefs.colorTheme;
   
-  // Schedule if enabled
-  if (prefs.notificationsEnabled) {
-    await locator<NotificationService>().scheduleDailyPing();
-  }
-
   final bool onboardingCompleted = await _checkOnboarding();
 
-  runApp(MyApp(onboardingCompleted: onboardingCompleted));
+  runApp(
+    ProviderScope(
+      overrides: [
+        themeModeProvider.overrideWith((ref) => prefs.themeMode),
+        fontFamilyProvider.overrideWith((ref) => prefs.fontFamily),
+        colorThemeExProvider.overrideWith((ref) => prefs.colorTheme),
+      ],
+      child: MyApp(onboardingCompleted: onboardingCompleted),
+    ),
+  );
 }
 
 Future<bool> _checkOnboarding() async {
@@ -40,49 +44,24 @@ Future<bool> _checkOnboarding() async {
   return prefs.containsKey('persona');
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   final bool onboardingCompleted;
 
   const MyApp({super.key, required this.onboardingCompleted});
 
   @override
-  Widget build(BuildContext context) {
-    return MultiValueListenableBuilder(
-      notifiers: [themeNotifier, fontNotifier, colorThemeNotifier],
-      builder: (context) {
-        return MaterialApp(
-          title: 'Dopermations',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.createTheme(Brightness.light, fontNotifier.value, colorThemeNotifier.value),
-          darkTheme: AppTheme.createTheme(Brightness.dark, fontNotifier.value, colorThemeNotifier.value),
-          themeMode: themeNotifier.value,
-          home: onboardingCompleted ? const HomeScreen() : const OnboardingScreen(),
-        );
-      },
-    );
-  }
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+    final fontFamily = ref.watch(fontFamilyProvider);
+    final colorTheme = ref.watch(colorThemeExProvider);
 
-class MultiValueListenableBuilder extends StatelessWidget {
-  final List<ValueNotifier> notifiers;
-  final WidgetBuilder builder;
-
-  const MultiValueListenableBuilder({
-    super.key,
-    required this.notifiers,
-    required this.builder,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _buildRecursive(0, context);
-  }
-
-  Widget _buildRecursive(int index, BuildContext context) {
-    if (index == notifiers.length) return builder(context);
-    return ValueListenableBuilder(
-      valueListenable: notifiers[index],
-      builder: (_, _, _) => _buildRecursive(index + 1, context),
+    return MaterialApp(
+      title: 'Dopermations',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.createTheme(Brightness.light, fontFamily, colorTheme),
+      darkTheme: AppTheme.createTheme(Brightness.dark, fontFamily, colorTheme),
+      themeMode: themeMode,
+      home: onboardingCompleted ? const HomeScreen() : const OnboardingScreen(),
     );
   }
 }

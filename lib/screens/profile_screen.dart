@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isar/isar.dart';
 import '../models/user_preferences.dart';
 import '../models/affirmation.dart';
 import '../services/affirmations_service.dart';
@@ -7,18 +9,20 @@ import 'weekly_report_screen.dart';
 import 'affirmations_list_screen.dart';
 import '../locator.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: const Text("MY PROFILE")),
       body: FutureBuilder<UserPreferences>(
         future: UserPreferences.load(),
         builder: (context, prefSnapshot) {
-          return FutureBuilder<List<Affirmation>>(
-            future: locator<AffirmationsService>().getAllAffirmations(),
+          final affirmationsService = locator<AffirmationsService>();
+          
+          return StreamBuilder<List<Affirmation>>(
+            stream: affirmationsService.isar.affirmations.where().watch(fireImmediately: true),
             builder: (context, affSnapshot) {
               if (!prefSnapshot.hasData || !affSnapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
@@ -27,60 +31,51 @@ class ProfileScreen extends StatelessWidget {
               final prefs = prefSnapshot.data!;
               final affirmations = affSnapshot.data!;
               
-              // Separating Saved Perspectives (liked) and Personal Write-ups (custom)
-              final likedAffs = prefs.likedAffirmations.map((id) {
-                return affirmations.firstWhere(
-                  (a) => a.getText(DopeLanguage.en) == id,
-                  orElse: () => Affirmation(text: id, isCustom: true),
-                );
-              }).where((a) => !a.isCustom).toList();
+              final likedAffs = affirmations.where((a) => 
+                prefs.likedAffirmations.contains(a.getText(DopeLanguage.en))
+              ).toList();
 
-              return FutureBuilder<List<Affirmation>>(
-                future: UserPreferences.getCustomAffirmations(),
-                builder: (context, customSnapshot) {
-                  final customAffs = customSnapshot.data ?? [];
+              final customAffs = affirmations.where((a) => a.isCustom).toList();
 
-                  return ListView(
-                    padding: const EdgeInsets.all(24),
-                    children: [
-                      _buildHeader(context, prefs),
-                      const SizedBox(height: 24),
-                      _buildReportTile(context),
-                      const SizedBox(height: 24),
-                      _buildCategoryTile(
-                        context,
-                        "SAVED PERSPECTIVES",
-                        "Your library of lies you liked.",
-                        Icons.favorite_rounded,
-                        () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AffirmationsListScreen(
-                              title: "Saved Perspectives",
-                              affirmations: likedAffs,
-                            ),
-                          ),
+              return ListView(
+                padding: const EdgeInsets.all(24),
+                children: [
+                  _buildHeader(context, prefs),
+                  const SizedBox(height: 24),
+                  _buildReportTile(context),
+                  const SizedBox(height: 24),
+                  _buildCategoryTile(
+                    context,
+                    "SAVED PERSPECTIVES",
+                    "Your library of lies you liked.",
+                    Icons.favorite_rounded,
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AffirmationsListScreen(
+                          title: "Saved Perspectives",
+                          affirmations: likedAffs,
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      _buildCategoryTile(
-                        context,
-                        "PERSONAL WRITE-UPS",
-                        "Your own custom delusions.",
-                        Icons.edit_note_rounded,
-                        () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AffirmationsListScreen(
-                              title: "Personal Write-ups",
-                              affirmations: customAffs,
-                            ),
-                          ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildCategoryTile(
+                    context,
+                    "PERSONAL WRITE-UPS",
+                    "Your own custom delusions.",
+                    Icons.edit_note_rounded,
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AffirmationsListScreen(
+                          title: "Personal Write-ups",
+                          affirmations: customAffs,
                         ),
                       ),
-                    ],
-                  );
-                },
+                    ),
+                  ),
+                ],
               );
             },
           );

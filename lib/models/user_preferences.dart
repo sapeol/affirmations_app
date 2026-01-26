@@ -1,14 +1,13 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'affirmation.dart';
 
 enum DopePersona { 
   overthinker, 
   builder, 
   burntOut, 
   striver, 
-  adhdBrain
+  adhdBrain,
+  general
 }
 enum AppColorTheme { brutalist, vibrant, softcore, minimalist, cyber }
 enum DopeLanguage { en, es, hi, fr, de }
@@ -94,24 +93,5 @@ class UserPreferences {
       lastInteractionDate: s.getString('lastInteractionDate'),
       firstRunDate: firstRun,
     );
-  }
-
-  static Future<void> addCustomAffirmation(Affirmation aff) async {
-    final s = await SharedPreferences.getInstance();
-    List<String> current = s.getStringList('custom_affirmations') ?? [];
-    current.add(jsonEncode(aff.toJson()));
-    await s.setStringList('custom_affirmations', current);
-  }
-
-  static Future<List<Affirmation>> getCustomAffirmations() async {
-    final s = await SharedPreferences.getInstance();
-    List<String> current = s.getStringList('custom_affirmations') ?? [];
-    return current.map((e) {
-      try {
-        return Affirmation.fromJson(jsonDecode(e));
-      } catch (_) {
-        return null;
-      }
-    }).whereType<Affirmation>().toList();
   }
 }
