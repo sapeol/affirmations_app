@@ -116,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1A1A1E) : Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
         boxShadow: [
           BoxShadow(
@@ -133,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             width: 40, 
             height: 4, 
             decoration: BoxDecoration(
-              color: isDark ? Colors.white10 : Colors.black12, 
+              color: Theme.of(context).dividerTheme.color, 
               borderRadius: BorderRadius.circular(2)
             )
           ),
@@ -153,24 +153,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w800, 
               letterSpacing: 2,
-              color: isDark ? Colors.white : Colors.black87,
             ),
           ),
           const SizedBox(height: 16),
           Text(
             "You've run out of delusions for today. Give us \$3 or go face reality. Your choice.",
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isDark ? Colors.white60 : Colors.black54, 
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
               height: 1.6, 
               fontWeight: FontWeight.w400,
               fontSize: 15,
             ),
           ),
           const SizedBox(height: 48),
-          _buildPaywallFeature(Icons.all_inclusive_rounded, "Endless Delusions", isDark),
-          _buildPaywallFeature(Icons.palette_outlined, "Slightly Different Pastels", isDark),
-          _buildPaywallFeature(Icons.history_rounded, "A List of Your Failures", isDark),
+          _buildPaywallFeature(Icons.all_inclusive_rounded, "Endless Delusions"),
+          _buildPaywallFeature(Icons.palette_outlined, "Slightly Different Pastels"),
+          _buildPaywallFeature(Icons.history_rounded, "A List of Your Failures"),
           const Spacer(),
           SizedBox(
             width: double.infinity,
@@ -197,8 +195,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             onPressed: () => Navigator.pop(context),
             child: Text(
               "I'D RATHER BE MISERABLE", 
-              style: TextStyle(
-                color: isDark ? Colors.white38 : Colors.black54, 
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1,
@@ -211,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildPaywallFeature(IconData icon, String text, bool isDark) {
+  Widget _buildPaywallFeature(IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14),
       child: Row(
@@ -219,18 +216,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: isDark ? Colors.white38 : Colors.black45, size: 20),
+            child: Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), size: 20),
           ),
           const SizedBox(width: 20),
           Text(
             text, 
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 15, 
               fontWeight: FontWeight.w500, 
-              color: isDark ? Colors.white70 : Colors.black87
             )
           ),
         ],
@@ -340,7 +336,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   displayText,
                   style: baseStyle.copyWith(
                     color: isDark ? Colors.white70 : Colors.black87,
-                    fontSize: 24, // headlineMedium is usually 24-28, let's match SwipeCard
+                    fontSize: 24, 
                     fontWeight: FontWeight.w600,
                     height: 1.5,
                     decoration: TextDecoration.none,
@@ -384,7 +380,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       future: UserPreferences.load(),
       builder: (context, prefSnapshot) {
         final lang = prefSnapshot.data?.language ?? DopeLanguage.en;
-        final isDark = Theme.of(context).brightness == Brightness.dark;
 
         return Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -410,11 +405,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     padding: const EdgeInsets.only(right: 16.0),
                     child: Text(
                       "${prefSnapshot.data!.sanityStreak}D",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w200,
-                        color: isDark ? Colors.white38 : Colors.black45,
-                      ),
+                      style: Theme.of(context).textTheme.labelSmall,
                     ),
                   ),
                 ),
@@ -437,12 +428,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.wb_sunny_outlined, size: 48, color: isDark ? Colors.white10 : Colors.black12),
+                        Icon(Icons.wb_sunny_outlined, size: 48, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
                         const SizedBox(height: 24),
                         Text(
                           "The well is dry. Just like your soul.",
                           style: TextStyle(
-                            color: isDark ? Colors.white38 : Colors.black.withValues(alpha: 0.5),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                             fontWeight: FontWeight.w300,
                             fontStyle: FontStyle.italic,
                           ),
@@ -455,7 +446,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             style: TextStyle(
                               letterSpacing: 2,
                               fontSize: 10,
-                              color: isDark ? Colors.white54 : Colors.black54,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
                         ),
@@ -509,12 +500,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         padding: const EdgeInsets.only(bottom: 24),
                         child: Text(
                           "${_maxFreeSwipes - _swipeCount} MORE EXCUSES LEFT",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white38 : Colors.black45,
-                            letterSpacing: 3,
-                          ),
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 3),
                         ),
                       ),
                     Padding(
@@ -542,8 +528,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             heroTag: 'add',
             elevation: 0,
             highlightElevation: 0,
-            backgroundColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
-            foregroundColor: isDark ? Colors.white38 : Colors.black45,
+            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+            foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
             onPressed: () async {
               final result = await Navigator.push(
                 context,
@@ -559,12 +545,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildSoftButton({required IconData icon, VoidCallback? onPressed}) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return IconButton(
       onPressed: onPressed,
       icon: Icon(icon),
       iconSize: 20,
-      color: (isDark ? Colors.white : Colors.black).withValues(alpha: onPressed == null ? 0.05 : 0.4),
+      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: onPressed == null ? 0.1 : 0.4),
     );
   }
 }
@@ -611,7 +596,6 @@ class _ExpressiveLoaderState extends State<ExpressiveLoader> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -624,7 +608,7 @@ class _ExpressiveLoaderState extends State<ExpressiveLoader> with SingleTickerPr
               return CustomPaint(
                 painter: _TerminalPainter(
                   progress: _controller.value,
-                  color: isDark ? Colors.white10 : Colors.black12,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                 ),
               );
             },
@@ -633,12 +617,7 @@ class _ExpressiveLoaderState extends State<ExpressiveLoader> with SingleTickerPr
         const SizedBox(height: 32),
         Text(
           "BREATHING...",
-          style: TextStyle(
-                color: isDark ? Colors.white24 : Colors.black45,
-                letterSpacing: 4.0,
-                fontSize: 10,
-                fontWeight: FontWeight.w300,
-              ),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 4.0),
         ),
       ],
     );

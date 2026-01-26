@@ -5,42 +5,45 @@ import 'models/user_preferences.dart';
 class AppTheme {
   static final Map<AppColorTheme, AppPalette> palettes = {
     AppColorTheme.brutalist: AppPalette(
-      primary: const Color(0xFF000000), 
-      secondary: const Color(0xFFFF3D00), 
-      accent: const Color(0xFF00E676), 
+      primary: const Color(0xFF000000),
+      secondary: const Color(0xFFFF3D00),
+      accent: const Color(0xFF00E676),
       background: const Color(0xFFFFFFFF),
       surface: const Color(0xFFFFFFFF),
       text: const Color(0xFF000000),
+      subtext: const Color(0xFF000000).withValues(alpha: 0.7),
       isDark: false,
       cardGradients: [
-        [const Color(0xFFFFD600), const Color(0xFFFFD600)], // Solid Yellow
-        [const Color(0xFF00E676), const Color(0xFF00E676)], // Solid Green
-        [const Color(0xFF2979FF), const Color(0xFF2979FF)], // Solid Blue
-        [const Color(0xFFFF3D00), const Color(0xFFFF3D00)], // Solid Orange
+        [const Color(0xFFFFD600), const Color(0xFFFFD600)],
+        [const Color(0xFF00E676), const Color(0xFF00E676)],
+        [const Color(0xFF2979FF), const Color(0xFF2979FF)],
+        [const Color(0xFFFF3D00), const Color(0xFFFF3D00)],
       ],
     ),
     AppColorTheme.vibrant: AppPalette(
-      primary: const Color(0xFF6200EA), 
-      secondary: const Color(0xFF00BFA5), 
-      accent: const Color(0xFFFFD600), 
-      background: const Color(0xFFF5F5F5),
+      primary: const Color(0xFF6200EA),
+      secondary: const Color(0xFF00BFA5),
+      accent: const Color(0xFFFFD600),
+      background: const Color(0xFFFDFDFF),
       surface: Colors.white,
-      text: const Color(0xFF121212),
+      text: const Color(0xFF1A1A1A),
+      subtext: const Color(0xFF1A1A1A).withValues(alpha: 0.6),
       isDark: false,
       cardGradients: [
-        [const Color(0xFF8E2DE2), const Color(0xFF4A00E0)], // Purple Bliss
-        [const Color(0xFF00B4DB), const Color(0xFF0083B0)], // Blue Lagoon
-        [const Color(0xFFF2994A), const Color(0xFFF2C94C)], // Mango
-        [const Color(0xFFEE0979), const Color(0xFFFF6A00)], // Roseanna
+        [const Color(0xFF8E2DE2), const Color(0xFF4A00E0)],
+        [const Color(0xFF00B4DB), const Color(0xFF0083B0)],
+        [const Color(0xFFF2994A), const Color(0xFFF2C94C)],
+        [const Color(0xFFEE0979), const Color(0xFFFF6A00)],
       ],
     ),
     AppColorTheme.softcore: AppPalette(
-      primary: const Color(0xFFFF80AB), 
-      secondary: const Color(0xFFB2FF59), 
-      accent: const Color(0xFF80D8FF), 
+      primary: const Color(0xFFFF80AB),
+      secondary: const Color(0xFFB2FF59),
+      accent: const Color(0xFF80D8FF),
       background: const Color(0xFFFDF6F9),
       surface: Colors.white,
-      text: const Color(0xFF3D3D3D),
+      text: const Color(0xFF2D2D2D),
+      subtext: const Color(0xFF2D2D2D).withValues(alpha: 0.6),
       isDark: false,
       cardGradients: [
         [const Color(0xFFFFE0E0), const Color(0xFFFFF5F5)],
@@ -50,33 +53,35 @@ class AppTheme {
       ],
     ),
     AppColorTheme.minimalist: AppPalette(
-      primary: const Color(0xFF212121), 
-      secondary: const Color(0xFF757575), 
-      accent: const Color(0xFFBDBDBD), 
+      primary: const Color(0xFF212121),
+      secondary: const Color(0xFF757575),
+      accent: const Color(0xFFBDBDBD),
       background: const Color(0xFFFAFAFA),
       surface: Colors.white,
       text: const Color(0xFF000000),
+      subtext: const Color(0xFF000000).withValues(alpha: 0.5),
       isDark: false,
       cardGradients: [
         [const Color(0xFFE0E0E0), const Color(0xFFF5F5F5)],
         [const Color(0xFFECE9E6), const Color(0xFFFFFFFF)],
         [const Color(0xFFCFD9DF), const Color(0xFFE2EBF0)],
-        [const Color(0xFFBDC3C7), const Color(0xFF2C3E50)],
+        [const Color(0xFFBDC3C7), const Color(0xFFBDC3C7)],
       ],
     ),
     AppColorTheme.cyber: AppPalette(
-      primary: const Color(0xFF00FF41), 
-      secondary: const Color(0xFFFF00FF), 
-      accent: const Color(0xFF00FFFF), 
+      primary: const Color(0xFF00FF41),
+      secondary: const Color(0xFFFF00FF),
+      accent: const Color(0xFF00FFFF),
       background: const Color(0xFF050505),
       surface: const Color(0xFF121212),
       text: const Color(0xFF00FF41),
+      subtext: const Color(0xFF00FF41).withValues(alpha: 0.7),
       isDark: true,
       cardGradients: [
-        [const Color(0xFF000000), const Color(0xFF434343)], // Carbon
-        [const Color(0xFF0F2027), const Color(0xFF2C5364)], // Deep Ocean
-        [const Color(0xFF141E30), const Color(0xFF243B55)], // Royal Blue
-        [const Color(0xFF000000), const Color(0xFF0F9B0F)], // Matrix
+        [const Color(0xFF000000), const Color(0xFF434343)],
+        [const Color(0xFF0F2027), const Color(0xFF2C5364)],
+        [const Color(0xFF141E30), const Color(0xFF243B55)],
+        [const Color(0xFF000000), const Color(0xFF0F9B0F)],
       ],
     ),
   };
@@ -88,6 +93,7 @@ class AppTheme {
     Color backgroundColor = effectiveIsDark ? (palette.isDark ? palette.background : const Color(0xFF0F0F12)) : palette.background;
     Color surfaceColor = effectiveIsDark ? (palette.isDark ? palette.surface : const Color(0xFF1A1A1E)) : palette.surface;
     Color textColor = effectiveIsDark ? (palette.isDark ? palette.text : const Color(0xFFE1E1E6)) : palette.text;
+    Color subtextColor = effectiveIsDark ? (palette.isDark ? palette.subtext : const Color(0xFFA0A0A5)) : palette.subtext;
     
     final baseTheme = ThemeData(
       useMaterial3: true,
@@ -109,19 +115,26 @@ class AppTheme {
       textTheme: textTheme.apply(
         bodyColor: textColor,
         displayColor: textColor,
+      ).copyWith(
+        labelSmall: textTheme.labelSmall?.copyWith(color: subtextColor, fontWeight: FontWeight.bold),
+        bodySmall: textTheme.bodySmall?.copyWith(color: subtextColor),
       ),
       scaffoldBackgroundColor: backgroundColor,
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: textColor.withValues(alpha: 0.8)),
+        iconTheme: IconThemeData(color: textColor),
         titleTextStyle: textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.w900,
           letterSpacing: 2,
           color: textColor,
           fontSize: 16,
         ),
+      ),
+      dividerTheme: DividerThemeData(
+        color: textColor.withValues(alpha: 0.1),
+        thickness: 1,
       ),
       cardTheme: CardThemeData(
         elevation: colorTheme == AppColorTheme.brutalist ? 8 : 0,
@@ -132,6 +145,7 @@ class AppTheme {
         ),
         color: surfaceColor,
       ),
+      iconTheme: IconThemeData(color: textColor),
     );
   }
 }
@@ -143,6 +157,7 @@ class AppPalette {
   final Color background;
   final Color surface;
   final Color text;
+  final Color subtext;
   final bool isDark;
   final List<List<Color>> cardGradients;
 
@@ -153,6 +168,7 @@ class AppPalette {
     required this.background,
     required this.surface,
     required this.text,
+    required this.subtext,
     required this.isDark,
     required this.cardGradients,
   });

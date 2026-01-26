@@ -426,11 +426,7 @@ class AffirmationsService {
 
     // --- BURNT OUT (Iteration 3) ---
     Affirmation(
-      text: "Sleep is the most productive thing you can do right now.",
-      persona: DopePersona.burntOut,
-    ),
-    Affirmation(
-      text: "You don't need to earn your rest.",
+      text: "Rest is a biological requirement. Even a failed system needs a reboot.",
       persona: DopePersona.burntOut,
     ),
     Affirmation(
@@ -442,7 +438,7 @@ class AffirmationsService {
       persona: DopePersona.burntOut,
     ),
     Affirmation(
-      text: "Surviving is enough for today.",
+      text: "Surviving is enough for today. Barely.",
       persona: DopePersona.burntOut,
     ),
 
@@ -2610,15 +2606,7 @@ class AffirmationsService {
 
     // --- BURNT OUT (Iteration 23) ---
     Affirmation(
-      text: "Sleep is the most productive thing you can do right now. Go horizontal.",
-      persona: DopePersona.burntOut,
-    ),
-    Affirmation(
-      text: "You don't need to 'earn' your right to exist without working. You're already here.",
-      persona: DopePersona.burntOut,
-    ),
-    Affirmation(
-      text: "The world is on fire. You don't have to be the one holding the hose today. Rest.",
+      text: "The world is on fire. You don't have to be the extinguisher.",
       persona: DopePersona.burntOut,
     ),
     Affirmation(
