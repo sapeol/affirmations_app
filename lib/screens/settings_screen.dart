@@ -80,7 +80,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               _buildSettingTile(
                 icon: Icons.language_rounded,
-                title: "System Language",
+                title: "Affirmation Language",
                 subtitle: _formatLang(prefs.language),
                 onTap: () => _showSelectionDialog(context, "Select Language", DopeLanguage.values, prefs.language, (val) => _updatePreference(_copy(prefs, language: val as DopeLanguage))),
               ),
