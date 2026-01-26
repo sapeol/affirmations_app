@@ -314,14 +314,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       width: 400,
       height: 600,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(40),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: gradient,
         ),
       ),
-      clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
           Padding(
