@@ -95,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Future<bool> _onSwipeAction(SwipeDirection direction) async {
     if (_affirmations.isEmpty || _isActionInProgress) return false;
 
-    if (direction == SwipeDirection.right && !_isPremium && _swipeCount >= _maxFreeSwipes) {
+    if (!_isPremium && _swipeCount >= _maxFreeSwipes) {
       _showPaywall();
       return false;
     }
@@ -340,7 +340,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   _buildActionCircle(
                     icon: Icons.favorite_rounded,
                     color: Colors.greenAccent,
-                    onPressed: () => _cardKey.currentState?.triggerSwipe(SwipeDirection.right),
+                    onPressed: () {
+                      if (!_isPremium && _swipeCount >= _maxFreeSwipes) {
+                        _showPaywall();
+                      } else {
+                        _cardKey.currentState?.triggerSwipe(SwipeDirection.right);
+                      }
+                    },
                     isDisabled: _isActionInProgress,
                   ),
                 ]),
