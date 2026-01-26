@@ -10,7 +10,6 @@ import '../models/user_preferences.dart';
 import 'settings_screen.dart';
 import 'profile_screen.dart';
 import 'create_affirmation_screen.dart';
-import 'mood_checkin_screen.dart';
 import '../locator.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -101,14 +100,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final prefs = await UserPreferences.load();
     await UserPreferences.save(UserPreferences(
       persona: prefs.persona,
-      tone: prefs.tone,
       themeMode: prefs.themeMode,
       fontFamily: prefs.fontFamily,
       colorTheme: prefs.colorTheme,
       language: prefs.language,
-      systemLoad: prefs.systemLoad,
-      batteryLevel: prefs.batteryLevel,
-      bandwidth: prefs.bandwidth,
       likedAffirmations: _likedIds,
       notificationsEnabled: prefs.notificationsEnabled,
       notificationHour: prefs.notificationHour,
@@ -183,14 +178,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               final prefs = await UserPreferences.load();
               await UserPreferences.save(UserPreferences(
                 persona: prefs.persona,
-                tone: prefs.tone,
                 themeMode: prefs.themeMode,
                 fontFamily: prefs.fontFamily,
                 colorTheme: prefs.colorTheme,
                 language: prefs.language,
-                systemLoad: prefs.systemLoad,
-                batteryLevel: prefs.batteryLevel,
-                bandwidth: prefs.bandwidth,
                 likedAffirmations: prefs.likedAffirmations,
                 notificationsEnabled: true,
                 notificationHour: prefs.notificationHour,
@@ -276,12 +267,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
           body: Stack(
             children: [
-              Positioned(
-                top: 16,
-                left: 0,
-                right: 0,
-                child: Center(child: _buildMoodPrompt()),
-              ),
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
@@ -365,8 +350,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                       final useSystemRebuttal = DateTime.now().millisecond % 2 == 0;
                                       
                                       if (useSystemRebuttal) {
-                                        final prefs = await UserPreferences.load();
-                                        msg = await locator<AffirmationsService>().getRebuttal(prefs.tone);
+                                        await UserPreferences.load(); // Load ensures DB init if needed, though usually already loaded
+                                        msg = await locator<AffirmationsService>().getRebuttal();
                                       } else {
                                         final msgs = [
                                           "Cool. This isn’t one. It’s just a reminder you’re not trash.",
@@ -434,29 +419,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ),
             ],
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildMoodPrompt() {
-    return FutureBuilder<UserPreferences>(
-      future: UserPreferences.load(),
-      builder: (context, snapshot) {
-        final load = snapshot.data?.systemLoad ?? 0.5;
-        final status = load > 0.7 ? "HIGH PRESSURE" : "NOMINAL";
-        return ActionChip(
-          label: Text("VIBE CHECK: $status"),
-          onPressed: () async {
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const MoodCheckInScreen()),
-            );
-            if (result == true) _loadInitialAffirmation();
-          },
-          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-          side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         );
       },
     );

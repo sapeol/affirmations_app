@@ -46,14 +46,10 @@ class NotificationService {
       final prefs = await UserPreferences.load();
       final updatedPrefs = UserPreferences(
         persona: prefs.persona,
-        tone: prefs.tone,
         themeMode: prefs.themeMode,
         fontFamily: prefs.fontFamily,
         colorTheme: prefs.colorTheme,
         language: prefs.language,
-        systemLoad: prefs.systemLoad,
-        batteryLevel: prefs.batteryLevel,
-        bandwidth: prefs.bandwidth,
         likedAffirmations: prefs.likedAffirmations,
         notificationsEnabled: prefs.notificationsEnabled,
         notificationHour: prefs.notificationHour,

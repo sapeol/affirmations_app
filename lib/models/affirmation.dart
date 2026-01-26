@@ -5,7 +5,6 @@ class Affirmation {
   final String author;
   final bool isCustom;
   final DopePersona? persona;
-  final DopeTone? tone;
 
   Affirmation({
     required String text, // Backward compatibility for initial data entry
@@ -13,7 +12,6 @@ class Affirmation {
     this.author = "Dopermations",
     this.isCustom = false,
     this.persona,
-    this.tone,
   }) : localizedText = localizedText ?? {DopeLanguage.en: text};
 
   String getText(DopeLanguage lang) {
@@ -26,7 +24,6 @@ class Affirmation {
     'author': author,
     'isCustom': isCustom,
     'persona': persona?.name,
-    'tone': tone?.name,
   };
 
   factory Affirmation.fromJson(Map<String, dynamic> json) {
@@ -42,7 +39,6 @@ class Affirmation {
       author: json['author'] as String? ?? "Dopermations",
       isCustom: json['isCustom'] is bool ? json['isCustom'] as bool : false,
       persona: json['persona'] != null ? DopePersona.values.byName(json['persona']) : null,
-      tone: json['tone'] != null ? DopeTone.values.byName(json['tone']) : null,
     );
   }
 }

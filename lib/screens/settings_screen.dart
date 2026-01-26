@@ -62,12 +62,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () => _showSelectionDialog(context, "Select Persona", DopePersona.values, prefs.persona, (val) => _updatePreference(_copy(prefs, persona: val as DopePersona))),
               ),
               _buildSettingTile(
-                icon: Icons.tune_rounded,
-                title: "Affirmation Tone",
-                subtitle: _formatEnum(prefs.tone),
-                onTap: () => _showSelectionDialog(context, "Select Tone vibe", DopeTone.values, prefs.tone, (val) => _updatePreference(_copy(prefs, tone: val as DopeTone))),
-              ),
-              _buildSettingTile(
                 icon: Icons.palette_rounded,
                 title: "Color Palette",
                 subtitle: _formatEnum(prefs.colorTheme),
@@ -144,23 +138,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showSelectionDialog(BuildContext context, String title, List options, dynamic current, Function(dynamic) onSelected) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => Column(
           children: [
-            Text(title.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
-            const SizedBox(height: 16),
-            ...options.map((opt) => ListTile(
-              title: Text(_formatEnum(opt).toUpperCase(), style: const TextStyle(fontSize: 14)),
-              trailing: current == opt ? Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary) : null,
-              onTap: () {
-                onSelected(opt);
-                Navigator.pop(context);
-              },
-            )),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Text(title.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+            ),
+            Expanded(
+              child: ListView.builder(
+                controller: scrollController,
+                itemCount: options.length,
+                itemBuilder: (context, index) {
+                  final opt = options[index];
+                  return ListTile(
+                    title: Text(_formatEnum(opt).toUpperCase(), style: const TextStyle(fontSize: 14)),
+                    trailing: current == opt ? Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary) : null,
+                    onTap: () {
+                      onSelected(opt);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -226,17 +234,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return name[0].toUpperCase() + name.substring(1);
   }
 
-  UserPreferences _copy(UserPreferences p, {DopePersona? persona, DopeTone? tone, ThemeMode? themeMode, String? fontFamily, AppColorTheme? colorTheme, DopeLanguage? language, int? notificationHour, int? notificationMinute, bool? notificationsEnabled}) {
+  UserPreferences _copy(UserPreferences p, {DopePersona? persona, ThemeMode? themeMode, String? fontFamily, AppColorTheme? colorTheme, DopeLanguage? language, int? notificationHour, int? notificationMinute, bool? notificationsEnabled}) {
     return UserPreferences(
       persona: persona ?? p.persona,
-      tone: tone ?? p.tone,
       themeMode: themeMode ?? p.themeMode,
       fontFamily: fontFamily ?? p.fontFamily,
       colorTheme: colorTheme ?? p.colorTheme,
       language: language ?? p.language,
-      systemLoad: p.systemLoad,
-      batteryLevel: p.batteryLevel,
-      bandwidth: p.bandwidth,
       likedAffirmations: p.likedAffirmations,
       notificationsEnabled: notificationsEnabled ?? p.notificationsEnabled,
       notificationHour: notificationHour ?? p.notificationHour,

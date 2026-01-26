@@ -17,7 +17,6 @@ class AffirmationsService {
         DopeLanguage.de: "Glückwunsch zum Sieg im Streit, den du unter der Dusche mit dir selbst geführt hast.",
       },
       persona: DopePersona.overthinker,
-      tone: DopeTone.deadpan,
     ),
     Affirmation(
       text: "Thinking about it for the 10th time won't change the outcome.",
@@ -29,7 +28,6 @@ class AffirmationsService {
         DopeLanguage.de: "Zum zehnten Mal darüber nachzudenken wird das Ergebnis nicht ändern.",
       },
       persona: DopePersona.overthinker,
-      tone: DopeTone.straight,
     ),
     Affirmation(
       text: "Your mind is a haunted house. Maybe stop giving yourself a guided tour.",
@@ -41,12 +39,10 @@ class AffirmationsService {
         DopeLanguage.de: "Dein Verstand ist ein Geisterhaus. Hör vielleicht auf, dir selbst eine Führung zu geben.",
       },
       persona: DopePersona.overthinker,
-      tone: DopeTone.deadpan,
     ),
     Affirmation(
       text: "Doubt is just your brain trying to be helpful and failing.",
       persona: DopePersona.overthinker,
-      tone: DopeTone.chill,
     ),
 
     // --- BUILDER ---
@@ -60,7 +56,6 @@ class AffirmationsService {
         DopeLanguage.de: "Veröffentliche die hässliche Version. Es sieht sowieso keiner hin.",
       },
       persona: DopePersona.builder,
-      tone: DopeTone.coach,
     ),
     Affirmation(
       text: "The perfect moment is a myth invented by people who don't build.",
@@ -72,17 +67,14 @@ class AffirmationsService {
         DopeLanguage.de: "Der perfekte Moment ist ein Mythos, erfunden von Leuten, die nichts bauen.",
       },
       persona: DopePersona.builder,
-      tone: DopeTone.straight,
     ),
     Affirmation(
       text: "Action creates clarity. Sitting there creates dust.",
       persona: DopePersona.builder,
-      tone: DopeTone.coach,
     ),
     Affirmation(
       text: "Your unfinished project isn't a failure, it's an expensive lesson.",
       persona: DopePersona.builder,
-      tone: DopeTone.deadpan,
     ),
 
     // --- BURNT OUT ---
@@ -96,22 +88,18 @@ class AffirmationsService {
         DopeLanguage.de: "Ausruhen ist keine Belohnung, es ist Wartung.",
       },
       persona: DopePersona.burntOut,
-      tone: DopeTone.straight,
     ),
     Affirmation(
       text: "The world won't end if you take a nap. I checked.",
       persona: DopePersona.burntOut,
-      tone: DopeTone.chill,
     ),
     Affirmation(
       text: "Your value is not your productivity. You're not a forklift.",
       persona: DopePersona.burntOut,
-      tone: DopeTone.deadpan,
     ),
     Affirmation(
       text: "That 'urgent' email can wait until you're a person again.",
       persona: DopePersona.burntOut,
-      tone: DopeTone.deadpan,
     ),
 
     // --- ADHD BRAIN ---
@@ -125,62 +113,54 @@ class AffirmationsService {
         DopeLanguage.de: "Dein Gehirn hat 47 Tabs offen. Schließ den, der Musik spielt.",
       },
       persona: DopePersona.adhdBrain,
-      tone: DopeTone.deadpan,
     ),
     Affirmation(
       text: "Momentum beats motivation. Just move one inch.",
       persona: DopePersona.adhdBrain,
-      tone: DopeTone.coach,
     ),
     Affirmation(
       text: "Hyperfocus is a superpower until it's 3 am and you're learning about plumbing.",
       persona: DopePersona.adhdBrain,
-      tone: DopeTone.deadpan,
     ),
     Affirmation(
       text: "Five minutes of focus is better than zero minutes of perfection.",
       persona: DopePersona.adhdBrain,
-      tone: DopeTone.coach,
     ),
 
     // --- STRIVER ---
     Affirmation(
       text: "Ambition is just hunger with a better wardrobe.",
       persona: DopePersona.striver,
-      tone: DopeTone.deadpan,
     ),
     Affirmation(
       text: "You aren't behind. You're just on a different lap.",
       persona: DopePersona.striver,
-      tone: DopeTone.chill,
     ),
     Affirmation(
       text: "The goalpost will always move. Enjoy the grass for a second.",
       persona: DopePersona.striver,
-      tone: DopeTone.coach,
     ),
     Affirmation(
       text: "High standards are fine. Self-sabotage is just extra work.",
       persona: DopePersona.striver,
-      tone: DopeTone.straight,
     ),
 
     // --- UNIVERSAL (Accessible to all personas) ---
-    Affirmation(text: "Reality called. It wants you to stop scrolling.", tone: DopeTone.deadpan),
-    Affirmation(text: "Drink water. You're basically a plant with complicated emotions.", tone: DopeTone.chill),
-    Affirmation(text: "Validation is a drug. Get sober.", tone: DopeTone.straight),
-    Affirmation(text: "Nobody actually knows what they're doing.", tone: DopeTone.deadpan),
-    Affirmation(text: "Cringe is the price of admission for growth.", tone: DopeTone.straight),
+    Affirmation(text: "Reality called. It wants you to stop scrolling."),
+    Affirmation(text: "Drink water. You're basically a plant with complicated emotions."),
+    Affirmation(text: "Validation is a drug. Get sober."),
+    Affirmation(text: "Nobody actually knows what they're doing."),
+    Affirmation(text: "Cringe is the price of admission for growth."),
     
     // --- TIME-BASED (Morning 7-10) ---
-    Affirmation(text: "You woke up. That’s discipline.", tone: DopeTone.coach),
-    Affirmation(text: "Sun's up. Unfortunately, so are you.", tone: DopeTone.deadpan),
-    Affirmation(text: "Coffee first. Existential dread second.", tone: DopeTone.chill),
+    Affirmation(text: "You woke up. That’s discipline."),
+    Affirmation(text: "Sun's up. Unfortunately, so are you."),
+    Affirmation(text: "Coffee first. Existential dread second."),
 
     // --- TIME-BASED (Late Night 0-2) ---
-    Affirmation(text: "You don’t need answers tonight. Sleep is allowed.", tone: DopeTone.chill),
-    Affirmation(text: "Nothing good happens after 2 AM. Go to bed.", tone: DopeTone.straight),
-    Affirmation(text: "Your brain is offline. Stop refreshing.", tone: DopeTone.deadpan),
+    Affirmation(text: "You don’t need answers tonight. Sleep is allowed."),
+    Affirmation(text: "Nothing good happens after 2 AM. Go to bed."),
+    Affirmation(text: "Your brain is offline. Stop refreshing."),
   ];
 
   Future<List<Affirmation>> getAllAffirmations() async {
@@ -205,7 +185,7 @@ class AffirmationsService {
       evolvingText = "You were never behind. You were building quietly.";
     }
     
-    filtered.add(Affirmation(text: evolvingText, tone: DopeTone.coach));
+    filtered.add(Affirmation(text: evolvingText));
 
     return [...filtered, ...custom];
   }
@@ -226,10 +206,10 @@ class AffirmationsService {
 
     final pool = unseenPool.isNotEmpty ? unseenPool : likedPool;
     
-    if (pool.isEmpty) return Affirmation(text: "System Empty. You have completed the internet. Go outside.", tone: DopeTone.deadpan);
+    if (pool.isEmpty) return Affirmation(text: "System Empty. You have completed the internet. Go outside.");
     
     final now = DateTime.now();
-    final seed = now.year + now.month + now.day + (prefs.systemLoad * 100).toInt() + prefs.persona.index;
+    final seed = now.year + now.month + now.day + prefs.persona.index;
     return pool[seed % pool.length];
   }
 
@@ -256,7 +236,7 @@ class AffirmationsService {
       }
     }
 
-    if (finalPool.isEmpty) return Affirmation(text: "System Empty. You have completed the internet. Go outside.", tone: DopeTone.deadpan);
+    if (finalPool.isEmpty) return Affirmation(text: "System Empty. You have completed the internet. Go outside.");
     
     // Time-based injection logic (applied to the chosen pool)
     final now = DateTime.now();
@@ -301,11 +281,10 @@ class AffirmationsService {
     return actualPool[Random().nextInt(actualPool.length)];
   }
 
-  Future<String> getRebuttal(DopeTone tone) async {
+  Future<String> getRebuttal() async {
     final seen = await locator<DatabaseService>().getSeenContent('rebuttal');
 
-    final rebuttals = {
-      DopeTone.chill: [
+    final rebuttals = [
         "Cool. Still doesn't make you a failure though.",
         "Fair enough. Just checking.",
         "Okay. But the point stands.",
@@ -321,8 +300,6 @@ class AffirmationsService {
         "Maybe later then. No pressure.",
         "You're allowed to disagree. You're wrong, but allowed.",
         "The universe acknowledges your 'meh'.",
-      ],
-      DopeTone.straight: [
         "Noted. But facts don't care about your denial.",
         "Denial is a river in Egypt.",
         "You can say no, but the logic holds.",
@@ -338,8 +315,6 @@ class AffirmationsService {
         "Okay. You're wrong, but okay.",
         "That's an opinion. Not a fact.",
         "Rejecting input. Recalibrating... still right.",
-      ],
-      DopeTone.coach: [
         "Is that a real 'no' or just fear talking?",
         "Pushing back? Good. Use that energy.",
         "I expected resistance. Keep moving.",
@@ -355,8 +330,6 @@ class AffirmationsService {
         "Get out of your own way.",
         "Stop arguing and start building.",
         "That attitude won't get you to the finish line.",
-      ],
-      DopeTone.deadpan: [
         "Wow. Such rebellion.",
         "Riveting counter-argument.",
         "Okay. Do you feel better now?",
@@ -372,13 +345,11 @@ class AffirmationsService {
         "Profound. Truly.",
         "Rejected. Just like your best ideas.",
         "I'm devastated. Really.",
-      ],
-    };
+    ];
 
-    final list = rebuttals[tone] ?? rebuttals[DopeTone.chill]!;
-    final unseen = list.where((r) => !seen.contains(r)).toList();
+    final unseen = rebuttals.where((r) => !seen.contains(r)).toList();
     
-    final available = unseen.isEmpty ? list : unseen; // Fallback to list if all seen, OR return special
+    final available = unseen.isEmpty ? rebuttals : unseen; // Fallback to list if all seen, OR return special
     if (unseen.isEmpty) return "I'm out of arguments. You win.";
 
     final selected = available[Random().nextInt(available.length)];

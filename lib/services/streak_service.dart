@@ -60,14 +60,10 @@ class StreakService {
   }) {
     return UserPreferences(
       persona: p.persona,
-      tone: p.tone,
       themeMode: p.themeMode,
       fontFamily: p.fontFamily,
       colorTheme: p.colorTheme,
       language: p.language,
-      systemLoad: p.systemLoad,
-      batteryLevel: p.batteryLevel,
-      bandwidth: p.bandwidth,
       likedAffirmations: p.likedAffirmations,
       notificationsEnabled: p.notificationsEnabled,
       notificationHour: p.notificationHour,

@@ -17,13 +17,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final int _totalPages = 3;
 
   DopePersona _selectedPersona = DopePersona.overthinker;
-  DopeTone _selectedTone = DopeTone.straight;
   AppColorTheme _selectedTheme = AppColorTheme.terminal;
 
   void _finish() async {
     await UserPreferences.save(UserPreferences(
       persona: _selectedPersona,
-      tone: _selectedTone,
       colorTheme: _selectedTheme,
       notificationsEnabled: false,
       firstRunDate: DateTime.now().toIso8601String(),
@@ -122,18 +120,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildPersonaPage() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 40),
-          Text("USER PERSONA", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900)),
-          const SizedBox(height: 12),
-          Text("HOW DOES YOUR BRAIN TYPICALLY OPERATE?", style: TextStyle(color: Theme.of(context).colorScheme.outline, fontSize: 12, letterSpacing: 1)),
-          const SizedBox(height: 40),
-          _buildStableSelection(DopePersona.values, _selectedPersona, (v) => setState(() => _selectedPersona = v as DopePersona)),
-        ],
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 40),
+            Text("USER PERSONA", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900)),
+            const SizedBox(height: 12),
+            Text("HOW DOES YOUR BRAIN TYPICALLY OPERATE?", style: TextStyle(color: Theme.of(context).colorScheme.outline, fontSize: 12, letterSpacing: 1)),
+            const SizedBox(height: 40),
+            _buildStableSelection(DopePersona.values, _selectedPersona, (v) => setState(() => _selectedPersona = v as DopePersona)),
+            const SizedBox(height: 80), // Extra padding for scrolling
+          ],
+        ),
       ),
     );
   }
@@ -147,9 +148,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(height: 40),
           Text("SYSTEM VIBE", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900)),
           const SizedBox(height: 40),
-          _buildSelectionTitle("TONE OUTPUT"),
-          _buildStableSelection(DopeTone.values, _selectedTone, (v) => setState(() => _selectedTone = v as DopeTone)),
-          const SizedBox(height: 32),
           _buildSelectionTitle("COLOR PALETTE"),
           _buildStableSelection(AppColorTheme.values, _selectedTheme, (v) {
             setState(() => _selectedTheme = v as AppColorTheme);
@@ -204,11 +202,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   String _formatName(String name) {
     if (name == 'adhdBrain') return 'ADHD Brain';
     if (name == 'burntOut') return 'Burned Out';
-    if (name == 'deadpanTherapist') return 'Deadpan Therapist';
-    if (name == 'softBullyFriend') return 'Soft Bully Friend';
-    if (name == 'tiredMonk') return 'Tired Monk';
-    if (name == 'overqualifiedHater') return 'Overqualified Hater';
-    if (name == 'corporateBurnoutSurvivor') return 'Corp. Burnout Survivor';
     return name;
   }
 

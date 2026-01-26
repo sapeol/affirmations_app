@@ -134,21 +134,7 @@ class ProfileScreen extends StatelessWidget {
             _formatName(prefs.persona.name).toUpperCase(),
             style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 1),
           ),
-          const SizedBox(height: 4),
-          Text(
-            "VIBE: ${prefs.tone.name.toUpperCase()}",
-            style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 12),
-          ),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildStat("PRESSURE", prefs.systemLoad),
-              _buildStat("FUEL", prefs.batteryLevel),
-              _buildStat("CAPACITY", prefs.bandwidth),
-            ],
-          ),
-          const SizedBox(height: 24),
           GestureDetector(
             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const StreakDetailScreen())),
             child: Container(
@@ -185,20 +171,6 @@ class ProfileScreen extends StatelessWidget {
   String _formatName(String name) {
     if (name == 'adhdBrain') return 'ADHD Brain';
     if (name == 'burntOut') return 'Burned Out';
-    if (name == 'deadpanTherapist') return 'Deadpan Therapist';
-    if (name == 'softBullyFriend') return 'Soft Bully Friend';
-    if (name == 'tiredMonk') return 'Tired Monk';
-    if (name == 'overqualifiedHater') return 'Overqualified Hater';
-    if (name == 'corporateBurnoutSurvivor') return 'Corp. Burnout Survivor';
     return name;
-  }
-
-  Widget _buildStat(String label, double value) {
-    return Column(
-      children: [
-        Text("${(value * 100).toInt()}%", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        Text(label, style: const TextStyle(fontSize: 8, letterSpacing: 1)),
-      ],
-    );
   }
 }
