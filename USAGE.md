@@ -26,12 +26,7 @@ cp .env.example .env
 | `REVENUECAT_ANDROID_KEY` | RevenueCat Google Play API key | [app.revenuecat.com](https://app.revenuecat.com) |
 | `REVENUECAT_IOS_KEY` | RevenueCat App Store API key | [app.revenuecat.com](https://app.revenuecat.com) |
 
-### Optional Variables (Firebase)
-
-| Variable | Description |
-|----------|-------------|
-| `FIREBASE_ANDROID_API_KEY` | Firebase Android API key |
-| `FIREBASE_IOS_API_KEY` | Firebase iOS API key |
+**Note:** Firebase is configured via config files (`google-services.json` and `GoogleService-Info.plist`), not environment variables. See Firebase setup section below.
 
 ---
 
@@ -132,10 +127,72 @@ flutter build apk \
 
 ### Firebase
 
+Firebase Analytics and Crashlytics are configured for production monitoring.
+
+#### Step 1: Create Firebase Project
+
 1. Go to [console.firebase.google.com](https://console.firebase.google.com)
-2. Create project "Delusions"
-3. Add Android app → Download `google-services.json` → Place in `android/app/`
-4. Add iOS app → Download `GoogleService-Info.plist` → Place in `ios/Runner/`
+2. Click "Add project" → Name it `delusions` (or your preferred name)
+3. Disable Google Analytics (we'll enable it properly in the next steps)
+4. Create project
+
+#### Step 2: Add Android App
+
+1. In Firebase Console, click the **Android icon**
+2. Package name: Check `android/app/build.gradle.kts` for `applicationId` (default: `com.example.affirmations_app`)
+3. Nickname: `Delusions Android`
+4. Download `google-services.json`
+5. Place it in `android/app/`
+6. **Skip** the build script steps (already configured in this project)
+
+#### Step 3: Add iOS App
+
+1. In Firebase Console, click **+** → Add iOS app
+2. Bundle ID: Check `ios/Runner.xcodeproj/project.pbxproj` for `PRODUCT_BUNDLE_IDENTIFIER`
+3. Nickname: `Delusions iOS`
+4. Download `GoogleService-Info.plist`
+5. Place it in `ios/Runner/`
+6. **Skip** the build script steps (already configured in this project)
+
+#### Step 4: Install iOS Pods
+
+```bash
+cd ios
+pod install
+cd ..
+```
+
+#### Step 5: Run the App
+
+```bash
+flutter pub get
+./run.sh
+```
+
+#### Step 6: Verify Setup
+
+After running the app:
+1. Go to Firebase Console → **Crashlytics**
+2. You should see your app listed
+3. Go to **Analytics** → **Dashboard** to see user activity
+
+#### Testing Crashlytics
+
+To test crash reporting, temporarily add to any button's `onPressed`:
+
+```dart
+FirebaseCrashlytics.instance.crash();
+```
+
+Remove the line after testing — crashes will appear in Firebase Console within minutes.
+
+#### What You Get
+
+| Firebase Feature | What it tracks |
+|-----------------|----------------|
+| **Analytics** | App opens, screen views, user engagement |
+| **Crashlytics** | Crash reports, stack traces, affected users |
+| **Dashboard** | Active users, sessions, retention metrics |
 
 ---
 
