@@ -1,8 +1,8 @@
-# Product Roadmap: Dopermations
+# Product Roadmap: Delusions: Anti-Affirmations
 
-> "Affirmations for people who hate affirmations. No manifest, just system reality."
+> "Affirmations for people who hate affirmations."
 
-This roadmap outlines the strategic development phases for Dopermations, focusing on user retention, viral growth, and monetization through our unique "system reality" brand.
+This roadmap outlines the strategic development phases for Delusions, focusing on user retention, viral growth, and monetization through our unique brand.
 
 ## Phase 1: The Hook (Retention & Stickiness)
 *Goal: Turn casual users into daily "system operatives".*
@@ -29,9 +29,9 @@ Use basic sentiment analysis on user journal entries (if added) or check-in hist
 *Goal: Leverage our sarcastic brand to break out of the app.*
 
 ### 1. 📤 Anti-Social Sharing (Watermarked Cards)
-Make sharing "Dopermations" a status symbol.
+Make sharing "Delusions" a status symbol.
 *   **Feature:** One-tap share to Instagram Stories/TikTok with a distinct, terminal-style aesthetic.
-*   **Viral Loop:** "Roast a Friend" - Send a specific Dopermation to a contact with a custom "System Note".
+*   **Viral Loop:** "Roast a Friend" - Send a specific affirmation to a contact with a custom "System Note".
 *   **Design:** High-contrast, "glitch" aesthetics that stand out in feed.
 
 ### 2.  widgets 2.0: The "Doomscrolling" Counter

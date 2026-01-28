@@ -14,6 +14,7 @@ import 'dart:math';
 import '../services/affirmations_service.dart';
 import '../models/affirmation.dart';
 import '../models/user_preferences.dart';
+import '../config/env.dart';
 import 'settings_screen.dart';
 import 'profile_screen.dart';
 import 'create_affirmation_screen.dart';
@@ -67,7 +68,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _initRevenueCat() async {
     final configuration = PurchasesConfiguration(
-      Platform.isAndroid ? "goog_placeholder" : "appl_placeholder"
+      Env.getRevenueCatKey(Platform.isAndroid)
     );
     await Purchases.configure(configuration);
     
@@ -164,57 +165,58 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 40, offset: const Offset(0, -10))],
       ),
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-      child: Column(
-        children: [
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(2))),
-          const SizedBox(height: 48),
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-            child: Icon(Icons.auto_awesome_rounded, color: Theme.of(context).colorScheme.primary, size: 48),
-          ),
-          const SizedBox(height: 32),
-          Text("PAY UP, OPTIMIST", textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 2)),
-          const SizedBox(height: 16),
-          Text("You've run out of delusions for today. Give us \$3 or go face reality. Your choice.", textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.6, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8))),
-          const SizedBox(height: 48),
-          _buildPaywallFeature(Icons.all_inclusive_rounded, "Endless Delusions"),
-          _buildPaywallFeature(Icons.undo_rounded, "Unlimited Undos"),
-          _buildPaywallFeature(Icons.edit_note_rounded, "Custom Delusions"),
-          _buildPaywallFeature(Icons.palette_outlined, "Slightly Different Pastels"),
-          _buildPaywallFeature(Icons.history_rounded, "A List of Your Failures"),
-          const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            height: 64,
-            child: ElevatedButton(
-              onPressed: _purchasePremium,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              ),
-              child: const Text("BUY HAPPINESS - \$3/MONTH", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 14)),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 48),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: Icon(Icons.auto_awesome_rounded, color: Theme.of(context).colorScheme.primary, size: 48),
             ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text("I'D RATHER BE MISERABLE", style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
+            const SizedBox(height: 32),
+            Text("PAY UP, OPTIMIST", textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 2)),
+            const SizedBox(height: 16),
+            Text("You've run out of delusions for today. Give us \$3 or go face reality. Your choice.", textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.6, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8))),
+            const SizedBox(height: 48),
+            _buildPaywallFeature(Icons.all_inclusive_rounded, "Endless Delusions"),
+            _buildPaywallFeature(Icons.undo_rounded, "Unlimited Undos"),
+            _buildPaywallFeature(Icons.edit_note_rounded, "Custom Delusions"),
+            _buildPaywallFeature(Icons.palette_outlined, "Slightly Different Pastels"),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 64,
+              child: ElevatedButton(
+                onPressed: _purchasePremium,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                ),
+                child: const Text("BUY HAPPINESS - \$3/MONTH", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 14)),
               ),
-              const SizedBox(width: 16),
-              TextButton(
-                onPressed: _restorePurchases,
-                child: Text("RESTORE", style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6))),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-        ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("I'D RATHER BE MISERABLE", style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
+                ),
+                const SizedBox(width: 16),
+                TextButton(
+                  onPressed: _restorePurchases,
+                  child: Text("RESTORE", style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6))),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
@@ -325,10 +327,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
 
     final directory = await getTemporaryDirectory();
-    final imagePath = await File('${directory.path}/dopermation.png').create();
+    final imagePath = await File('${directory.path}/delusion.png').create();
     await imagePath.writeAsBytes(image);
 
-    await SharePlus.instance.share(ShareParams(files: [XFile(imagePath.path)], text: 'Sharing a delusion.'));
+    await SharePlus.instance.share(ShareParams(files: [XFile(imagePath.path)], text: 'From Delusions: Anti-Affirmations'));
   }
 
   Widget _buildShareCard(Affirmation aff, bool isDark, String fontFamily, double width, double height, AppColorTheme colorTheme) {
@@ -372,12 +374,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             title: Text("DELUSIONS", style: Theme.of(context).appBarTheme.titleTextStyle)
               .animate().fadeIn(duration: 600.ms).slideY(begin: -0.2, end: 0, curve: Curves.easeOutBack),
             centerTitle: true,
-            leading: IconButton(icon: Icon(Icons.blur_on_rounded, color: Theme.of(context).iconTheme.color), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen())))
+            leading: IconButton(
+              icon: const Icon(Icons.blur_on_rounded),
+              tooltip: 'Open profile',
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen())),
+            )
               .animate().fadeIn(delay: 200.ms),
             actions: [
-              if (prefSnapshot.hasData) Center(child: Padding(padding: const EdgeInsets.only(right: 16.0), child: Text("${prefSnapshot.data!.sanityStreak}D", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 1))))
+              if (prefSnapshot.hasData) Semantics(
+                label: 'Sanity streak: ${prefSnapshot.data!.sanityStreak} days',
+                child: Center(child: Padding(padding: const EdgeInsets.only(right: 16.0), child: Text("${prefSnapshot.data!.sanityStreak}D", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 1))))
+              )
                 .animate().fadeIn(delay: 300.ms),
-              IconButton(icon: Icon(Icons.tune_rounded, color: Theme.of(context).iconTheme.color), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())).then((_) => _loadAffirmations()))
+              IconButton(
+                icon: const Icon(Icons.tune_rounded),
+                tooltip: 'Open settings',
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())).then((_) => _loadAffirmations()),
+              )
                 .animate().fadeIn(delay: 400.ms),
             ],
           ),
@@ -412,6 +425,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     color: Colors.redAccent,
                     onPressed: _undoSwipe,
                     isDisabled: _history.isEmpty || _isActionInProgress,
+                    semanticLabel: 'Undo last swipe',
                   ),
                   const SizedBox(width: 40),
                   _buildActionCircle(
@@ -425,28 +439,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       }
                     },
                     isDisabled: _isActionInProgress,
+                    semanticLabel: 'Like affirmation',
                   ),
                 ]).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutCubic),
                 const SizedBox(height: 32),
                 if (!isPremium) Padding(padding: const EdgeInsets.only(bottom: 24), child: Text("${_maxFreeSwipes - _swipeCount} MORE EXCUSES LEFT", style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 2, fontSize: 14, fontWeight: FontWeight.w900)))
                   .animate().fadeIn(delay: 600.ms),
-                Padding(padding: const EdgeInsets.only(bottom: 40), child: _buildSoftButton(icon: Icons.ios_share_rounded, onPressed: _shareAsImage))
+                Padding(padding: const EdgeInsets.only(bottom: 40), child: _buildSoftButton(icon: Icons.ios_share_rounded, onPressed: _shareAsImage, semanticLabel: 'Share as image'))
                   .animate().fadeIn(delay: 700.ms).slideY(begin: 0.3, end: 0),
               ]),
           floatingActionButton: FloatingActionButton(
-            heroTag: 'add', 
-            elevation: 0, 
-            highlightElevation: 0, 
-            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), 
-            foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), 
-            onPressed: () async { 
+            heroTag: 'add',
+            tooltip: 'Create custom affirmation',
+            elevation: 0,
+            highlightElevation: 0,
+            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+            foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+            onPressed: () async {
               if (!isPremium) {
                 _showPaywall();
                 return;
               }
-              final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateAffirmationScreen())); 
-              if (result == true) _loadAffirmations(); 
-            }, 
+              final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateAffirmationScreen()));
+              if (result == true) _loadAffirmations();
+            },
             child: const Icon(Icons.add_rounded, size: 20)
           )
             .animate().scale(delay: 800.ms, curve: Curves.elasticOut),
@@ -493,16 +509,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ).animate().fadeIn();
   }
 
-  Widget _buildSoftButton({required IconData icon, VoidCallback? onPressed}) {
-    return IconButton(onPressed: onPressed, icon: Icon(icon), iconSize: 20, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: onPressed == null ? 0.1 : 0.4));
+  Widget _buildSoftButton({required IconData icon, VoidCallback? onPressed, String? semanticLabel}) {
+    return IconButton(
+      onPressed: onPressed,
+      tooltip: semanticLabel,
+      icon: Icon(icon),
+      iconSize: 20,
+      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: onPressed == null ? 0.1 : 0.4),
+    );
   }
 
-  Widget _buildActionCircle({required IconData icon, required Color color, required VoidCallback onPressed, bool isDisabled = false}) {
+  Widget _buildActionCircle({required IconData icon, required Color color, required VoidCallback onPressed, bool isDisabled = false, String? semanticLabel}) {
     return _AnimatedActionButton(
       icon: icon,
       color: color,
       onPressed: onPressed,
       isDisabled: isDisabled,
+      semanticLabel: semanticLabel,
     );
   }
 }
@@ -512,12 +535,14 @@ class _AnimatedActionButton extends StatefulWidget {
   final Color color;
   final VoidCallback onPressed;
   final bool isDisabled;
+  final String? semanticLabel;
 
   const _AnimatedActionButton({
     required this.icon,
     required this.color,
     required this.onPressed,
     this.isDisabled = false,
+    this.semanticLabel,
   });
 
   @override
@@ -554,35 +579,42 @@ class _AnimatedActionButtonState extends State<_AnimatedActionButton> with Singl
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => widget.isDisabled ? null : _controller.forward(),
-      onTapUp: (_) => widget.isDisabled ? null : _controller.reverse(),
-      onTapCancel: () => widget.isDisabled ? null : _controller.reverse(),
-      onTap: _handleTap,
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: widget.color.withValues(alpha: widget.isDisabled ? 0.02 : 0.1),
-            border: Border.all(
-              color: widget.color.withValues(alpha: widget.isDisabled ? 0.05 : 0.2),
-              width: 2,
+    return Semantics(
+      button: true,
+      label: widget.semanticLabel,
+      hint: widget.isDisabled ? null : 'Double tap to activate',
+      enabled: !widget.isDisabled,
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTapDown: (_) => widget.isDisabled ? null : _controller.forward(),
+        onTapUp: (_) => widget.isDisabled ? null : _controller.reverse(),
+        onTapCancel: () => widget.isDisabled ? null : _controller.reverse(),
+        onTap: _handleTap,
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: widget.color.withValues(alpha: widget.isDisabled ? 0.02 : 0.1),
+              border: Border.all(
+                color: widget.color.withValues(alpha: widget.isDisabled ? 0.05 : 0.2),
+                width: 2,
+              ),
+              boxShadow: widget.isDisabled ? [] : [
+                BoxShadow(
+                  color: widget.color.withValues(alpha: 0.1),
+                  blurRadius: 12,
+                  spreadRadius: 0,
+                )
+              ],
             ),
-            boxShadow: widget.isDisabled ? [] : [
-              BoxShadow(
-                color: widget.color.withValues(alpha: 0.1),
-                blurRadius: 12,
-                spreadRadius: 0,
-              )
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Icon(
-              widget.icon,
-              color: widget.color.withValues(alpha: widget.isDisabled ? 0.2 : 1.0),
-              size: 32,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Icon(
+                widget.icon,
+                color: widget.color.withValues(alpha: widget.isDisabled ? 0.2 : 1.0),
+                size: 32,
+              ),
             ),
           ),
         ),

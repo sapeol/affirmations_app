@@ -54,6 +54,11 @@ dependencies:
   isar_flutter_libs: ^3.1.0+1
   path_provider: ^2.1.5
 
+  # Firebase
+  firebase_core: ^3.0.0
+  firebase_analytics: ^11.0.0
+  firebase_crashlytics: ^4.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

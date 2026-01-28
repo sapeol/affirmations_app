@@ -104,6 +104,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               SwitchListTile(
                 secondary: Icon(Icons.bolt_rounded, color: Theme.of(context).colorScheme.primary),
                 title: Text("Enable Pings", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                subtitle: Text(prefs.notificationsEnabled ? "Currently enabled" : "Currently disabled", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
                 activeThumbColor: Theme.of(context).colorScheme.primary,
                 value: prefs.notificationsEnabled,
                 onChanged: (val) => _updatePreference(_copy(prefs, notificationsEnabled: val)),
@@ -127,12 +128,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Widget _buildSettingTile({required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
-    return ListTile(
-      leading: Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
-      title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface)),
-      subtitle: Text(subtitle.toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 14, letterSpacing: 1, fontWeight: FontWeight.w900)),
-      trailing: Icon(Icons.chevron_right, size: 20, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
-      onTap: onTap,
+    return Semantics(
+      button: true,
+      label: title,
+      value: subtitle,
+      hint: 'Double tap to change',
+      child: ListTile(
+        leading: Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface)),
+        subtitle: Text(subtitle.toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 14, letterSpacing: 1, fontWeight: FontWeight.w900)),
+        trailing: Icon(Icons.chevron_right, size: 20, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
+        onTap: onTap,
+      ),
     );
   }
 

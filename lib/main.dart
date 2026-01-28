@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'theme.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/home_screen.dart';
@@ -18,13 +21,32 @@ final premiumProvider = StateProvider<bool>((ref) => false);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  
+
+  // Initialize Firebase
+  await Firebase.initializeApp();
+  await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+
+  // Initialize Crashlytics
+  FlutterError.onError = (errorDetails) {
+    FirebaseCrashlytics.instance.recordError(
+      errorDetails.exception,
+      errorDetails.stack,
+      fatal: true,
+    );
+  };
+
+  // Catch all async errors
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
+
   setupLocator();
   await locator<NotificationService>().init();
   await locator<AffirmationsService>().init();
-  
+
   final prefs = await UserPreferences.load();
-  
+
   final bool onboardingCompleted = await _checkOnboarding();
 
   runApp(
@@ -56,7 +78,7 @@ class MyApp extends ConsumerWidget {
     final colorTheme = ref.watch(colorThemeExProvider);
 
     return MaterialApp(
-      title: 'Dopermations',
+      title: 'Delusions: Anti-Affirmations',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.createTheme(Brightness.light, fontFamily, colorTheme),
       darkTheme: AppTheme.createTheme(Brightness.dark, fontFamily, colorTheme),

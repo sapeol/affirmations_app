@@ -80,14 +80,14 @@ class NotificationService {
 
     await _notifications.zonedSchedule(
       0,
-      isRealityCheck ? 'REALITY CHECK' : 'DOPERMATIONS',
+      isRealityCheck ? 'REALITY CHECK' : 'DELUSIONS',
       isRealityCheck ? 'Are you overthinking or just thinking?' : aff.getText(prefs.language),
       scheduledDate,
       NotificationDetails(
         android: AndroidNotificationDetails(
           'daily_pings',
           'Daily Pings',
-          channelDescription: 'Daily sarcastic Dopermations',
+          channelDescription: 'Daily affirmations for people who hate affirmations',
           importance: Importance.high,
           priority: Priority.high,
           actions: androidActions,

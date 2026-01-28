@@ -90,7 +90,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           TextButton(
             onPressed: _finish,
-            child: Text("SKIP", style: TextStyle(color: Theme.of(context).colorScheme.outline, fontWeight: FontWeight.bold, fontSize: 14)),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.outline,
+            ),
+            child: const Text("SKIP", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           ),
         ],
       ),
@@ -107,7 +110,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Icon(Icons.bolt_rounded, size: 100, color: Theme.of(context).colorScheme.primary),
           const SizedBox(height: 48),
           Text(
-            "DOPERMATIONS",
+            "DELUSIONS",
             style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -1),
             textAlign: TextAlign.center,
           ),
@@ -182,13 +185,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       children: options.map((opt) {
         final name = opt.toString().split('.').last;
         final isSelected = selected == opt;
-        
-        return GestureDetector(
-          onTap: () {
-            HapticFeedback.mediumImpact();
-            onSelected(opt);
-          },
-          child: Container(
+
+        return Semantics(
+          button: true,
+          selected: isSelected,
+          label: _formatName(name),
+          hint: isSelected ? 'Currently selected, double tap to keep selection' : 'Double tap to select',
+          child: GestureDetector(
+            onTap: () {
+              HapticFeedback.mediumImpact();
+              onSelected(opt);
+            },
+            child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
             decoration: BoxDecoration(
               color: isSelected 
@@ -213,13 +221,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               _formatName(name).toUpperCase(),
               style: TextStyle(
                 fontSize: 13,
-                color: isSelected 
-                  ? Theme.of(context).colorScheme.onPrimary 
+                color: isSelected
+                  ? Theme.of(context).colorScheme.onPrimary
                   : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontWeight: FontWeight.w900,
                 letterSpacing: 1.5,
               ),
             ),
+          ),
           )
           .animate(target: isSelected ? 1 : 0)
           .scale(
@@ -245,25 +254,31 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Widget _buildBottomNavigation() {
+    final buttonText = _currentPage == _totalPages - 1 ? "INITIALIZE SYSTEM" : "CONTINUE";
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-      child: SizedBox(
-        width: double.infinity,
-        height: 64,
-        child: FilledButton(
-          style: FilledButton.styleFrom(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-          onPressed: () {
-            if (_currentPage < _totalPages - 1) {
-              _pageController.nextPage(duration: const Duration(milliseconds: 500), curve: Curves.easeInOutCubic);
-            } else {
-              _finish();
-            }
-          },
-          child: Text(
-            _currentPage == _totalPages - 1 ? "INITIALIZE SYSTEM" : "CONTINUE",
-            style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1),
+      child: Semantics(
+        button: true,
+        label: buttonText,
+        hint: _currentPage == _totalPages - 1 ? 'Double tap to finish onboarding' : 'Double tap to go to next step',
+        child: SizedBox(
+          width: double.infinity,
+          height: 64,
+          child: FilledButton(
+            style: FilledButton.styleFrom(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () {
+              if (_currentPage < _totalPages - 1) {
+                _pageController.nextPage(duration: const Duration(milliseconds: 500), curve: Curves.easeInOutCubic);
+              } else {
+                _finish();
+              }
+            },
+            child: Text(
+              buttonText,
+              style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1),
+            ),
           ),
         ),
       ),

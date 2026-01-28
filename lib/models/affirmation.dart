@@ -30,7 +30,7 @@ class Affirmation {
 
   Affirmation({
     required this.localizedTextJson,
-    this.author = "Dopermations",
+    this.author = "Delusions",
     this.isCustom = false,
     this.persona = DopePersona.general,
   });
@@ -39,7 +39,7 @@ class Affirmation {
   factory Affirmation.create({
     required String text,
     Map<DopeLanguage, String>? localizedText,
-    String author = "Dopermations",
+    String author = "Delusions",
     bool isCustom = false,
     DopePersona persona = DopePersona.general,
   }) {
@@ -75,7 +75,7 @@ class Affirmation {
     final map = loc ?? {DopeLanguage.en: json['text'] as String? ?? ""};
     final aff = Affirmation(
       localizedTextJson: jsonEncode(map.map((key, value) => MapEntry(key.name, value))),
-      author: json['author'] as String? ?? "Dopermations",
+      author: json['author'] as String? ?? "Delusions",
       isCustom: json['isCustom'] is bool ? json['isCustom'] as bool : false,
       persona: json['persona'] != null ? DopePersona.values.byName(json['persona']) : DopePersona.general,
     );

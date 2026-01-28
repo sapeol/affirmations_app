@@ -42,15 +42,20 @@ class _CreateAffirmationScreenState extends State<CreateAffirmationScreen> {
               child: Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))),
             )
           else
-            TextButton(
-              onPressed: _save,
-              child: Text(
-                "SAVE", 
-                style: TextStyle(
-                  fontWeight: FontWeight.w900, 
-                  letterSpacing: 1,
-                  color: Theme.of(context).colorScheme.primary,
-                )
+            Semantics(
+              button: true,
+              label: 'Save affirmation',
+              hint: 'Double tap to save your custom affirmation',
+              child: TextButton(
+                onPressed: _save,
+                child: Text(
+                  "SAVE",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1,
+                    color: Theme.of(context).colorScheme.primary,
+                  )
+                ),
               ),
             ),
         ],
@@ -76,59 +81,70 @@ class _CreateAffirmationScreenState extends State<CreateAffirmationScreen> {
               ),
             ),
             const SizedBox(height: 48),
-            TextField(
-              controller: _controller,
-              maxLines: 5,
-              maxLength: 200,
-              autofocus: true,
-              style: TextStyle(
-                fontSize: 18, 
-                fontWeight: FontWeight.w400,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-              decoration: InputDecoration(
-                hintText: "I am probably going to be fine...",
-                hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
+            Semantics(
+              label: 'Affirmation text input',
+              hint: 'Enter your custom affirmation here',
+              textField: true,
+              value: _controller.text.isNotEmpty ? _controller.text : null,
+              child: TextField(
+                controller: _controller,
+                maxLines: 5,
+                maxLength: 200,
+                autofocus: true,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w400,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
-                filled: true,
-                fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
-                contentPadding: const EdgeInsets.all(32),
+                decoration: InputDecoration(
+                  hintText: "I am probably going to be fine...",
+                  hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
+                  contentPadding: const EdgeInsets.all(32),
+                ),
+                onChanged: (_) => setState(() {}),
               ),
-              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 48),
             if (_controller.text.isNotEmpty) ...[
               Text(
                 "PREVIEW",
                 style: TextStyle(
-                  fontSize: 14, 
-                  fontWeight: FontWeight.w900, 
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
                   letterSpacing: 4,
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const SizedBox(height: 16),
-              Card(
-                color: Theme.of(context).cardTheme.color,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(32),
-                  side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(40.0),
-                  child: Center(
-                    child: Text(
-                      _controller.text,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        height: 1.5,
-                        fontWeight: FontWeight.w400,
-                        fontStyle: FontStyle.italic,
-                        color: Theme.of(context).colorScheme.onSurface,
+              Semantics(
+                liveRegion: true,
+                label: 'Affirmation preview',
+                value: _controller.text,
+                child: Card(
+                  color: Theme.of(context).cardTheme.color,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32),
+                    side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(40.0),
+                    child: Center(
+                      child: Text(
+                        _controller.text,
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          height: 1.5,
+                          fontWeight: FontWeight.w400,
+                          fontStyle: FontStyle.italic,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),

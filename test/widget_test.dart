@@ -6,7 +6,7 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp(onboardingCompleted: false));
 
-    // Verify that onboarding is shown (e.g., check for "DOPERMATIONS")
-    expect(find.text('DOPERMATIONS'), findsOneWidget);
+    // Verify that onboarding is shown (e.g., check for "DELUSIONS")
+    expect(find.text('DELUSIONS'), findsOneWidget);
   });
 }

@@ -38,21 +38,25 @@ class SwipeCard extends StatelessWidget {
         final palette = AppTheme.palettes[theme] ?? AppTheme.palettes[AppColorTheme.brutalist]!;
         final bool effectiveIsDark = palette.isAlwaysDark || isSystemDark;
         
-        return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(40),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: effectiveIsDark ? 0.4 : 0.05),
-                blurRadius: 30,
-                offset: const Offset(0, 15),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(40),
-            child: Stack(
-              children: [
+        return Semantics(
+          label: 'Affirmation card: $displayText',
+          value: 'From ${affirmation.persona.name}',
+          hint: isEnabled ? 'Swipe right to like, swipe left to skip' : 'Card disabled',
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(40),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: effectiveIsDark ? 0.4 : 0.05),
+                  blurRadius: 30,
+                  offset: const Offset(0, 15),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(40),
+              child: Stack(
+                children: [
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -98,6 +102,7 @@ class SwipeCard extends StatelessWidget {
                 ),
               ],
             ),
+          ),
           ),
         ).animate().shimmer(delay: 2.seconds, duration: 2.seconds, color: Colors.white10);
       },

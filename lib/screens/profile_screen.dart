@@ -86,18 +86,23 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildCategoryTile(BuildContext context, String title, String subtitle, IconData icon, VoidCallback onTap) {
     return Card(
-      child: ListTile(
-        onTap: onTap,
-        leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
-        title: Text(
-          title,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
+      child: Semantics(
+        button: true,
+        label: title,
+        hint: 'Double tap to view',
+        child: ListTile(
+          onTap: onTap,
+          leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
+          title: Text(
+            title,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
+          ),
+          subtitle: Text(
+            subtitle,
+            style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w500),
+          ),
+          trailing: const Icon(Icons.chevron_right_rounded, size: 16),
         ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w500),
-        ),
-        trailing: const Icon(Icons.chevron_right_rounded, size: 16),
       ),
     );
   }
@@ -132,32 +137,37 @@ class ProfileScreen extends ConsumerWidget {
             style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 2),
           ),
           const SizedBox(height: 16),
-          GestureDetector(
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const StreakDetailScreen())),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.timer_rounded, size: 16, color: Theme.of(context).colorScheme.primary),
-                  const SizedBox(width: 8),
-                  Text(
-                    "SYSTEM UPTIME: ${prefs.sanityStreak} DAYS",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1,
-                      fontSize: 14,
+          Semantics(
+            button: true,
+            label: 'System uptime: ${prefs.sanityStreak} days',
+            hint: 'Double tap to view streak details',
+            child: GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const StreakDetailScreen())),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.timer_rounded, size: 16, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text(
+                      "SYSTEM UPTIME: ${prefs.sanityStreak} DAYS",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1,
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(Icons.chevron_right_rounded, size: 16, color: Theme.of(context).colorScheme.primary),
-                ],
+                    const SizedBox(width: 8),
+                    Icon(Icons.chevron_right_rounded, size: 16, color: Theme.of(context).colorScheme.primary),
+                  ],
+                ),
               ),
             ),
           ),
