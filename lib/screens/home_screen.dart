@@ -12,6 +12,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:io';
 import 'dart:math';
 import '../services/affirmations_service.dart';
+import '../services/auth_service.dart';
 import '../models/affirmation.dart';
 import '../models/user_preferences.dart';
 import '../config/env.dart';
@@ -36,7 +37,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<String> _likedIds = [];
   int _swipeCount = 0;
   int _undoCount = 0;
-  final int _maxFreeSwipes = 5;
+  final int _maxFreeSwipes = 20;
   final int _maxFreeUndos = 10;
   bool _isActionInProgress = false;
   final CardSwiperController _swiperController = CardSwiperController();
@@ -248,17 +249,100 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           if (mounted) {
             ref.read(premiumProvider.notifier).state = true;
             Navigator.pop(context);
+            // Show post-purchase sign-in prompt
+            _showPostPurchaseSignInPrompt();
           }
         }
       } else {
         if (mounted) {
           ref.read(premiumProvider.notifier).state = true;
           Navigator.pop(context);
+          _showPostPurchaseSignInPrompt();
         }
       }
     } catch (e) {
       debugPrint("Purchase Error: $e");
     }
+  }
+
+  void _showPostPurchaseSignInPrompt() {
+    final user = ref.read(userProvider);
+    // Only show if not already signed in
+    if (user != null) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => _buildPostPurchaseSheet(),
+      );
+    });
+  }
+
+  Widget _buildPostPurchaseSheet() {
+    final authService = locator<AuthService>();
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.workspace_premium_rounded, size: 32, color: Theme.of(context).colorScheme.primary),
+          ),
+          const SizedBox(height: 24),
+          Text("YOU'RE PREMIUM NOW!", textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
+          const SizedBox(height: 12),
+          Text("Want to sync your progress across devices? Sign in to never lose your delusions.", textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                try {
+                  await authService.signInWithGoogle();
+                  // Sync premium to Firestore
+                  await authService.setPremium(true);
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Premium synced!')),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Sign in failed: $e')),
+                    );
+                  }
+                }
+              },
+              icon: const Icon(Icons.login_rounded),
+              label: const Text('Sign in to sync'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("No thanks", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5))),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _restorePurchases() async {
@@ -268,6 +352,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         if (mounted) {
           ref.read(premiumProvider.notifier).state = true;
           Navigator.pop(context);
+          _showPostPurchaseSignInPrompt();
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No active purchases found')),
+          );
         }
       }
     } catch (e) {
@@ -409,8 +500,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         numberOfCardsDisplayed: min(_affirmations.length, 2),
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
                         cardBuilder: (context, index, horizontalThresholdPercentage, verticalThresholdPercentage) {
+                          final aff = _affirmations[index];
                           return SwipeCard(
-                            affirmation: _affirmations[index],
+                            key: ValueKey('card_$index'),
+                            affirmation: aff,
                             language: lang,
                             onSwipe: (dir) async => true,
                             isEnabled: true,

@@ -4,6 +4,9 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   battery_plus
+  cloud_firestore
+  firebase_auth
+  firebase_core
   isar_flutter_libs
   record_windows
   share_plus

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git pull:*)",
+      "Bash(find:*)",
+      "Bash(flutter:*)",
+      "Bash(/usr/libexec/java_home)",
+      "Bash(/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home/bin/java:*)",
+      "Skill(glm-plan-usage:usage-query-skill)"
+    ]
+  }
+}

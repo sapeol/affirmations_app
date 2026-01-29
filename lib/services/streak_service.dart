@@ -3,14 +3,14 @@ import '../models/user_preferences.dart';
 class StreakService {
   String getStreakMessage(int streak, bool justBroken) {
     if (justBroken) {
-      return "Streak broke. Character didn’t.";
+      return "Streak broke. Character didn't.";
     }
     
     if (streak == 0) return "Day 0. The bar is on the floor.";
     if (streak == 1) return "Day 1. You showed up. Weird.";
     if (streak == 3) return "Still here. Not quitting. Respect.";
     if (streak == 7) return "One week. Don't let it go to your head.";
-    if (streak == 14) return "At this point, you’re consistent whether you like it or not.";
+    if (streak == 14) return "At this point, you're consistent whether you like it or not.";
     if (streak == 30) return "30 days. You're officially a creature of habit.";
     
     return "Day $streak. Still going.";
